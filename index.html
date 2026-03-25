@@ -349,7 +349,7 @@ const Landing=({logoId,themeId})=>{
       {/* Nav */}
       <nav className="sticky top-0 z-40" style={{background:dk?'rgba(10,10,14,.85)':'rgba(255,255,255,.75)',backdropFilter:'blur(18px)',borderBottom:`1px solid ${dk?'rgba(255,255,255,.04)':th.p+'12'}`}}>
         <div className="max-w-6xl mx-auto px-5 flex items-center justify-between h-16">
-          <div className="cursor-pointer" onClick={()=>go("hero")}>{logo.r({c:th.p,s:48})}</div>
+          <div className="cursor-pointer" onClick={()=>go("hero")}>{logo.r({c:th.a,s:48})}</div>
           <div className="hidden md:flex items-center gap-8">
             {["servicios","nosotras","contacto"].map(id=><button key={id} onClick={()=>go(id)} className="text-xs tracking-wide capitalize" style={{color:th.txs}}>{id}</button>)}
             <button onClick={()=>{setBk(true);setTimeout(()=>go("reservar"),100)}} className="cta text-xs font-medium px-6 py-2.5 rounded-full text-white" style={{background:th.p,boxShadow:`0 4px 20px ${th.p}30`}}>Reservar</button>
@@ -365,16 +365,16 @@ const Landing=({logoId,themeId})=>{
         <div className="absolute bottom-20 left-[4%] w-28 sm:w-56 h-28 sm:h-56 rounded-full opacity-10 pointer-events-none" style={{background:`radial-gradient(circle,${th.p},transparent 70%)`,animation:'float 9s ease-in-out infinite 1s'}}/>
 
         <div className="max-w-6xl mx-auto px-4 sm:px-5 py-16 sm:py-20 w-full relative">
-          <div className="max-w-2xl">
-            <div className="au mb-5 sm:mb-8">{logo.r({c:th.tx,s:window.innerWidth<640?110:160})}</div>
+          <div className="text-center sm:text-left sm:max-w-2xl">
+            <div className="au mb-5 sm:mb-8 flex justify-center sm:justify-start">{logo.r({c:th.a,s:window.innerWidth<640?120:160})}</div>
             <h1 className="au d1" style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(2.2rem,7vw,5.5rem)',fontWeight:700,lineHeight:1.08,color:th.tx}}>
               Tu espacio de{' '}<em style={{color:th.p}}>belleza</em>{window.innerWidth<640?' ':(<br/>)}y cuidado personal
             </h1>
-            <p className="au d2 mt-4 sm:mt-5 text-sm sm:text-lg font-light leading-relaxed max-w-lg" style={{color:th.txs}}>
+            <p className="au d2 mt-4 sm:mt-5 text-sm sm:text-lg font-light leading-relaxed sm:max-w-lg mx-auto sm:mx-0" style={{color:th.txs}}>
               El primer centro de cosmética especializado en Henderson. Tecnología, profesionalismo y un espacio diseñado para vos.
             </p>
             <div className="au d3 mt-7 sm:mt-10 flex flex-col sm:flex-row gap-3">
-              <button onClick={()=>{setBk(true);setTimeout(()=>go("reservar"),100)}} className="cta text-sm font-medium px-8 sm:px-10 py-3.5 sm:py-4 rounded-full text-white text-center" style={{background:th.p,boxShadow:`0 8px 30px ${th.p}25`}}>Reservá tu turno</button>
+              <button onClick={()=>{setBk(true);setTimeout(()=>go("reservar"),100)}} className="cta text-sm font-medium px-8 sm:px-10 py-3.5 sm:py-4 rounded-full text-white text-center" style={{background:th.a,boxShadow:`0 8px 30px ${th.a}25`}}>Reservá tu turno</button>
               <button onClick={()=>go("servicios")} className="text-sm font-light px-8 sm:px-10 py-3.5 sm:py-4 rounded-full transition-all hover:shadow-md text-center" style={{background:dk?'rgba(255,255,255,.06)':th.s+'50',color:dk?th.tx:th.a}}>Ver servicios ↓</button>
             </div>
           </div>
