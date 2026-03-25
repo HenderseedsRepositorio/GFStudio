@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GF Studio — Brand Atelier</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600&family=Figtree:wght@300;400;500;600;700&family=Caveat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{font-family:'Figtree',sans-serif;background:#F5F1E8;color:#1C1A14;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(0,0,0,.12);border-radius:3px}
+
+@keyframes up{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pop{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+@keyframes slideD{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeI{from{opacity:0}to{opacity:1}}
+@keyframes morph{0%,100%{border-radius:60% 40% 30% 70%/60% 30% 70% 40%}50%{border-radius:30% 60% 70% 40%/50% 60% 30% 60%}}
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
+@keyframes glow{0%,100%{opacity:.3}50%{opacity:.6}}
+.au{animation:up .75s cubic-bezier(.16,1,.3,1) both}
+.ap{animation:pop .6s cubic-bezier(.16,1,.3,1) both}
+.as{animation:slideD .5s cubic-bezier(.16,1,.3,1) both}
+.af{animation:fadeI .5s ease both}
+.d1{animation-delay:.06s}.d2{animation-delay:.12s}.d3{animation-delay:.18s}.d4{animation-delay:.24s}.d5{animation-delay:.3s}
+
+.nav-pill{backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+
+/* Logo cards */
+.lc{transition:all .4s cubic-bezier(.16,1,.3,1);border:2px solid transparent;cursor:pointer;background:#FEFDF8}
+.lc:hover{transform:translateY(-8px);box-shadow:0 24px 60px rgba(28,26,20,.08);border-color:rgba(28,26,20,.06)}
+.lc.on{border-color:#1C1A14;box-shadow:0 16px 48px rgba(28,26,20,.1)}
+
+/* Theme cards */
+.tc{transition:all .4s cubic-bezier(.16,1,.3,1);border:2.5px solid transparent;cursor:pointer}
+.tc:hover{transform:translateY(-6px);box-shadow:0 20px 50px rgba(0,0,0,.07)}
+.tc.on{border-color:#1C1A14;box-shadow:0 8px 32px rgba(0,0,0,.08)}
+
+/* Landing */
+.reveal{opacity:0;transform:translateY(24px);transition:all .8s cubic-bezier(.16,1,.3,1)}.reveal.vis{opacity:1;transform:none}
+.cta{transition:all .35s cubic-bezier(.16,1,.3,1);position:relative;overflow:hidden}
+.cta:hover{transform:translateY(-3px);filter:brightness(1.08)}
+.cta::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent);transform:translateX(-100%);transition:transform .5s}.cta:hover::after{transform:translateX(100%)}
+.sc{transition:all .4s cubic-bezier(.16,1,.3,1)}.sc:hover{transform:translateY(-8px)}
+.fi{transition:border-color .3s,box-shadow .3s;border:1.5px solid rgba(0,0,0,.08)}
+.fi:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 4px var(--gl)}
+.sb{transition:all .2s ease}.sb:hover{transform:scale(1.06)}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+/* ═══════════ WHATSAPP ═══════════ */
+const WA="5491112345678";
+/* ════════════════════════════════ */
+const{useState,useEffect}=React;
+
+// ═══ 21 THEMES ═══
+const THEMES=[
+{id:"oliva-arena",nm:"Oliva & Arena",sub:"Orgánico y atemporal",p:"#5E6B2E",s:"#C8C4A8",a:"#3D4A18",bg:"#F5F1E8",bga:"#EDE8DB",tx:"#1C1A14",txs:"#5C5840",dk:0},
+{id:"rosa-petalo",nm:"Rosa Pétalo",sub:"Suave y femenino",p:"#B85068",s:"#F0C8D0",a:"#8A3048",bg:"#FFF4F6",bga:"#FFE8EC",tx:"#2A1018",txs:"#8A4858",dk:0},
+{id:"lila-lavanda",nm:"Lila Lavanda",sub:"Sereno y elegante",p:"#7A5AAE",s:"#D0B8F0",a:"#5A3A90",bg:"#F6F2FC",bga:"#EDE4F8",tx:"#221040",txs:"#6A4A90",dk:0},
+{id:"menta-fresca",nm:"Menta Fresca",sub:"Fresco y vital",p:"#2A9A70",s:"#A0E8C8",a:"#187050",bg:"#F0FBF5",bga:"#DEF5EA",tx:"#0A2818",txs:"#3A7A58",dk:0},
+{id:"oro-rosado",nm:"Oro Rosado",sub:"Glamoroso y chic",p:"#AA6050",s:"#F0C8B8",a:"#884038",bg:"#FFF6F2",bga:"#FFEADE",tx:"#321810",txs:"#885848",dk:0},
+{id:"terracota",nm:"Terracota",sub:"Terroso y cálido",p:"#A86848",s:"#E8C8B0",a:"#804830",bg:"#FBF4EE",bga:"#F2E8DC",tx:"#321A0E",txs:"#7A5838",dk:0},
+{id:"cielo",nm:"Cielo Celeste",sub:"Calmo y luminoso",p:"#2878B0",s:"#A8D8F8",a:"#185A8A",bg:"#F2F8FD",bga:"#E0F0FA",tx:"#0E2030",txs:"#406880",dk:0},
+{id:"coral",nm:"Coral Suave",sub:"Vibrante y fresco",p:"#C85840",s:"#FACBB8",a:"#A04028",bg:"#FFF6F2",bga:"#FFECE4",tx:"#2E1208",txs:"#8A4830",dk:0},
+{id:"salvia",nm:"Salvia",sub:"Herbal y sereno",p:"#507858",s:"#B8D8B8",a:"#385A3E",bg:"#F2F8F4",bga:"#E4F0E8",tx:"#142418",txs:"#487050",dk:0},
+{id:"champagne",nm:"Champagne",sub:"Refinado y neutro",p:"#907858",s:"#E0D4C0",a:"#6A5838",bg:"#FBF8F2",bga:"#F2EEE2",tx:"#281E10",txs:"#706048",dk:0},
+{id:"malva",nm:"Malva Vintage",sub:"Sofisticado y dulce",p:"#905878",s:"#E0B8D0",a:"#6A3858",bg:"#FBF2F8",bga:"#F4E4F0",tx:"#2A1020",txs:"#784860",dk:0},
+{id:"durazno",nm:"Durazno",sub:"Dulce y acogedor",p:"#C07838",s:"#F8D8B0",a:"#985820",bg:"#FFFAF0",bga:"#FFF0DA",tx:"#2E1A08",txs:"#886030",dk:0},
+{id:"azul-noche",nm:"Azul Noche",sub:"Misterioso y lujoso",p:"#6898C8",s:"#182838",a:"#4878A8",bg:"#0E1820",bga:"#14202E",tx:"#E4ECF4",txs:"#8098B0",dk:1},
+{id:"bosque",nm:"Bosque Profundo",sub:"Oscuro y elegante",p:"#48B868",s:"#142818",a:"#2E9848",bg:"#0A180E",bga:"#10201A",tx:"#D0F0D8",txs:"#68A878",dk:1},
+{id:"medianoche",nm:"Medianoche Violeta",sub:"Cósmico y audaz",p:"#9880C0",s:"#221838",a:"#7060A0",bg:"#140E22",bga:"#1C1430",tx:"#E0D8F4",txs:"#8878AA",dk:1},
+{id:"carbon",nm:"Carbón Elegante",sub:"Minimal y moderno",p:"#989898",s:"#282828",a:"#707070",bg:"#111111",bga:"#1A1A1A",tx:"#EBEBEB",txs:"#808080",dk:1},
+{id:"arena",nm:"Arena Cálida",sub:"Minimalista y suave",p:"#90805A",s:"#DED4C0",a:"#6A5A38",bg:"#F8F4EC",bga:"#F0EADE",tx:"#24200E",txs:"#6A6048",dk:0},
+{id:"berry",nm:"Berry Intenso",sub:"Audaz y vibrante",p:"#8830A0",s:"#E0B0F0",a:"#6818A0",bg:"#FAF2FC",bga:"#F2E0F8",tx:"#200828",txs:"#704090",dk:0},
+{id:"jade",nm:"Jade Imperial",sub:"Noble y profundo",p:"#288858",s:"#A0D8B8",a:"#186838",bg:"#F0FAF4",bga:"#DDF2E8",tx:"#082818",txs:"#388858",dk:0},
+{id:"rubor",nm:"Rubor",sub:"Romántico y tierno",p:"#C86070",s:"#F8C8D0",a:"#A84050",bg:"#FFF4F6",bga:"#FFE4E8",tx:"#300E14",txs:"#984858",dk:0},
+{id:"ambar",nm:"Ámbar Dorado",sub:"Cálido y luminoso",p:"#B88018",s:"#F8E0A0",a:"#906010",bg:"#FFFAE8",bga:"#FFF2CC",tx:"#281C06",txs:"#806828",dk:0},
+];
+const TH=id=>THEMES.find(t=>t.id===id)||THEMES[0];
+
+// ═══ 40 LOGOS ═══
+const L=(id,nm,cat,fn)=>({id,nm,cat,r:fn});
+const LOGOS=[
+// SERIF 1-5
+L(1,"Serif Clásico","Serif",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><text x="50" y="58" textAnchor="middle" fontFamily="Playfair Display,serif" fontSize="48" fontWeight="700" fill={c} letterSpacing="-1">GF</text><line x1="16" y1="68" x2="84" y2="68" stroke={c} strokeWidth="1" opacity=".2"/><text x="50" y="84" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="12" letterSpacing="7" fill={c} opacity=".5" fontWeight="400">STUDIO</text></svg>),
+L(2,"Serif Itálica","Serif",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><text x="50" y="56" textAnchor="middle" fontFamily="Playfair Display,serif" fontSize="46" fontStyle="italic" fontWeight="600" fill={c}>GF</text><text x="50" y="78" textAnchor="middle" fontFamily="Playfair Display,serif" fontSize="18" fontStyle="italic" fill={c} opacity=".4">Studio</text></svg>),
+L(3,"Serif Espaciado","Serif",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><text x="50" y="50" textAnchor="middle" fontFamily="Playfair Display,serif" fontSize="36" fontWeight="500" fill={c} letterSpacing="16">GF</text><rect x="18" y="58" width="64" height=".8" fill={c} opacity=".15"/><text x="50" y="76" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="10" letterSpacing="9" fill={c} opacity=".4" fontWeight="300">STUDIO</text></svg>),
+L(4,"Serif Vertical","Serif",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><text x="50" y="42" textAnchor="middle" fontFamily="Playfair Display,serif" fontSize="40" fontWeight="700" fill={c}>G</text><text x="50" y="72" textAnchor="middle" fontFamily="Playfair Display,serif" fontSize="40" fontWeight="400" fill={c} opacity=".55">F</text><text x="50" y="92" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="9" letterSpacing="6" fill={c} opacity=".35">STUDIO</text></svg>),
+L(5,"Serif Ampersand","Serif",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><text x="14" y="58" fontFamily="Playfair Display,serif" fontSize="46" fontWeight="700" fill={c}>G</text><text x="42" y="50" fontFamily="Playfair Display,serif" fontSize="20" fontStyle="italic" fill={c} opacity=".25">&</text><text x="54" y="58" fontFamily="Playfair Display,serif" fontSize="46" fontWeight="400" fill={c} opacity=".65">F</text><text x="50" y="84" textAnchor="middle" fontFamily="Playfair Display,serif" fontSize="14" fontStyle="italic" fill={c} opacity=".35">Studio</text></svg>),
+// SANS 6-10
+L(6,"Sans Bold","Sans",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><text x="50" y="58" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="48" fontWeight="700" fill={c} letterSpacing="5">GF</text><text x="50" y="80" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="11" fontWeight="300" letterSpacing="9" fill={c} opacity=".35">STUDIO</text></svg>),
+L(7,"Sans Fino","Sans",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><text x="50" y="56" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="44" fontWeight="300" fill={c} letterSpacing="12">GF</text><rect x="18" y="64" width="64" height=".5" fill={c} opacity=".12"/><text x="50" y="82" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="11" fontWeight="300" letterSpacing="5" fill={c} opacity=".3">studio</text></svg>),
+L(8,"Sans Lowercase","Sans",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><text x="50" y="58" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="42" fontWeight="400" fill={c}>gf studio</text></svg>),
+L(9,"Sans Stacked","Sans",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><text x="50" y="46" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="30" fontWeight="700" fill={c} letterSpacing="10">GF</text><text x="50" y="70" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="18" fontWeight="300" letterSpacing="7" fill={c} opacity=".4">STUDIO</text></svg>),
+L(10,"Sans Punto","Sans",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><text x="18" y="60" fontFamily="Figtree,sans-serif" fontSize="46" fontWeight="600" fill={c}>G</text><circle cx="50" cy="50" r="3" fill={c} opacity=".2"/><text x="56" y="60" fontFamily="Figtree,sans-serif" fontSize="46" fontWeight="600" fill={c} opacity=".55">F</text><text x="50" y="86" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="10" fontWeight="300" letterSpacing="4" fill={c} opacity=".25">STUDIO</text></svg>),
+// MONO 11-15
+L(11,"Mono Círculo","Mono",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><circle cx="50" cy="46" r="34" stroke={c} strokeWidth="1.5" fill="none" opacity=".18"/><text x="50" y="56" textAnchor="middle" fontFamily="Playfair Display,serif" fontSize="40" fontWeight="600" fill={c}>GF</text><text x="50" y="92" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="10" letterSpacing="6" fill={c} opacity=".35">STUDIO</text></svg>),
+L(12,"Mono Overlap","Mono",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><text x="28" y="60" fontFamily="Playfair Display,serif" fontSize="52" fontWeight="700" fill={c}>G</text><text x="46" y="60" fontFamily="Playfair Display,serif" fontSize="52" fontWeight="400" fill={c} opacity=".35">F</text><text x="50" y="86" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="10" letterSpacing="5" fill={c} opacity=".3">STUDIO</text></svg>),
+L(13,"Mono Anillos","Mono",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><circle cx="50" cy="46" r="36" stroke={c} strokeWidth="1.2" fill="none" opacity=".12"/><circle cx="50" cy="46" r="30" stroke={c} strokeWidth=".7" fill="none" opacity=".08"/><text x="50" y="56" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="34" fontWeight="700" fill={c}>GF</text><text x="50" y="92" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="9" letterSpacing="7" fill={c} opacity=".3">STUDIO</text></svg>),
+L(14,"Mono Split","Mono",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><text x="46" y="58" textAnchor="end" fontFamily="Playfair Display,serif" fontSize="44" fontWeight="700" fill={c}>G</text><line x1="50" y1="20" x2="50" y2="72" stroke={c} strokeWidth=".8" opacity=".12"/><text x="54" y="58" fontFamily="Playfair Display,serif" fontSize="44" fontWeight="400" fill={c} opacity=".5">F</text><text x="50" y="88" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="9" letterSpacing="6" fill={c} opacity=".3">STUDIO</text></svg>),
+L(15,"Mono Arco","Mono",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><path d="M18 62 A36 36 0 0 1 82 62" stroke={c} strokeWidth="1" fill="none" opacity=".12"/><text x="50" y="56" textAnchor="middle" fontFamily="Playfair Display,serif" fontSize="38" fontWeight="600" fill={c} letterSpacing="3">GF</text><text x="50" y="84" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="10" letterSpacing="5" fill={c} opacity=".3">STUDIO</text></svg>),
+// EMBLEMA 16-20
+L(16,"Cuadrado","Emblema",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><rect x="12" y="12" width="76" height="76" rx="3" stroke={c} strokeWidth="1.5" fill="none" opacity=".15"/><text x="50" y="54" textAnchor="middle" fontFamily="Playfair Display,serif" fontSize="34" fontWeight="600" fill={c}>GF</text><text x="50" y="72" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="9" letterSpacing="7" fill={c} opacity=".3">STUDIO</text></svg>),
+L(17,"Hexágono","Emblema",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><polygon points="50,6 90,26 90,70 50,90 10,70 10,26" stroke={c} strokeWidth="1" fill="none" opacity=".12"/><text x="50" y="54" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="28" fontWeight="700" fill={c}>GF</text><text x="50" y="70" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="8" letterSpacing="5" fill={c} opacity=".3">STUDIO</text></svg>),
+L(18,"Diamante","Emblema",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><rect x="18" y="18" width="46" height="46" rx="2" stroke={c} strokeWidth="1" fill="none" opacity=".12" transform="rotate(45 50 46)"/><text x="50" y="52" textAnchor="middle" fontFamily="Playfair Display,serif" fontSize="30" fontWeight="600" fill={c}>GF</text><text x="50" y="72" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="8" letterSpacing="5" fill={c} opacity=".25">STUDIO</text></svg>),
+L(19,"Badge Oval","Emblema",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><ellipse cx="50" cy="46" rx="42" ry="32" stroke={c} strokeWidth="1" fill="none" opacity=".12"/><text x="50" y="44" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="11" letterSpacing="8" fill={c} opacity=".25" fontWeight="300">GF</text><text x="50" y="58" textAnchor="middle" fontFamily="Playfair Display,serif" fontSize="20" fontStyle="italic" fill={c}>Studio</text></svg>),
+L(20,"Marco Doble","Emblema",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><rect x="8" y="8" width="84" height="84" stroke={c} strokeWidth="1.5" fill="none" opacity=".1"/><rect x="15" y="15" width="70" height="70" stroke={c} strokeWidth=".6" fill="none" opacity=".06"/><text x="50" y="54" textAnchor="middle" fontFamily="Playfair Display,serif" fontSize="32" fontWeight="700" fill={c}>GF</text><text x="50" y="72" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="9" letterSpacing="7" fill={c} opacity=".3">STUDIO</text></svg>),
+// SCRIPT 21-25
+L(21,"Script Grande","Script",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><text x="50" y="56" textAnchor="middle" fontFamily="Caveat,cursive" fontSize="50" fontWeight="700" fill={c}>GF</text><text x="50" y="82" textAnchor="middle" fontFamily="Caveat,cursive" fontSize="22" fill={c} opacity=".4">Studio</text></svg>),
+L(22,"Script Completo","Script",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><text x="50" y="56" textAnchor="middle" fontFamily="Caveat,cursive" fontSize="34" fontWeight="600" fill={c}>GF Studio</text><path d="M18 64 Q50 72 82 64" stroke={c} strokeWidth=".7" fill="none" opacity=".15"/></svg>),
+L(23,"Script + Sans","Script",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><text x="50" y="50" textAnchor="middle" fontFamily="Caveat,cursive" fontSize="46" fontWeight="700" fill={c}>GF</text><text x="50" y="74" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="12" letterSpacing="8" fontWeight="300" fill={c} opacity=".35">STUDIO</text></svg>),
+L(24,"Script Circulado","Script",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><circle cx="50" cy="46" r="32" stroke={c} strokeWidth=".8" fill="none" opacity=".1"/><text x="50" y="54" textAnchor="middle" fontFamily="Caveat,cursive" fontSize="38" fontWeight="600" fill={c}>GF</text><text x="50" y="90" textAnchor="middle" fontFamily="Caveat,cursive" fontSize="18" fill={c} opacity=".35">studio</text></svg>),
+L(25,"Script Minimal","Script",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><text x="50" y="60" textAnchor="middle" fontFamily="Caveat,cursive" fontSize="54" fontWeight="400" fill={c} opacity=".8">gf</text><circle cx="80" cy="34" r="2" fill={c} opacity=".15"/></svg>),
+// GEO 26-30
+L(26,"Geo Triángulo","Geo",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><polygon points="50,8 94,82 6,82" stroke={c} strokeWidth="1" fill="none" opacity=".1"/><text x="50" y="66" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="26" fontWeight="700" fill={c}>GF</text><text x="50" y="80" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="7" letterSpacing="4" fill={c} opacity=".25">STUDIO</text></svg>),
+L(27,"Geo Grid","Geo",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100">{[20,38,56,74].map(y=><line key={y} x1="10" y1={y} x2="90" y2={y} stroke={c} strokeWidth=".3" opacity=".06"/>)}{[28,46,64,82].map(x=><line key={x} x1={x} y1="14" x2={x} y2="80" stroke={c} strokeWidth=".3" opacity=".06"/>)}<text x="50" y="56" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="32" fontWeight="700" fill={c}>GF</text><text x="50" y="90" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="9" letterSpacing="4" fill={c} opacity=".25">STUDIO</text></svg>),
+L(28,"Geo Líneas","Geo",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100">{[18,26,34,60,68,76].map(y=><line key={y} x1="12" y1={y} x2="88" y2={y} stroke={c} strokeWidth=".4" opacity=".06"/>)}<text x="50" y="52" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="30" fontWeight="700" fill={c}>GF</text><text x="50" y="90" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="9" letterSpacing="5" fill={c} opacity=".25">STUDIO</text></svg>),
+L(29,"Geo Octágono","Geo",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><polygon points="36,6 64,6 88,30 88,64 64,88 36,88 12,64 12,30" stroke={c} strokeWidth="1" fill="none" opacity=".1"/><text x="50" y="52" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="26" fontWeight="700" fill={c}>GF</text><text x="50" y="68" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="8" letterSpacing="4" fill={c} opacity=".25">STUDIO</text></svg>),
+L(30,"Geo Bloques","Geo",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><rect x="12" y="12" width="34" height="32" fill={c} opacity=".05" rx="2"/><rect x="54" y="12" width="34" height="32" fill={c} opacity=".03" rx="2"/><rect x="12" y="56" width="76" height=".6" fill={c} opacity=".06"/><text x="50" y="78" textAnchor="middle" fontFamily="Playfair Display,serif" fontSize="26" fontWeight="600" fill={c}>GF</text><text x="50" y="48" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="8" fontWeight="300" letterSpacing="6" fill={c} opacity=".25">GF STUDIO</text></svg>),
+// NATURAL 31-35
+L(31,"Hoja","Natural",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><path d="M50 10C60 22 66 36 62 52C56 42 48 36 36 34C44 28 48 18 50 10Z" fill={c} opacity=".05" stroke={c} strokeWidth=".7"/><text x="50" y="72" textAnchor="middle" fontFamily="Playfair Display,serif" fontSize="28" fontWeight="600" fill={c}>GF</text><text x="50" y="90" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="9" letterSpacing="5" fill={c} opacity=".3">STUDIO</text></svg>),
+L(32,"Pétalos","Natural",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100">{[-30,0,30].map(r=><ellipse key={r} cx="50" cy="26" rx="8" ry="16" fill={c} opacity=".04" transform={`rotate(${r} 50 26)`}/>)}<text x="50" y="66" textAnchor="middle" fontFamily="Playfair Display,serif" fontSize="28" fontWeight="600" fill={c}>GF</text><text x="50" y="86" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="9" letterSpacing="5" fill={c} opacity=".3">STUDIO</text></svg>),
+L(33,"Sol","Natural",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><circle cx="50" cy="32" r="12" stroke={c} strokeWidth=".8" fill="none" opacity=".1"/>{[0,45,90,135,180,225,270,315].map(a=><line key={a} x1={50+15*Math.cos(a*Math.PI/180)} y1={32+15*Math.sin(a*Math.PI/180)} x2={50+22*Math.cos(a*Math.PI/180)} y2={32+22*Math.sin(a*Math.PI/180)} stroke={c} strokeWidth=".5" opacity=".08"/>)}<text x="50" y="70" textAnchor="middle" fontFamily="Playfair Display,serif" fontSize="26" fontWeight="600" fill={c}>GF</text><text x="50" y="90" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="9" letterSpacing="5" fill={c} opacity=".3">STUDIO</text></svg>),
+L(34,"Gota","Natural",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><path d="M50 8C50 8 70 32 70 46C70 56 60 64 50 64C40 64 30 56 30 46C30 32 50 8 50 8Z" stroke={c} strokeWidth=".8" fill={c} opacity=".04"/><text x="50" y="52" textAnchor="middle" fontFamily="Playfair Display,serif" fontSize="24" fontWeight="600" fill={c}>GF</text><text x="50" y="88" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="9" letterSpacing="5" fill={c} opacity=".3">STUDIO</text></svg>),
+L(35,"Rama","Natural",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><path d="M24 18Q40 36 50 40Q60 36 76 18" stroke={c} strokeWidth=".7" fill="none" opacity=".1"/><path d="M34 28Q42 34 50 36" stroke={c} strokeWidth=".4" fill="none" opacity=".06"/><path d="M66 28Q58 34 50 36" stroke={c} strokeWidth=".4" fill="none" opacity=".06"/><text x="50" y="68" textAnchor="middle" fontFamily="Playfair Display,serif" fontSize="28" fontWeight="600" fill={c}>GF</text><text x="50" y="88" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="9" letterSpacing="5" fill={c} opacity=".3">STUDIO</text></svg>),
+// LUJO 36-40
+L(36,"Art Deco","Lujo",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><path d="M50 4L96 46L50 88L4 46Z" stroke={c} strokeWidth=".7" fill="none" opacity=".07"/><path d="M50 16L84 46L50 76L16 46Z" stroke={c} strokeWidth=".4" fill="none" opacity=".05"/><text x="50" y="52" textAnchor="middle" fontFamily="Playfair Display,serif" fontSize="30" fontWeight="700" fill={c}>GF</text><text x="50" y="68" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="8" letterSpacing="6" fill={c} opacity=".25">STUDIO</text></svg>),
+L(37,"Luxury Frame","Lujo",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><rect x="6" y="6" width="88" height="88" stroke={c} strokeWidth="1.8" fill="none" opacity=".08"/><line x1="6" y1="18" x2="94" y2="18" stroke={c} strokeWidth=".4" opacity=".06"/><line x1="6" y1="76" x2="94" y2="76" stroke={c} strokeWidth=".4" opacity=".06"/><text x="50" y="52" textAnchor="middle" fontFamily="Playfair Display,serif" fontSize="34" fontWeight="700" fill={c}>GF</text><text x="50" y="68" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="9" letterSpacing="7" fill={c} opacity=".25">STUDIO</text></svg>),
+L(38,"Corona","Lujo",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><path d="M26 30L32 16L40 26L50 10L60 26L68 16L74 30" stroke={c} strokeWidth="1" fill="none" opacity=".18"/><line x1="26" y1="30" x2="74" y2="30" stroke={c} strokeWidth=".7" opacity=".12"/><text x="50" y="58" textAnchor="middle" fontFamily="Playfair Display,serif" fontSize="34" fontWeight="700" fill={c}>GF</text><text x="50" y="78" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="9" letterSpacing="6" fill={c} opacity=".3">STUDIO</text></svg>),
+L(39,"Sparkles","Lujo",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><path d="M78 14L79.5 20L86 21.5L79.5 23L78 29L76.5 23L70 21.5L76.5 20Z" fill={c} opacity=".15"/><path d="M22 20L23 24L27 25L23 26L22 30L21 26L17 25L21 24Z" fill={c} opacity=".08"/><text x="50" y="56" textAnchor="middle" fontFamily="Playfair Display,serif" fontSize="38" fontWeight="700" fill={c}>GF</text><text x="50" y="78" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="10" letterSpacing="5" fill={c} opacity=".35">STUDIO</text></svg>),
+L(40,"Cinta","Lujo",({c="#1C1A14",s=100})=><svg width={s} height={s} viewBox="0 0 100 100"><path d="M8 44Q12 36 22 36L78 36Q88 36 92 44Q88 52 78 52L22 52Q12 52 8 44Z" fill={c} opacity=".04" stroke={c} strokeWidth=".5"/><text x="50" y="48" textAnchor="middle" fontFamily="Playfair Display,serif" fontSize="16" fontWeight="600" fill={c} letterSpacing="1.5">GF Studio</text><text x="50" y="72" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="7" letterSpacing="7" fill={c} opacity=".2">HENDERSON</text></svg>),
+];
+const CATS=[...new Set(LOGOS.map(l=>l.cat))];
+
+// ═══ SERVICES ═══
+const SVCS=[
+{id:1,nm:"Perfilado de Cejas",pr:18000,dur:"45 min",desc:"Diseño personalizado según tu rostro"},
+{id:2,nm:"Laminado Cejas y Pestañas",pr:22000,dur:"60 min",desc:"Efecto lifting natural y duradero"},
+{id:3,nm:"Fototerapia LED Facial",pr:25000,dur:"50 min",desc:"Rejuvenecimiento con luz LED"},
+{id:4,nm:"Limpieza Facial Profunda",pr:20000,dur:"60 min",desc:"Limpieza profesional paso a paso"},
+{id:5,nm:"Anti-Edad con Radiofrecuencia",pr:35000,dur:"60 min",desc:"Firmeza y elasticidad con RF"},
+{id:6,nm:"Skincare Personalizado",pr:15000,dur:"30 min",desc:"Diagnóstico y rutina a medida"},
+];
+const fP=n=>"$"+n.toLocaleString("es-AR");
+const TIMES=["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00"];
+
+// ═══ NAV ═══
+const Nav=({view,setView})=>(
+  <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 as">
+    <div className="nav-pill flex rounded-full p-1.5 shadow-xl" style={{background:'rgba(28,26,20,.92)',border:'1px solid rgba(255,255,255,.06)'}}>
+      {[{k:"logos",l:"Logos",n:40},{k:"temas",l:"Temas",n:21},{k:"landing",l:"Preview"}].map(v=>(
+        <button key={v.k} onClick={()=>setView(v.k)}
+          className="px-5 sm:px-7 py-2 rounded-full text-xs sm:text-sm tracking-wide font-medium transition-all"
+          style={{background:view===v.k?'rgba(255,255,255,.12)':'transparent',color:view===v.k?'#fff':'rgba(255,255,255,.35)'}}>
+          {v.l}{v.n?<span className="ml-1 opacity-40 text-[10px]">{v.n}</span>:''}
+        </button>
+      ))}
+    </div>
+  </div>
+);
+
+// ═══ LOGO GALLERY ═══
+const LogoGallery=({sel,onSel,theme})=>{
+  const t=TH(theme);
+  const[cat,setCat]=useState("all");
+  const list=cat==="all"?LOGOS:LOGOS.filter(l=>l.cat===cat);
+  const logo=LOGOS.find(l=>l.id===sel);
+
+  return(
+    <div className="min-h-screen pt-24 pb-20 px-4 sm:px-6">
+      {/* ── SHOWCASE ── */}
+      {logo&&(
+        <div className="ap max-w-4xl mx-auto mb-16">
+          {/* Dark showcase card */}
+          <div className="rounded-[2rem] overflow-hidden shadow-2xl" style={{background:'#1C1A14'}}>
+            <div className="px-8 pt-10 pb-8 sm:px-16 sm:pt-14 sm:pb-10 flex flex-col items-center relative">
+              {/* Subtle grain */}
+              <div className="absolute inset-0 opacity-[.04] pointer-events-none" style={{backgroundImage:'url("data:image/svg+xml,%3Csvg width=\'200\' height=\'200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence baseFrequency=\'.8\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")'}}/>
+              <p className="text-[10px] uppercase tracking-[.5em] mb-8 relative" style={{color:'rgba(255,255,255,.2)'}}>Seleccionado</p>
+              <div className="relative mb-6">{logo.r({c:'#F5F1E8',s:220})}</div>
+              <p className="font-sans text-sm relative" style={{color:'rgba(255,255,255,.25)'}}>{logo.nm} <span className="opacity-50">— {logo.cat}</span></p>
+            </div>
+            {/* Theme color strip */}
+            <div className="px-8 py-6 sm:px-16 sm:py-8 flex flex-col items-center" style={{background:t.bg,borderTop:`3px solid ${t.p}`}}>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-2.5 h-2.5 rounded-full" style={{background:t.p}}/>
+                <p className="text-xs" style={{color:t.txs}}>Con tema <strong style={{fontWeight:600,color:t.tx}}>{t.nm}</strong></p>
+              </div>
+              {logo.r({c:t.p,s:140})}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── HEADER ── */}
+      <div className="text-center mb-8 au max-w-2xl mx-auto">
+        <h1 style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(2rem,5vw,3.5rem)',fontWeight:700,lineHeight:1.1,color:'#1C1A14'}}>
+          Elegí tu <em style={{color:t.p}}>logo</em>
+        </h1>
+        <p className="mt-2 text-sm" style={{color:'#8A8470'}}>40 variantes — hacé click para seleccionar</p>
+      </div>
+
+      {/* ── FILTERS ── */}
+      <div className="flex flex-wrap justify-center gap-2 mb-10 au d2 max-w-4xl mx-auto">
+        {["all",...CATS].map(c=>(
+          <button key={c} onClick={()=>setCat(c)}
+            className="px-4 py-2 rounded-full text-xs font-medium transition-all"
+            style={{background:cat===c?'#1C1A14':'rgba(28,26,20,.04)',color:cat===c?'#F5F1E8':'#8A8470'}}>
+            {c==="all"?"Todos":c}
+          </button>
+        ))}
+      </div>
+
+      {/* ── GRID — 2 cols → 3 cols ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-5xl mx-auto">
+        {list.map((l,i)=>(
+          <button key={l.id} onClick={()=>onSel(l.id)}
+            className={`lc rounded-2xl p-6 sm:p-8 flex flex-col items-center justify-center au ${sel===l.id?'on':''}`}
+            style={{animationDelay:`${Math.min(i*.03,.5)}s`,minHeight:'210px'}}>
+            <div className="flex-1 flex items-center justify-center w-full py-1">
+              {l.r({c:sel===l.id?t.p:'#1C1A14',s:130})}
+            </div>
+            <span className="text-xs mt-3 font-medium" style={{color:sel===l.id?t.p:'#8A8470'}}>{l.nm}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ═══ THEME GALLERY ═══
+const ThemeGallery=({sel,onSel,logo:logoId})=>{
+  const logo=LOGOS.find(l=>l.id===logoId);
+  return(
+    <div className="min-h-screen pt-24 pb-20 px-4 sm:px-6 max-w-6xl mx-auto">
+      <div className="text-center mb-12 au">
+        <h1 style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(2rem,5vw,3.5rem)',fontWeight:700,color:'#1C1A14'}}>
+          Elegí tu <em style={{color:TH(sel).p}}>paleta</em>
+        </h1>
+        <p className="mt-2 text-sm" style={{color:'#8A8470'}}>21 temas diseñados para cosmética y belleza</p>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {THEMES.map((th,i)=>{
+          const on=sel===th.id;
+          return(
+            <button key={th.id} onClick={()=>onSel(th.id)}
+              className={`tc rounded-2xl overflow-hidden text-left au ${on?'on':''}`}
+              style={{background:'#FEFDF8',animationDelay:`${Math.min(i*.04,.5)}s`}}>
+              {/* Preview strip */}
+              <div className="h-28 relative overflow-hidden" style={{background:th.bg}}>
+                <div className="absolute inset-3 rounded-lg overflow-hidden flex flex-col p-3" style={{background:th.dk?'rgba(255,255,255,.03)':'rgba(255,255,255,.5)',border:`1px solid ${th.dk?'rgba(255,255,255,.05)':'rgba(0,0,0,.04)'}`}}>
+                  {logo&&<div className="mb-2 scale-[.3] origin-top-left -mr-20">{logo.r({c:th.p,s:80})}</div>}
+                  <div className="w-20 h-1.5 rounded-full mb-1" style={{background:th.p,opacity:.6}}/>
+                  <div className="w-28 h-1 rounded-full" style={{background:th.p,opacity:.2}}/>
+                  <div className="w-14 h-5 rounded-full mt-auto" style={{background:th.p,opacity:.7}}/>
+                </div>
+                {on&&<div className="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center" style={{background:'#1C1A14'}}><svg width="12" height="12" viewBox="0 0 16 16"><path d="M3 8L6.5 11.5L13 4.5" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg></div>}
+              </div>
+              <div className="p-4">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <h3 className="text-sm font-semibold" style={{color:'#1C1A14'}}>{th.nm}</h3>
+                  {th.dk?<span className="text-[9px] px-2 py-0.5 rounded-full" style={{background:'#1C1A14',color:'#F5F1E8'}}>DARK</span>:null}
+                </div>
+                <p className="text-[11px] mb-3" style={{color:'#8A8470'}}>{th.sub}</p>
+                <div className="flex gap-1.5">{[th.p,th.s,th.a,th.bg].map((c,i)=><div key={i} className="w-7 h-7 rounded-full" style={{background:c,border:'1px solid rgba(0,0,0,.06)',boxShadow:'inset 0 1px 2px rgba(0,0,0,.06)'}}/>)}</div>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// ═══ LANDING ═══
+const Landing=({logoId,themeId})=>{
+  const th=TH(themeId);
+  const logo=LOGOS.find(l=>l.id===logoId)||LOGOS[0];
+  const dk=!!th.dk;
+  const cardBg=dk?'rgba(255,255,255,.04)':'rgba(255,255,255,.65)';
+  const cardBd=dk?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)';
+
+  const[bk,setBk]=useState(false);
+  const[fm,setFm]=useState({n:"",ph:"",sv:"",dt:"",tm:""});
+  const[sent,setSent]=useState(false);
+  const[mn,setMn]=useState(false);
+
+  useEffect(()=>{
+    const o=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add("vis")})},{threshold:.06});
+    document.querySelectorAll(".reveal").forEach(el=>o.observe(el));
+    return()=>o.disconnect();
+  },[]);
+
+  const minD=()=>{const d=new Date();d.setDate(d.getDate()+1);return d.toISOString().split("T")[0]};
+  const wk=v=>{if(!v)return 1;const d=new Date(v+"T12:00:00").getDay();return d>=1&&d<=5};
+
+  const sub=e=>{
+    e.preventDefault();const{n,ph,sv,dt,tm}=fm;
+    if(!n||!ph||!sv||!dt||!tm){alert("Completá todos los campos");return}
+    const sn=SVCS.find(s=>s.id===+sv)?.nm||sv;
+    const df=new Date(dt+"T12:00:00").toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"});
+    const msg=encodeURIComponent(`*Reserva — GF Studio*\n\n${n}\n${ph}\n${sn}\n${df}\n${tm} hs`);
+    window.open(`https://wa.me/${WA}?text=${msg}`,"_blank");setSent(true);
+  };
+
+  const go=id=>{document.getElementById(id)?.scrollIntoView({behavior:"smooth"});setMn(false)};
+
+  return(
+    <div className="min-h-screen" style={{background:th.bg,"--ac":th.p,"--gl":th.p+"18"}}>
+      {/* Mesh */}
+      <div className="fixed inset-0 pointer-events-none -z-10" style={{background:`radial-gradient(ellipse at 15% 10%,${th.p}${dk?'06':'10'} 0%,transparent 55%),radial-gradient(ellipse at 85% 40%,${th.s}${dk?'04':'08'} 0%,transparent 50%)`}}/>
+
+      {/* Nav */}
+      <nav className="sticky top-0 z-40" style={{background:dk?'rgba(10,10,14,.85)':'rgba(255,255,255,.75)',backdropFilter:'blur(18px)',borderBottom:`1px solid ${dk?'rgba(255,255,255,.04)':th.p+'12'}`}}>
+        <div className="max-w-6xl mx-auto px-5 flex items-center justify-between h-16">
+          <div className="cursor-pointer" onClick={()=>go("hero")}>{logo.r({c:th.p,s:48})}</div>
+          <div className="hidden md:flex items-center gap-8">
+            {["servicios","nosotras","contacto"].map(id=><button key={id} onClick={()=>go(id)} className="text-xs tracking-wide capitalize" style={{color:th.txs}}>{id}</button>)}
+            <button onClick={()=>{setBk(true);setTimeout(()=>go("reservar"),100)}} className="cta text-xs font-medium px-6 py-2.5 rounded-full text-white" style={{background:th.p,boxShadow:`0 4px 20px ${th.p}30`}}>Reservar</button>
+          </div>
+          <button className="md:hidden" onClick={()=>setMn(!mn)}><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d={mn?"M6 6L18 18M6 18L18 6":"M4 7H20M4 12H20M4 17H20"} stroke={th.p} strokeWidth="1.5" strokeLinecap="round"/></svg></button>
+        </div>
+        {mn&&<div className="md:hidden px-5 pb-4 space-y-2 af">{["servicios","nosotras","contacto"].map(id=><button key={id} onClick={()=>go(id)} className="block w-full text-left text-sm py-1.5 capitalize" style={{color:th.txs}}>{id}</button>)}<button onClick={()=>{setBk(true);setMn(false);setTimeout(()=>go("reservar"),100)}} className="cta w-full text-xs font-medium py-3 rounded-full text-white mt-1" style={{background:th.p}}>Reservar Turno</button></div>}
+      </nav>
+
+      {/* Hero */}
+      <section id="hero" className="relative min-h-[85vh] flex items-center overflow-hidden">
+        <div className="absolute top-10 right-[6%] w-96 h-96 opacity-20 pointer-events-none" style={{background:`radial-gradient(circle,${th.s},transparent 70%)`,animation:'morph 14s ease-in-out infinite',borderRadius:'60% 40% 30% 70%/60% 30% 70% 40%'}}/>
+        <div className="absolute bottom-20 left-[4%] w-56 h-56 rounded-full opacity-10 pointer-events-none" style={{background:`radial-gradient(circle,${th.p},transparent 70%)`,animation:'float 9s ease-in-out infinite 1s'}}/>
+
+        <div className="max-w-6xl mx-auto px-5 py-20 w-full relative">
+          <div className="max-w-2xl">
+            <div className="au mb-8">{logo.r({c:th.tx,s:160})}</div>
+            <h1 className="au d1" style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(3rem,7.5vw,5.5rem)',fontWeight:700,lineHeight:1.05,color:th.tx}}>
+              Tu espacio de{' '}<em style={{color:th.p}}>belleza</em><br/>y cuidado personal
+            </h1>
+            <p className="au d2 mt-5 text-base sm:text-lg font-light leading-relaxed max-w-lg" style={{color:th.txs}}>
+              El primer centro de cosmética especializado en Henderson. Tecnología, profesionalismo y un espacio diseñado para vos.
+            </p>
+            <div className="au d3 mt-10 flex flex-wrap gap-3">
+              <button onClick={()=>{setBk(true);setTimeout(()=>go("reservar"),100)}} className="cta text-sm font-medium px-10 py-4 rounded-full text-white" style={{background:th.p,boxShadow:`0 8px 30px ${th.p}25`}}>Reservá tu turno</button>
+              <button onClick={()=>go("servicios")} className="text-sm font-light px-10 py-4 rounded-full transition-all hover:shadow-md" style={{background:dk?'rgba(255,255,255,.06)':th.s+'50',color:dk?th.tx:th.a}}>Ver servicios ↓</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Marquee */}
+      <div className="overflow-hidden py-5 border-y" style={{borderColor:dk?'rgba(255,255,255,.04)':th.p+'10'}}>
+        <div style={{display:'flex',width:'max-content',animation:'marquee 35s linear infinite'}}>
+          {[...Array(6)].map((_,i)=><span key={i} className="mx-8 whitespace-nowrap" style={{fontFamily:'Playfair Display,serif',fontSize:'1.15rem',fontStyle:'italic',color:th.p,opacity:.15}}>Perfilado · Laminado · Fototerapia · Skincare · Radiofrecuencia · Limpieza ·{' '}</span>)}
+        </div>
+      </div>
+
+      {/* Services */}
+      <section id="servicios" className="py-20 sm:py-28">
+        <div className="max-w-6xl mx-auto px-5">
+          <div className="reveal text-center mb-14">
+            <p className="text-[10px] uppercase tracking-[.4em] mb-2" style={{color:th.p}}>Nuestros servicios</p>
+            <h2 style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(1.8rem,4vw,3.2rem)',color:th.tx}}>Tratamientos <em style={{color:th.p}}>especializados</em></h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {SVCS.map((s,i)=>(
+              <div key={s.id} className="reveal sc rounded-2xl p-6 cursor-pointer group" style={{background:cardBg,backdropFilter:'blur(12px)',border:`1px solid ${cardBd}`,transitionDelay:`${i*.06}s`}}
+                onClick={()=>{setFm(p=>({...p,sv:String(s.id)}));setBk(true);setTimeout(()=>go("reservar"),100)}}>
+                <div className="flex justify-between items-start mb-3">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-semibold" style={{background:th.p+'12',color:th.p}}>{s.id}</div>
+                  <span style={{fontFamily:'Playfair Display,serif',fontSize:'1.35rem',color:th.p}}>{fP(s.pr)}</span>
+                </div>
+                <h3 className="text-sm font-semibold mb-1" style={{color:th.tx}}>{s.nm}</h3>
+                <p className="text-xs font-light mb-2" style={{color:th.txs}}>{s.desc}</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px]" style={{color:th.txs,opacity:.5}}>⏱ {s.dur}</span>
+                  <span className="text-[10px] font-medium opacity-0 group-hover:opacity-100 transition-opacity" style={{color:th.p}}>Reservar →</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* About */}
+      <section id="nosotras" className="py-20 relative">
+        <div className="absolute inset-0 -z-10" style={{background:dk?'rgba(255,255,255,.01)':th.s+'10'}}/>
+        <div className="max-w-5xl mx-auto px-5">
+          <div className="reveal grid grid-cols-1 lg:grid-cols-5 gap-10 lg:gap-16 items-center">
+            <div className="lg:col-span-2 relative">
+              <div className="aspect-[3/4] rounded-3xl flex items-center justify-center" style={{background:`linear-gradient(135deg,${th.bg},${th.s},${th.p}18,${th.bg})`,boxShadow:`0 32px 64px ${th.p}08`}}>
+                <div className="text-center p-6">
+                  {logo.r({c:dk?"rgba(255,255,255,.5)":"rgba(255,255,255,.6)",s:100})}
+                  <p className="mt-4" style={{fontFamily:'Playfair Display,serif',fontSize:'1.1rem',color:dk?"rgba(255,255,255,.3)":"rgba(255,255,255,.4)"}}>Henderson, BA</p>
+                </div>
+              </div>
+              <div className="absolute -bottom-3 -right-2 rounded-2xl px-5 py-3 shadow-xl" style={{background:dk?'rgba(20,20,20,.9)':'rgba(255,255,255,.88)',backdropFilter:'blur(12px)',border:`1px solid ${cardBd}`}}>
+                <p style={{fontFamily:'Playfair Display,serif',fontSize:'1.5rem',color:th.p}}>2026</p>
+                <p className="text-[10px]" style={{color:th.txs,opacity:.5}}>Próxima apertura</p>
+              </div>
+            </div>
+            <div className="lg:col-span-3">
+              <p className="text-[10px] uppercase tracking-[.4em] mb-2" style={{color:th.p}}>Nuestra historia</p>
+              <h2 className="mb-6" style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(1.6rem,3.5vw,2.5rem)',color:th.tx}}>Un espacio creado con <em style={{color:th.p}}>pasión</em></h2>
+              <div className="space-y-3 text-sm font-light leading-relaxed" style={{color:th.txs}}>
+                <p>GF Studio nace de la convicción de que Henderson merece un espacio de cosmética profesional, con tecnología de punta y una experiencia premium accesible.</p>
+                <p>Combinamos fototerapia LED, radiofrecuencia y dermapen con técnicas de perfilado y cuidado facial para resultados visibles desde la primera sesión.</p>
+                <p>Creemos que el cuidado personal no es un lujo — es bienestar. Y diseñamos cada detalle para que tu experiencia sea única.</p>
+              </div>
+              <div className="flex gap-10 mt-8">
+                {[{n:"4+",l:"Servicios especializados"},{n:"1°",l:"Centro profesional en Henderson"}].map((s,i)=><div key={i}><p style={{fontFamily:'Playfair Display,serif',fontSize:'2rem',color:th.p}}>{s.n}</p><p className="text-[10px]" style={{color:th.txs,opacity:.5}}>{s.l}</p></div>)}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Booking */}
+      <section id="reservar" className="py-20">
+        <div className="max-w-xl mx-auto px-5">
+          {!bk?(
+            <div className="reveal text-center">
+              <p className="text-[10px] uppercase tracking-[.4em] mb-2" style={{color:th.p}}>Turnos online</p>
+              <h2 className="mb-4" style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(1.8rem,4vw,3rem)',color:th.tx}}>Reservá tu <em style={{color:th.p}}>momento</em></h2>
+              <p className="text-sm font-light mb-8" style={{color:th.txs}}>Elegí servicio, día y horario. Te confirmamos por WhatsApp.</p>
+              <button onClick={()=>setBk(true)} className="cta text-sm font-medium px-10 py-4 rounded-full text-white" style={{background:th.p,boxShadow:`0 8px 28px ${th.p}25`}}>Reservar turno</button>
+            </div>
+          ):sent?(
+            <div className="ap rounded-3xl p-10 text-center" style={{background:cardBg,backdropFilter:'blur(12px)',border:`1px solid ${cardBd}`}}>
+              <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style={{background:'#25D36618'}}><svg width="30" height="30" viewBox="0 0 24 24" fill="#25D366"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+              <h3 className="mb-2" style={{fontFamily:'Playfair Display,serif',fontSize:'1.5rem',color:th.tx}}>¡Turno enviado!</h3>
+              <p className="text-xs font-light mb-5" style={{color:th.txs}}>Se abrió WhatsApp con tu reserva.</p>
+              <button onClick={()=>{setSent(false);setFm({n:"",ph:"",sv:"",dt:"",tm:""})}} className="text-xs px-5 py-2 rounded-full" style={{background:th.p+'15',color:th.p}}>Reservar otro</button>
+            </div>
+          ):(
+            <div className="ap">
+              <div className="text-center mb-6">
+                <p className="text-[10px] uppercase tracking-[.4em] mb-1" style={{color:th.p}}>Turnos</p>
+                <h2 style={{fontFamily:'Playfair Display,serif',fontSize:'1.8rem',color:th.tx}}>Reservá tu <em style={{color:th.p}}>turno</em></h2>
+              </div>
+              <form onSubmit={sub} className="rounded-3xl p-6 sm:p-8 space-y-4" style={{background:cardBg,backdropFilter:'blur(12px)',border:`1px solid ${cardBd}`}}>
+                <div><label className="text-[10px] uppercase tracking-widest block mb-1.5" style={{color:th.txs,opacity:.6}}>Nombre</label><input type="text" value={fm.n} onChange={e=>setFm(p=>({...p,n:e.target.value}))} className="fi w-full px-4 py-3 rounded-xl text-sm" style={{background:dk?'rgba(255,255,255,.05)':'rgba(255,255,255,.8)',color:th.tx}} placeholder="María García" required/></div>
+                <div><label className="text-[10px] uppercase tracking-widest block mb-1.5" style={{color:th.txs,opacity:.6}}>WhatsApp</label><div className="flex gap-2"><span className="fi flex items-center px-3 py-3 rounded-xl text-xs" style={{background:dk?'rgba(255,255,255,.05)':'rgba(255,255,255,.8)',color:th.txs}}>+54</span><input type="tel" value={fm.ph} onChange={e=>setFm(p=>({...p,ph:e.target.value}))} className="fi flex-1 px-4 py-3 rounded-xl text-sm" style={{background:dk?'rgba(255,255,255,.05)':'rgba(255,255,255,.8)',color:th.tx}} placeholder="2317 40-1234" required/></div></div>
+                <div><label className="text-[10px] uppercase tracking-widest block mb-1.5" style={{color:th.txs,opacity:.6}}>Servicio</label><select value={fm.sv} onChange={e=>setFm(p=>({...p,sv:e.target.value}))} className="fi w-full px-4 py-3 rounded-xl text-sm appearance-none cursor-pointer" style={{background:dk?'rgba(255,255,255,.05)':'rgba(255,255,255,.8)',color:fm.sv?th.tx:th.txs}} required><option value="">Seleccioná un servicio</option>{SVCS.map(s=><option key={s.id} value={s.id}>{s.nm} — {fP(s.pr)}</option>)}</select></div>
+                <div><label className="text-[10px] uppercase tracking-widest block mb-1.5" style={{color:th.txs,opacity:.6}}>Fecha (Lun-Vie)</label><input type="date" value={fm.dt} min={minD()} onChange={e=>{if(wk(e.target.value))setFm(p=>({...p,dt:e.target.value,tm:""}));else alert("Solo lunes a viernes")}} className="fi w-full px-4 py-3 rounded-xl text-sm" style={{background:dk?'rgba(255,255,255,.05)':'rgba(255,255,255,.8)',color:th.tx}} required/></div>
+                {fm.dt&&<div className="af"><label className="text-[10px] uppercase tracking-widest block mb-2" style={{color:th.txs,opacity:.6}}>Horario</label><div className="grid grid-cols-3 gap-1.5">{TIMES.map(t=><button key={t} type="button" onClick={()=>setFm(p=>({...p,tm:t}))} className="sb py-2.5 rounded-xl text-xs font-medium" style={{background:fm.tm===t?th.p:th.p+'10',color:fm.tm===t?'#fff':dk?th.tx:th.a,boxShadow:fm.tm===t?`0 4px 16px ${th.p}28`:'none'}}>{t}</button>)}</div></div>}
+                <button type="submit" className="w-full text-sm font-medium py-3.5 rounded-xl text-white flex items-center justify-center gap-2.5 transition-all hover:shadow-lg hover:brightness-110" style={{background:'#25D366'}}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                  Confirmar por WhatsApp
+                </button>
+              </form>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Contact */}
+      <section id="contacto" className="py-20 relative">
+        <div className="absolute inset-0 -z-10" style={{background:dk?'rgba(255,255,255,.01)':th.s+'08'}}/>
+        <div className="max-w-5xl mx-auto px-5">
+          <div className="reveal text-center mb-10">
+            <p className="text-[10px] uppercase tracking-[.4em] mb-2" style={{color:th.p}}>Encontranos</p>
+            <h2 style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(1.6rem,3.5vw,2.5rem)',color:th.tx}}>Vení a <em style={{color:th.p}}>conocernos</em></h2>
+          </div>
+          <div className="reveal grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[{e:"📍",t:"Ubicación",d:"Henderson, Buenos Aires"},{e:"🕐",t:"Horarios",d:"Lunes a Viernes\n09:00 a 18:00 hs"},{e:"📱",t:"Contacto",d:"WhatsApp Business\nTurnos online 24/7"}].map((c,i)=>(
+              <div key={i} className="rounded-2xl p-6 text-center" style={{background:cardBg,backdropFilter:'blur(12px)',border:`1px solid ${cardBd}`}}>
+                <span className="text-2xl block mb-2">{c.e}</span>
+                <h3 className="text-sm font-semibold mb-1" style={{color:th.tx}}>{c.t}</h3>
+                <p className="text-xs font-light whitespace-pre-line" style={{color:th.txs}}>{c.d}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-10" style={{background:dk?'rgba(0,0,0,.3)':th.tx}}>
+        <div className="max-w-5xl mx-auto px-5">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-center sm:text-left">
+              {logo.r({c:"rgba(255,255,255,.4)",s:42})}
+              <p className="text-[10px] font-light mt-1" style={{color:"rgba(255,255,255,.18)"}}>Tu espacio de belleza y cuidado personal</p>
+            </div>
+            <div className="flex gap-3">
+              {[{n:"IG",d:"M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"},{n:"TT",d:"M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"}].map(s=><a key={s.n} href="#" className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110" style={{background:"rgba(255,255,255,.06)"}}><svg width="14" height="14" viewBox="0 0 24 24" fill="rgba(255,255,255,.35)"><path d={s.d}/></svg></a>)}
+            </div>
+          </div>
+          <div className="border-t mt-6 pt-4" style={{borderColor:"rgba(255,255,255,.06)"}}>
+            <p className="text-[10px] text-center" style={{color:"rgba(255,255,255,.1)"}}>© 2026 GF Studio · Henderson, Buenos Aires</p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+// ═══ APP ═══
+const App=()=>{
+  const[view,setView]=useState("logos");
+  const[logo,setLogo]=useState(1);
+  const[theme,setTheme]=useState("oliva-arena");
+  return(
+    <div className="min-h-screen" style={{background:'#F5F1E8'}}>
+      <Nav view={view} setView={setView}/>
+      {view==="logos"&&<LogoGallery sel={logo} onSel={setLogo} theme={theme}/>}
+      {view==="temas"&&<ThemeGallery sel={theme} onSel={setTheme} logo={logo}/>}
+      {view==="landing"&&<Landing logoId={logo} themeId={theme}/>}
+    </div>
+  );
+};
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
