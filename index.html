@@ -18,8 +18,8 @@
 :root{color-scheme:light only}
 *,*::before,*::after{box-sizing:border-box;margin:0}
 html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;color-scheme:light}
-body{font-family:'Figtree',sans-serif;background:#F5F1E8 !important;color:#1C1A14 !important;overflow-x:hidden}
-@media(prefers-color-scheme:dark){html,body{background:#F5F1E8 !important;color:#1C1A14 !important}img,svg{filter:none !important}}
+body{font-family:'Figtree',sans-serif;background:#E8E2D4 !important;color:#1C1A14 !important;overflow-x:hidden}
+@media(prefers-color-scheme:dark){html,body{background:#E8E2D4 !important;color:#1C1A14 !important}img,svg{filter:none !important}}
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(0,0,0,.12);border-radius:3px}
 
 @keyframes up{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
@@ -72,7 +72,7 @@ const{useState,useEffect}=React;
 
 // ═══ 21 THEMES ═══
 const THEMES=[
-{id:"oliva-arena",nm:"Oliva & Arena",sub:"Orgánico y atemporal",p:"#5E6B2E",s:"#C8C4A8",a:"#3D4A18",bg:"#F5F1E8",bga:"#EDE8DB",tx:"#1C1A14",txs:"#5C5840",dk:0},
+{id:"oliva-arena",nm:"Oliva & Arena",sub:"Orgánico y atemporal",p:"#5E6B2E",s:"#C8C4A8",a:"#3D4A18",bg:"#E8E2D4",bga:"#DED8C8",tx:"#1C1A14",txs:"#5C5840",dk:0},
 {id:"rosa-petalo",nm:"Rosa Pétalo",sub:"Suave y femenino",p:"#B85068",s:"#F0C8D0",a:"#8A3048",bg:"#FFF4F6",bga:"#FFE8EC",tx:"#2A1018",txs:"#8A4858",dk:0},
 {id:"lila-lavanda",nm:"Lila Lavanda",sub:"Sereno y elegante",p:"#7A5AAE",s:"#D0B8F0",a:"#5A3A90",bg:"#F6F2FC",bga:"#EDE4F8",tx:"#221040",txs:"#6A4A90",dk:0},
 {id:"menta-fresca",nm:"Menta Fresca",sub:"Fresco y vital",p:"#2A9A70",s:"#A0E8C8",a:"#187050",bg:"#F0FBF5",bga:"#DEF5EA",tx:"#0A2818",txs:"#3A7A58",dk:0},
@@ -206,63 +206,63 @@ const LogoGallery=({sel,onSel,theme})=>{
   const logo=LOGOS.find(l=>l.id===sel);
 
   return(
-    <div className="min-h-screen pt-20 sm:pt-24 pb-16 px-3 sm:px-6">
+    <div className="min-h-screen pt-20 sm:pt-24 pb-16" style={{display:'flex',flexDirection:'column',alignItems:'center'}}>
       {/* ── HEADER ── */}
-      <div className="text-center mb-5 sm:mb-8 au">
-        <h1 style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(1.6rem,5vw,3.5rem)',fontWeight:700,lineHeight:1.1,color:'#1C1A14'}}>
+      <div className="w-full text-center mb-5 sm:mb-8 au px-4">
+        <h1 style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(1.6rem,5vw,3.5rem)',fontWeight:700,lineHeight:1.1,color:'#1C1A14',textAlign:'center'}}>
           Elegí tu <em style={{color:t.p}}>logo</em>
         </h1>
-        <p className="mt-1 sm:mt-2 text-xs sm:text-sm" style={{color:'#8A8470'}}>{LOGOS.length} variantes — tocá para seleccionar</p>
+        <p className="mt-1 sm:mt-2 text-xs sm:text-sm" style={{color:'#8A8470',textAlign:'center'}}>{LOGOS.length} variantes — tocá para seleccionar</p>
       </div>
 
-      {/* ── SHOWCASE (compact on mobile) ── */}
+      {/* ── SHOWCASE ── */}
       {logo&&(
-        <div className="ap max-w-4xl mx-auto mb-6 sm:mb-14">
+        <div className="ap w-full max-w-4xl mx-auto mb-6 sm:mb-14 px-3 sm:px-6">
           <div className="rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-2xl" style={{background:'#1C1A14'}}>
-            {/* Dark top — logo on dark */}
             <div className="px-5 pt-6 pb-5 sm:px-14 sm:pt-12 sm:pb-8 flex flex-col items-center relative">
               <div className="absolute inset-0 opacity-[.03] pointer-events-none" style={{backgroundImage:'url("data:image/svg+xml,%3Csvg width=\'200\' height=\'200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence baseFrequency=\'.8\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")'}}/>
-              <p className="text-[9px] sm:text-[10px] uppercase tracking-[.5em] mb-4 sm:mb-6 relative" style={{color:'rgba(255,255,255,.2)'}}>Seleccionado</p>
-              <div className="relative mb-3 sm:mb-5">{logo.r({c:'#F5F1E8',s:window.innerWidth<640?140:220})}</div>
-              <p className="text-xs relative" style={{color:'rgba(255,255,255,.2)'}}>{logo.nm} <span className="opacity-50">— {logo.cat}</span></p>
+              <p className="text-[9px] sm:text-[10px] uppercase tracking-[.5em] mb-4 sm:mb-6 relative" style={{color:'rgba(255,255,255,.25)'}}>Seleccionado</p>
+              <div className="relative mb-3 sm:mb-5 flex justify-center">{logo.r({c:'#E8E2D4',s:window.innerWidth<640?140:220})}</div>
+              <p className="text-xs relative text-center" style={{color:'rgba(255,255,255,.2)'}}>{logo.nm} <span className="opacity-50">— {logo.cat}</span></p>
             </div>
-            {/* Light bottom — logo with theme color */}
             <div className="px-5 py-4 sm:px-14 sm:py-7 flex flex-col items-center" style={{background:t.bg,borderTop:`2px solid ${t.p}`}}>
               <div className="flex items-center gap-1.5 mb-3">
                 <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full" style={{background:t.p}}/>
                 <p className="text-[10px] sm:text-xs" style={{color:t.txs}}>Tema <strong style={{fontWeight:600,color:t.tx}}>{t.nm}</strong></p>
               </div>
-              {logo.r({c:t.p,s:window.innerWidth<640?100:140})}
+              <div className="flex justify-center">{logo.r({c:t.p,s:window.innerWidth<640?100:140})}</div>
             </div>
           </div>
         </div>
       )}
 
-      {/* ── FILTERS (horizontal scroll on mobile) ── */}
-      <div className="mb-6 sm:mb-10 au d2 max-w-4xl mx-auto overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
-        <div className="flex sm:flex-wrap sm:justify-center gap-1.5 sm:gap-2 min-w-max sm:min-w-0">
+      {/* ── FILTERS ── */}
+      <div className="w-full mb-6 sm:mb-10 au d2 px-3 sm:px-6 overflow-x-auto">
+        <div className="flex justify-center gap-1.5 sm:gap-2 flex-wrap">
           {["all",...CATS].map(c=>(
             <button key={c} onClick={()=>setCat(c)}
-              className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-medium transition-all whitespace-nowrap flex-shrink-0"
-              style={{background:cat===c?'#1C1A14':'rgba(28,26,20,.04)',color:cat===c?'#F5F1E8':'#8A8470'}}>
+              className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-medium transition-all whitespace-nowrap"
+              style={{background:cat===c?'#1C1A14':'rgba(28,26,20,.06)',color:cat===c?'#E8E2D4':'#8A8470'}}>
               {c==="all"?"Todos":c}
             </button>
           ))}
         </div>
       </div>
 
-      {/* ── GRID — 2 cols mobile, 3 cols lg ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-5 max-w-5xl mx-auto">
-        {list.map((l,i)=>(
-          <button key={l.id} onClick={()=>onSel(l.id)}
-            className={`lc rounded-xl sm:rounded-2xl p-3 sm:p-7 flex flex-col items-center justify-center au ${sel===l.id?'on':''}`}
-            style={{animationDelay:`${Math.min(i*.025,.4)}s`,minHeight:window.innerWidth<640?'140px':'200px'}}>
-            <div className="flex-1 flex items-center justify-center w-full">
-              {l.r({c:sel===l.id?t.p:'#1C1A14',s:window.innerWidth<640?85:130})}
-            </div>
-            <span className="text-[10px] sm:text-xs mt-1.5 sm:mt-3 font-medium truncate w-full text-center" style={{color:sel===l.id?t.p:'#8A8470'}}>{l.nm}</span>
-          </button>
-        ))}
+      {/* ── GRID ── */}
+      <div className="w-full max-w-5xl mx-auto px-3 sm:px-6">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-5">
+          {list.map((l,i)=>(
+            <button key={l.id} onClick={()=>onSel(l.id)}
+              className={`lc rounded-xl sm:rounded-2xl p-3 sm:p-7 flex flex-col items-center justify-center au ${sel===l.id?'on':''}`}
+              style={{animationDelay:`${Math.min(i*.025,.4)}s`,minHeight:window.innerWidth<640?'140px':'200px'}}>
+              <div className="flex-1 flex items-center justify-center w-full">
+                {l.r({c:sel===l.id?t.p:'#1C1A14',s:window.innerWidth<640?85:130})}
+              </div>
+              <span className="text-[10px] sm:text-xs mt-1.5 sm:mt-3 font-medium truncate w-full text-center" style={{color:sel===l.id?t.p:'#8A8470'}}>{l.nm}</span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -299,7 +299,7 @@ const ThemeGallery=({sel,onSel,logo:logoId})=>{
               <div className="p-2.5 sm:p-4">
                 <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
                   <h3 className="text-[11px] sm:text-sm font-semibold truncate" style={{color:'#1C1A14'}}>{th.nm}</h3>
-                  {th.dk?<span className="text-[8px] sm:text-[9px] px-1.5 py-0.5 rounded-full flex-shrink-0" style={{background:'#1C1A14',color:'#F5F1E8'}}>DARK</span>:null}
+                  {th.dk?<span className="text-[8px] sm:text-[9px] px-1.5 py-0.5 rounded-full flex-shrink-0" style={{background:'#1C1A14',color:'#E8E2D4'}}>DARK</span>:null}
                 </div>
                 <p className="text-[10px] sm:text-[11px] mb-2 sm:mb-3 hidden sm:block" style={{color:'#8A8470'}}>{th.sub}</p>
                 <div className="flex gap-1 sm:gap-1.5">{[th.p,th.s,th.a,th.bg].map((c,i)=><div key={i} className="w-5 h-5 sm:w-7 sm:h-7 rounded-full" style={{background:c,border:'1px solid rgba(0,0,0,.06)'}}/>)}</div>
@@ -416,15 +416,15 @@ const Landing=({logoId,themeId})=>{
         <div className="absolute bottom-20 left-[4%] w-28 sm:w-56 h-28 sm:h-56 rounded-full opacity-10 pointer-events-none" style={{background:`radial-gradient(circle,${th.p},transparent 70%)`,animation:'float 9s ease-in-out infinite 1s'}}/>
 
         <div className="max-w-6xl mx-auto px-4 sm:px-5 py-16 sm:py-20 w-full relative">
-          <div className="text-center sm:text-left sm:max-w-2xl">
-            <div className="au mb-5 sm:mb-8 flex justify-center sm:justify-start">{logo.r({c:th.a,s:window.innerWidth<640?120:160})}</div>
+          <div className="text-center max-w-2xl mx-auto">
+            <div className="au mb-5 sm:mb-8 flex justify-center">{logo.r({c:th.a,s:window.innerWidth<640?120:160})}</div>
             <h1 className="au d1" style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(2.2rem,7vw,5.5rem)',fontWeight:700,lineHeight:1.08,color:th.tx}}>
-              Tu espacio de{' '}<em style={{color:th.p}}>belleza</em>{window.innerWidth<640?' ':(<br/>)}y cuidado personal
+              Tu espacio de{' '}<em style={{color:th.p}}>belleza</em><br/>y cuidado personal
             </h1>
-            <p className="au d2 mt-4 sm:mt-5 text-sm sm:text-lg font-light leading-relaxed sm:max-w-lg mx-auto sm:mx-0" style={{color:th.txs}}>
+            <p className="au d2 mt-4 sm:mt-5 text-sm sm:text-lg font-light leading-relaxed max-w-lg mx-auto" style={{color:th.txs}}>
               El primer centro de cosmética especializado en Henderson. Tecnología, profesionalismo y un espacio diseñado para vos.
             </p>
-            <div className="au d3 mt-7 sm:mt-10 flex flex-col sm:flex-row gap-3">
+            <div className="au d3 mt-7 sm:mt-10 flex flex-col sm:flex-row gap-3 justify-center">
               <button onClick={()=>{setBk(true);setTimeout(()=>go("reservar"),100)}} className="cta text-sm font-medium px-8 sm:px-10 py-3.5 sm:py-4 rounded-full text-white text-center" style={{background:th.a,boxShadow:`0 8px 30px ${th.a}25`}}>Reservá tu turno</button>
               <button onClick={()=>go("servicios")} className="text-sm font-light px-8 sm:px-10 py-3.5 sm:py-4 rounded-full transition-all hover:shadow-md text-center" style={{background:dk?'rgba(255,255,255,.06)':th.s+'50',color:dk?th.tx:th.a}}>Ver servicios ↓</button>
             </div>
@@ -595,7 +595,7 @@ const App=()=>{
   const[logo,setLogo]=useState(1);
   const[theme,setTheme]=useState("oliva-arena");
   return(
-    <div className="min-h-screen" style={{background:'#F5F1E8'}}>
+    <div className="min-h-screen" style={{background:'#E8E2D4'}}>
       <Nav view={view} setView={setView}/>
       {view==="logos"&&<LogoGallery sel={logo} onSel={setLogo} theme={theme}/>}
       {view==="temas"&&<ThemeGallery sel={theme} onSel={setTheme} logo={logo}/>}
