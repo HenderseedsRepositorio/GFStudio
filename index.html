@@ -156,13 +156,13 @@ const TIMES=["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17
 
 // ═══ NAV ═══
 const Nav=({view,setView})=>(
-  <div className="fixed top-3 sm:top-4 left-1/2 -translate-x-1/2 z-50 as w-[calc(100%-1.5rem)] sm:w-auto max-w-md sm:max-w-none">
-    <div className="nav-pill flex rounded-full p-1 sm:p-1.5 shadow-xl" style={{background:'rgba(28,26,20,.92)',border:'1px solid rgba(255,255,255,.06)'}}>
-      {[{k:"logos",l:"Logos",n:40},{k:"temas",l:"Temas",n:21},{k:"landing",l:"Preview"}].map(v=>(
+  <div className="fixed top-3 sm:top-4 z-50 as" style={{left:0,right:0,display:'flex',justifyContent:'center',padding:'0 12px'}}>
+    <div className="nav-pill flex rounded-full p-1 sm:p-1.5 shadow-xl w-full sm:w-auto" style={{background:'rgba(28,26,20,.92)',border:'1px solid rgba(255,255,255,.06)',maxWidth:'360px'}}>
+      {[{k:"logos",l:"Logos"},{k:"temas",l:"Temas"},{k:"landing",l:"Preview"}].map(v=>(
         <button key={v.k} onClick={()=>setView(v.k)}
-          className="flex-1 sm:flex-none px-3 sm:px-7 py-2 rounded-full text-[11px] sm:text-sm tracking-wide font-medium transition-all"
-          style={{background:view===v.k?'rgba(255,255,255,.12)':'transparent',color:view===v.k?'#fff':'rgba(255,255,255,.35)'}}>
-          {v.l}<span className="hidden sm:inline ml-1 opacity-40 text-[10px]">{v.n?v.n:''}</span>
+          className="flex-1 py-2.5 sm:py-2 sm:px-7 rounded-full text-[12px] sm:text-sm tracking-wide font-medium transition-all text-center"
+          style={{background:view===v.k?'rgba(255,255,255,.14)':'transparent',color:view===v.k?'#fff':'rgba(255,255,255,.35)'}}>
+          {v.l}
         </button>
       ))}
     </div>
