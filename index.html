@@ -375,11 +375,18 @@ const Landing=({logoId,themeId})=>{
       return;
     }
 
-    // Send WhatsApp confirmation
+    // Send WhatsApp confirmation to client
     const sn=SVCS.find(s=>s.id===+sv)?.nm||sv;
     const df=new Date(dt+"T12:00:00").toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"});
     const msg=encodeURIComponent(`*Reserva — GF Studio*\n\n${n}\n${ph}\n${sn}\n${df}\n${tm} hs`);
     window.open(`https://wa.me/${WA}?text=${msg}`,"_blank");
+
+    // Notify owner via Make.com webhook
+    fetch("https://hook.us2.make.com/vbqc4j85mqfp506npf3p99rnr1yl3a5n",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({nombre:n,telefono:ph,servicio:sn,fecha:df,horario:tm+" hs",precio:fP(SVCS.find(s=>s.id===+sv)?.pr||0)})
+    }).catch(()=>{});
+
     setSubmitting(false);setSent(true);
   };
 
