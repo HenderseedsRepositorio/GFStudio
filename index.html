@@ -156,13 +156,13 @@ const TIMES=["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17
 
 // ═══ NAV ═══
 const Nav=({view,setView})=>(
-  <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 as">
-    <div className="nav-pill flex rounded-full p-1.5 shadow-xl" style={{background:'rgba(28,26,20,.92)',border:'1px solid rgba(255,255,255,.06)'}}>
+  <div className="fixed top-3 sm:top-4 left-1/2 -translate-x-1/2 z-50 as w-[calc(100%-1.5rem)] sm:w-auto max-w-md sm:max-w-none">
+    <div className="nav-pill flex rounded-full p-1 sm:p-1.5 shadow-xl" style={{background:'rgba(28,26,20,.92)',border:'1px solid rgba(255,255,255,.06)'}}>
       {[{k:"logos",l:"Logos",n:40},{k:"temas",l:"Temas",n:21},{k:"landing",l:"Preview"}].map(v=>(
         <button key={v.k} onClick={()=>setView(v.k)}
-          className="px-5 sm:px-7 py-2 rounded-full text-xs sm:text-sm tracking-wide font-medium transition-all"
+          className="flex-1 sm:flex-none px-3 sm:px-7 py-2 rounded-full text-[11px] sm:text-sm tracking-wide font-medium transition-all"
           style={{background:view===v.k?'rgba(255,255,255,.12)':'transparent',color:view===v.k?'#fff':'rgba(255,255,255,.35)'}}>
-          {v.l}{v.n?<span className="ml-1 opacity-40 text-[10px]">{v.n}</span>:''}
+          {v.l}<span className="hidden sm:inline ml-1 opacity-40 text-[10px]">{v.n?v.n:''}</span>
         </button>
       ))}
     </div>
@@ -177,60 +177,61 @@ const LogoGallery=({sel,onSel,theme})=>{
   const logo=LOGOS.find(l=>l.id===sel);
 
   return(
-    <div className="min-h-screen pt-24 pb-20 px-4 sm:px-6">
-      {/* ── SHOWCASE ── */}
+    <div className="min-h-screen pt-20 sm:pt-24 pb-16 px-3 sm:px-6">
+      {/* ── HEADER ── */}
+      <div className="text-center mb-5 sm:mb-8 au">
+        <h1 style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(1.6rem,5vw,3.5rem)',fontWeight:700,lineHeight:1.1,color:'#1C1A14'}}>
+          Elegí tu <em style={{color:t.p}}>logo</em>
+        </h1>
+        <p className="mt-1 sm:mt-2 text-xs sm:text-sm" style={{color:'#8A8470'}}>40 variantes — tocá para seleccionar</p>
+      </div>
+
+      {/* ── SHOWCASE (compact on mobile) ── */}
       {logo&&(
-        <div className="ap max-w-4xl mx-auto mb-16">
-          {/* Dark showcase card */}
-          <div className="rounded-[2rem] overflow-hidden shadow-2xl" style={{background:'#1C1A14'}}>
-            <div className="px-8 pt-10 pb-8 sm:px-16 sm:pt-14 sm:pb-10 flex flex-col items-center relative">
-              {/* Subtle grain */}
-              <div className="absolute inset-0 opacity-[.04] pointer-events-none" style={{backgroundImage:'url("data:image/svg+xml,%3Csvg width=\'200\' height=\'200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence baseFrequency=\'.8\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")'}}/>
-              <p className="text-[10px] uppercase tracking-[.5em] mb-8 relative" style={{color:'rgba(255,255,255,.2)'}}>Seleccionado</p>
-              <div className="relative mb-6">{logo.r({c:'#F5F1E8',s:220})}</div>
-              <p className="font-sans text-sm relative" style={{color:'rgba(255,255,255,.25)'}}>{logo.nm} <span className="opacity-50">— {logo.cat}</span></p>
+        <div className="ap max-w-4xl mx-auto mb-6 sm:mb-14">
+          <div className="rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-2xl" style={{background:'#1C1A14'}}>
+            {/* Dark top — logo on dark */}
+            <div className="px-5 pt-6 pb-5 sm:px-14 sm:pt-12 sm:pb-8 flex flex-col items-center relative">
+              <div className="absolute inset-0 opacity-[.03] pointer-events-none" style={{backgroundImage:'url("data:image/svg+xml,%3Csvg width=\'200\' height=\'200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence baseFrequency=\'.8\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")'}}/>
+              <p className="text-[9px] sm:text-[10px] uppercase tracking-[.5em] mb-4 sm:mb-6 relative" style={{color:'rgba(255,255,255,.2)'}}>Seleccionado</p>
+              <div className="relative mb-3 sm:mb-5">{logo.r({c:'#F5F1E8',s:window.innerWidth<640?140:220})}</div>
+              <p className="text-xs relative" style={{color:'rgba(255,255,255,.2)'}}>{logo.nm} <span className="opacity-50">— {logo.cat}</span></p>
             </div>
-            {/* Theme color strip */}
-            <div className="px-8 py-6 sm:px-16 sm:py-8 flex flex-col items-center" style={{background:t.bg,borderTop:`3px solid ${t.p}`}}>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-2.5 h-2.5 rounded-full" style={{background:t.p}}/>
-                <p className="text-xs" style={{color:t.txs}}>Con tema <strong style={{fontWeight:600,color:t.tx}}>{t.nm}</strong></p>
+            {/* Light bottom — logo with theme color */}
+            <div className="px-5 py-4 sm:px-14 sm:py-7 flex flex-col items-center" style={{background:t.bg,borderTop:`2px solid ${t.p}`}}>
+              <div className="flex items-center gap-1.5 mb-3">
+                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full" style={{background:t.p}}/>
+                <p className="text-[10px] sm:text-xs" style={{color:t.txs}}>Tema <strong style={{fontWeight:600,color:t.tx}}>{t.nm}</strong></p>
               </div>
-              {logo.r({c:t.p,s:140})}
+              {logo.r({c:t.p,s:window.innerWidth<640?100:140})}
             </div>
           </div>
         </div>
       )}
 
-      {/* ── HEADER ── */}
-      <div className="text-center mb-8 au max-w-2xl mx-auto">
-        <h1 style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(2rem,5vw,3.5rem)',fontWeight:700,lineHeight:1.1,color:'#1C1A14'}}>
-          Elegí tu <em style={{color:t.p}}>logo</em>
-        </h1>
-        <p className="mt-2 text-sm" style={{color:'#8A8470'}}>40 variantes — hacé click para seleccionar</p>
+      {/* ── FILTERS (horizontal scroll on mobile) ── */}
+      <div className="mb-6 sm:mb-10 au d2 max-w-4xl mx-auto overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
+        <div className="flex sm:flex-wrap sm:justify-center gap-1.5 sm:gap-2 min-w-max sm:min-w-0">
+          {["all",...CATS].map(c=>(
+            <button key={c} onClick={()=>setCat(c)}
+              className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-medium transition-all whitespace-nowrap flex-shrink-0"
+              style={{background:cat===c?'#1C1A14':'rgba(28,26,20,.04)',color:cat===c?'#F5F1E8':'#8A8470'}}>
+              {c==="all"?"Todos":c}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* ── FILTERS ── */}
-      <div className="flex flex-wrap justify-center gap-2 mb-10 au d2 max-w-4xl mx-auto">
-        {["all",...CATS].map(c=>(
-          <button key={c} onClick={()=>setCat(c)}
-            className="px-4 py-2 rounded-full text-xs font-medium transition-all"
-            style={{background:cat===c?'#1C1A14':'rgba(28,26,20,.04)',color:cat===c?'#F5F1E8':'#8A8470'}}>
-            {c==="all"?"Todos":c}
-          </button>
-        ))}
-      </div>
-
-      {/* ── GRID — 2 cols → 3 cols ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-5xl mx-auto">
+      {/* ── GRID — 2 cols mobile, 3 cols lg ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-5 max-w-5xl mx-auto">
         {list.map((l,i)=>(
           <button key={l.id} onClick={()=>onSel(l.id)}
-            className={`lc rounded-2xl p-6 sm:p-8 flex flex-col items-center justify-center au ${sel===l.id?'on':''}`}
-            style={{animationDelay:`${Math.min(i*.03,.5)}s`,minHeight:'210px'}}>
-            <div className="flex-1 flex items-center justify-center w-full py-1">
-              {l.r({c:sel===l.id?t.p:'#1C1A14',s:130})}
+            className={`lc rounded-xl sm:rounded-2xl p-3 sm:p-7 flex flex-col items-center justify-center au ${sel===l.id?'on':''}`}
+            style={{animationDelay:`${Math.min(i*.025,.4)}s`,minHeight:window.innerWidth<640?'140px':'200px'}}>
+            <div className="flex-1 flex items-center justify-center w-full">
+              {l.r({c:sel===l.id?t.p:'#1C1A14',s:window.innerWidth<640?85:130})}
             </div>
-            <span className="text-xs mt-3 font-medium" style={{color:sel===l.id?t.p:'#8A8470'}}>{l.nm}</span>
+            <span className="text-[10px] sm:text-xs mt-1.5 sm:mt-3 font-medium truncate w-full text-center" style={{color:sel===l.id?t.p:'#8A8470'}}>{l.nm}</span>
           </button>
         ))}
       </div>
@@ -242,22 +243,22 @@ const LogoGallery=({sel,onSel,theme})=>{
 const ThemeGallery=({sel,onSel,logo:logoId})=>{
   const logo=LOGOS.find(l=>l.id===logoId);
   return(
-    <div className="min-h-screen pt-24 pb-20 px-4 sm:px-6 max-w-6xl mx-auto">
-      <div className="text-center mb-12 au">
-        <h1 style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(2rem,5vw,3.5rem)',fontWeight:700,color:'#1C1A14'}}>
+    <div className="min-h-screen pt-20 sm:pt-24 pb-16 px-3 sm:px-6 max-w-6xl mx-auto">
+      <div className="text-center mb-6 sm:mb-12 au">
+        <h1 style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(1.6rem,5vw,3.5rem)',fontWeight:700,color:'#1C1A14'}}>
           Elegí tu <em style={{color:TH(sel).p}}>paleta</em>
         </h1>
-        <p className="mt-2 text-sm" style={{color:'#8A8470'}}>21 temas diseñados para cosmética y belleza</p>
+        <p className="mt-1 sm:mt-2 text-xs sm:text-sm" style={{color:'#8A8470'}}>21 temas para cosmética y belleza</p>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-5">
         {THEMES.map((th,i)=>{
           const on=sel===th.id;
           return(
             <button key={th.id} onClick={()=>onSel(th.id)}
-              className={`tc rounded-2xl overflow-hidden text-left au ${on?'on':''}`}
-              style={{background:'#FEFDF8',animationDelay:`${Math.min(i*.04,.5)}s`}}>
+              className={`tc rounded-xl sm:rounded-2xl overflow-hidden text-left au ${on?'on':''}`}
+              style={{background:'#FEFDF8',animationDelay:`${Math.min(i*.035,.5)}s`}}>
               {/* Preview strip */}
-              <div className="h-28 relative overflow-hidden" style={{background:th.bg}}>
+              <div className="h-20 sm:h-28 relative overflow-hidden" style={{background:th.bg}}>
                 <div className="absolute inset-3 rounded-lg overflow-hidden flex flex-col p-3" style={{background:th.dk?'rgba(255,255,255,.03)':'rgba(255,255,255,.5)',border:`1px solid ${th.dk?'rgba(255,255,255,.05)':'rgba(0,0,0,.04)'}`}}>
                   {logo&&<div className="mb-2 scale-[.3] origin-top-left -mr-20">{logo.r({c:th.p,s:80})}</div>}
                   <div className="w-20 h-1.5 rounded-full mb-1" style={{background:th.p,opacity:.6}}/>
@@ -266,13 +267,13 @@ const ThemeGallery=({sel,onSel,logo:logoId})=>{
                 </div>
                 {on&&<div className="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center" style={{background:'#1C1A14'}}><svg width="12" height="12" viewBox="0 0 16 16"><path d="M3 8L6.5 11.5L13 4.5" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg></div>}
               </div>
-              <div className="p-4">
-                <div className="flex items-center gap-2 mb-1.5">
-                  <h3 className="text-sm font-semibold" style={{color:'#1C1A14'}}>{th.nm}</h3>
-                  {th.dk?<span className="text-[9px] px-2 py-0.5 rounded-full" style={{background:'#1C1A14',color:'#F5F1E8'}}>DARK</span>:null}
+              <div className="p-2.5 sm:p-4">
+                <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
+                  <h3 className="text-[11px] sm:text-sm font-semibold truncate" style={{color:'#1C1A14'}}>{th.nm}</h3>
+                  {th.dk?<span className="text-[8px] sm:text-[9px] px-1.5 py-0.5 rounded-full flex-shrink-0" style={{background:'#1C1A14',color:'#F5F1E8'}}>DARK</span>:null}
                 </div>
-                <p className="text-[11px] mb-3" style={{color:'#8A8470'}}>{th.sub}</p>
-                <div className="flex gap-1.5">{[th.p,th.s,th.a,th.bg].map((c,i)=><div key={i} className="w-7 h-7 rounded-full" style={{background:c,border:'1px solid rgba(0,0,0,.06)',boxShadow:'inset 0 1px 2px rgba(0,0,0,.06)'}}/>)}</div>
+                <p className="text-[10px] sm:text-[11px] mb-2 sm:mb-3 hidden sm:block" style={{color:'#8A8470'}}>{th.sub}</p>
+                <div className="flex gap-1 sm:gap-1.5">{[th.p,th.s,th.a,th.bg].map((c,i)=><div key={i} className="w-5 h-5 sm:w-7 sm:h-7 rounded-full" style={{background:c,border:'1px solid rgba(0,0,0,.06)'}}/>)}</div>
               </div>
             </button>
           );
@@ -334,22 +335,22 @@ const Landing=({logoId,themeId})=>{
       </nav>
 
       {/* Hero */}
-      <section id="hero" className="relative min-h-[85vh] flex items-center overflow-hidden">
-        <div className="absolute top-10 right-[6%] w-96 h-96 opacity-20 pointer-events-none" style={{background:`radial-gradient(circle,${th.s},transparent 70%)`,animation:'morph 14s ease-in-out infinite',borderRadius:'60% 40% 30% 70%/60% 30% 70% 40%'}}/>
-        <div className="absolute bottom-20 left-[4%] w-56 h-56 rounded-full opacity-10 pointer-events-none" style={{background:`radial-gradient(circle,${th.p},transparent 70%)`,animation:'float 9s ease-in-out infinite 1s'}}/>
+      <section id="hero" className="relative min-h-[80vh] sm:min-h-[85vh] flex items-center overflow-hidden">
+        <div className="absolute top-10 right-[6%] w-48 sm:w-96 h-48 sm:h-96 opacity-20 pointer-events-none" style={{background:`radial-gradient(circle,${th.s},transparent 70%)`,animation:'morph 14s ease-in-out infinite',borderRadius:'60% 40% 30% 70%/60% 30% 70% 40%'}}/>
+        <div className="absolute bottom-20 left-[4%] w-28 sm:w-56 h-28 sm:h-56 rounded-full opacity-10 pointer-events-none" style={{background:`radial-gradient(circle,${th.p},transparent 70%)`,animation:'float 9s ease-in-out infinite 1s'}}/>
 
-        <div className="max-w-6xl mx-auto px-5 py-20 w-full relative">
+        <div className="max-w-6xl mx-auto px-4 sm:px-5 py-16 sm:py-20 w-full relative">
           <div className="max-w-2xl">
-            <div className="au mb-8">{logo.r({c:th.tx,s:160})}</div>
-            <h1 className="au d1" style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(3rem,7.5vw,5.5rem)',fontWeight:700,lineHeight:1.05,color:th.tx}}>
-              Tu espacio de{' '}<em style={{color:th.p}}>belleza</em><br/>y cuidado personal
+            <div className="au mb-5 sm:mb-8">{logo.r({c:th.tx,s:window.innerWidth<640?110:160})}</div>
+            <h1 className="au d1" style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(2.2rem,7vw,5.5rem)',fontWeight:700,lineHeight:1.08,color:th.tx}}>
+              Tu espacio de{' '}<em style={{color:th.p}}>belleza</em>{window.innerWidth<640?' ':(<br/>)}y cuidado personal
             </h1>
-            <p className="au d2 mt-5 text-base sm:text-lg font-light leading-relaxed max-w-lg" style={{color:th.txs}}>
+            <p className="au d2 mt-4 sm:mt-5 text-sm sm:text-lg font-light leading-relaxed max-w-lg" style={{color:th.txs}}>
               El primer centro de cosmética especializado en Henderson. Tecnología, profesionalismo y un espacio diseñado para vos.
             </p>
-            <div className="au d3 mt-10 flex flex-wrap gap-3">
-              <button onClick={()=>{setBk(true);setTimeout(()=>go("reservar"),100)}} className="cta text-sm font-medium px-10 py-4 rounded-full text-white" style={{background:th.p,boxShadow:`0 8px 30px ${th.p}25`}}>Reservá tu turno</button>
-              <button onClick={()=>go("servicios")} className="text-sm font-light px-10 py-4 rounded-full transition-all hover:shadow-md" style={{background:dk?'rgba(255,255,255,.06)':th.s+'50',color:dk?th.tx:th.a}}>Ver servicios ↓</button>
+            <div className="au d3 mt-7 sm:mt-10 flex flex-col sm:flex-row gap-3">
+              <button onClick={()=>{setBk(true);setTimeout(()=>go("reservar"),100)}} className="cta text-sm font-medium px-8 sm:px-10 py-3.5 sm:py-4 rounded-full text-white text-center" style={{background:th.p,boxShadow:`0 8px 30px ${th.p}25`}}>Reservá tu turno</button>
+              <button onClick={()=>go("servicios")} className="text-sm font-light px-8 sm:px-10 py-3.5 sm:py-4 rounded-full transition-all hover:shadow-md text-center" style={{background:dk?'rgba(255,255,255,.06)':th.s+'50',color:dk?th.tx:th.a}}>Ver servicios ↓</button>
             </div>
           </div>
         </div>
