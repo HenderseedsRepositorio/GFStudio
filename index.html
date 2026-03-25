@@ -169,12 +169,12 @@ const CATS=[...new Set(LOGOS.map(l=>l.cat))];
 
 // ═══ SERVICES ═══
 const SVCS=[
-{id:1,nm:"Perfilado de Cejas",pr:18000,dur:"45 min",desc:"Diseño personalizado según tu rostro"},
-{id:2,nm:"Laminado Cejas y Pestañas",pr:22000,dur:"60 min",desc:"Efecto lifting natural y duradero"},
-{id:3,nm:"Fototerapia LED Facial",pr:25000,dur:"50 min",desc:"Rejuvenecimiento con luz LED"},
-{id:4,nm:"Limpieza Facial Profunda",pr:20000,dur:"60 min",desc:"Limpieza profesional paso a paso"},
-{id:5,nm:"Anti-Edad con Radiofrecuencia",pr:35000,dur:"60 min",desc:"Firmeza y elasticidad con RF"},
-{id:6,nm:"Skincare Personalizado",pr:15000,dur:"30 min",desc:"Diagnóstico y rutina a medida"},
+{id:1,nm:"Perfilado de Cejas",pr:18000,dur:"45 min",desc:"Diseño personalizado según la morfología de tu rostro. Medición, depilación con pinza y cera, y finalización con producto fijador.",det:["Análisis facial personalizado","Depilación con pinza y cera","Tinte opcional","Gel fijador profesional"]},
+{id:2,nm:"Laminado de Cejas y Pestañas",pr:22000,dur:"60 min",desc:"Tratamiento que alisa y redirige el pelo para lograr un efecto lifting natural que dura 6-8 semanas.",det:["Efecto lifting natural","Nutrición con keratina","Duración 6-8 semanas","Incluye tinte"]},
+{id:3,nm:"Fototerapia LED Facial",pr:25000,dur:"50 min",desc:"Tecnología de luz LED roja, azul y ámbar que estimula el colágeno, reduce acné y unifica el tono de piel.",det:["Luz roja: colágeno","Luz azul: anti-acné","Luz ámbar: luminosidad","Resultados desde sesión 1"]},
+{id:4,nm:"Limpieza Facial Profunda",pr:20000,dur:"60 min",desc:"Protocolo completo de limpieza profesional: desmaquillado, vaporización, extracción, máscara y protección solar.",det:["Desmaquillado enzimático","Vaporización + extracción","Máscara hidratante","Protector solar SPF50"]},
+{id:5,nm:"Anti-Edad con Radiofrecuencia",pr:35000,dur:"60 min",desc:"Radiofrecuencia que genera calor controlado en dermis profunda, estimulando colágeno y elastina para firmeza visible.",det:["Radiofrecuencia tripolar","Estimula colágeno","Efecto tensor inmediato","Protocolo de 6-8 sesiones"]},
+{id:6,nm:"Skincare Personalizado",pr:15000,dur:"30 min",desc:"Diagnóstico completo de tu tipo de piel con lupa profesional y armado de rutina diaria con productos recomendados.",det:["Diagnóstico con lupa LED","Análisis de hidratación","Rutina AM/PM personalizada","Seguimiento post-consulta"]},
 ];
 const fP=n=>"$"+n.toLocaleString("es-AR");
 const TIMES=["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00"];
@@ -351,12 +351,12 @@ const Landing=({logoId,themeId})=>{
         <div className="max-w-6xl mx-auto px-5 flex items-center justify-between h-16">
           <div className="cursor-pointer" onClick={()=>go("hero")}>{logo.r({c:th.a,s:48})}</div>
           <div className="hidden md:flex items-center gap-8">
-            {["servicios","nosotras","contacto"].map(id=><button key={id} onClick={()=>go(id)} className="text-xs tracking-wide capitalize" style={{color:th.txs}}>{id}</button>)}
+            {["servicios","reservar","contacto"].map(id=><button key={id} onClick={()=>go(id)} className="text-xs tracking-wide capitalize" style={{color:th.txs}}>{id}</button>)}
             <button onClick={()=>{setBk(true);setTimeout(()=>go("reservar"),100)}} className="cta text-xs font-medium px-6 py-2.5 rounded-full text-white" style={{background:th.p,boxShadow:`0 4px 20px ${th.p}30`}}>Reservar</button>
           </div>
           <button className="md:hidden" onClick={()=>setMn(!mn)}><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d={mn?"M6 6L18 18M6 18L18 6":"M4 7H20M4 12H20M4 17H20"} stroke={th.p} strokeWidth="1.5" strokeLinecap="round"/></svg></button>
         </div>
-        {mn&&<div className="md:hidden px-5 pb-4 space-y-2 af">{["servicios","nosotras","contacto"].map(id=><button key={id} onClick={()=>go(id)} className="block w-full text-left text-sm py-1.5 capitalize" style={{color:th.txs}}>{id}</button>)}<button onClick={()=>{setBk(true);setMn(false);setTimeout(()=>go("reservar"),100)}} className="cta w-full text-xs font-medium py-3 rounded-full text-white mt-1" style={{background:th.p}}>Reservar Turno</button></div>}
+        {mn&&<div className="md:hidden px-5 pb-4 space-y-2 af">{["servicios","reservar","contacto"].map(id=><button key={id} onClick={()=>go(id)} className="block w-full text-left text-sm py-1.5 capitalize" style={{color:th.txs}}>{id}</button>)}<button onClick={()=>{setBk(true);setMn(false);setTimeout(()=>go("reservar"),100)}} className="cta w-full text-xs font-medium py-3 rounded-full text-white mt-1" style={{background:th.p}}>Reservar Turno</button></div>}
       </nav>
 
       {/* Hero */}
@@ -389,61 +389,46 @@ const Landing=({logoId,themeId})=>{
       </div>
 
       {/* Services */}
-      <section id="servicios" className="py-20 sm:py-28">
-        <div className="max-w-6xl mx-auto px-5">
-          <div className="reveal text-center mb-14">
+      <section id="servicios" className="py-16 sm:py-28">
+        <div className="max-w-6xl mx-auto px-4 sm:px-5">
+          <div className="reveal text-center mb-10 sm:mb-14">
             <p className="text-[10px] uppercase tracking-[.4em] mb-2" style={{color:th.p}}>Nuestros servicios</p>
             <h2 style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(1.8rem,4vw,3.2rem)',color:th.tx}}>Tratamientos <em style={{color:th.p}}>especializados</em></h2>
+            <p className="mt-3 text-sm font-light max-w-lg mx-auto" style={{color:th.txs}}>Cada tratamiento combina técnica profesional con tecnología de última generación para resultados visibles.</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="space-y-4 sm:space-y-5">
             {SVCS.map((s,i)=>(
-              <div key={s.id} className="reveal sc rounded-2xl p-6 cursor-pointer group" style={{background:cardBg,backdropFilter:'blur(12px)',border:`1px solid ${cardBd}`,transitionDelay:`${i*.06}s`}}
+              <div key={s.id} className="reveal sc rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer group" style={{background:cardBg,backdropFilter:'blur(12px)',border:`1px solid ${cardBd}`,transitionDelay:`${i*.06}s`}}
                 onClick={()=>{setFm(p=>({...p,sv:String(s.id)}));setBk(true);setTimeout(()=>go("reservar"),100)}}>
-                <div className="flex justify-between items-start mb-3">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-semibold" style={{background:th.p+'12',color:th.p}}>{s.id}</div>
-                  <span style={{fontFamily:'Playfair Display,serif',fontSize:'1.35rem',color:th.p}}>{fP(s.pr)}</span>
-                </div>
-                <h3 className="text-sm font-semibold mb-1" style={{color:th.tx}}>{s.nm}</h3>
-                <p className="text-xs font-light mb-2" style={{color:th.txs}}>{s.desc}</p>
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px]" style={{color:th.txs,opacity:.5}}>⏱ {s.dur}</span>
-                  <span className="text-[10px] font-medium opacity-0 group-hover:opacity-100 transition-opacity" style={{color:th.p}}>Reservar →</span>
+                <div className="p-5 sm:p-8">
+                  {/* Header */}
+                  <div className="flex items-start justify-between mb-3 sm:mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-sm sm:text-base font-bold" style={{background:th.p+'12',color:th.p}}>{String(s.id).padStart(2,'0')}</div>
+                      <div>
+                        <h3 className="text-sm sm:text-base font-semibold" style={{color:th.tx}}>{s.nm}</h3>
+                        <span className="text-[10px] sm:text-xs" style={{color:th.txs,opacity:.5}}>⏱ {s.dur}</span>
+                      </div>
+                    </div>
+                    <span className="flex-shrink-0 ml-2" style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(1.1rem,3vw,1.5rem)',color:th.p}}>{fP(s.pr)}</span>
+                  </div>
+                  {/* Description */}
+                  <p className="text-xs sm:text-sm font-light leading-relaxed mb-4" style={{color:th.txs}}>{s.desc}</p>
+                  {/* Detail chips */}
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3">
+                    {s.det.map((d,di)=>(
+                      <span key={di} className="text-[10px] sm:text-xs px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full font-light" style={{background:th.p+'0A',color:th.a,border:`1px solid ${th.p}12`}}>{d}</span>
+                    ))}
+                  </div>
+                  {/* CTA */}
+                  <div className="flex items-center justify-end">
+                    <span className="text-xs font-medium flex items-center gap-1 opacity-50 group-hover:opacity-100 transition-opacity" style={{color:th.p}}>
+                      Reservar turno <span className="text-base">→</span>
+                    </span>
+                  </div>
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* About */}
-      <section id="nosotras" className="py-20 relative">
-        <div className="absolute inset-0 -z-10" style={{background:dk?'rgba(255,255,255,.01)':th.s+'10'}}/>
-        <div className="max-w-5xl mx-auto px-5">
-          <div className="reveal grid grid-cols-1 lg:grid-cols-5 gap-10 lg:gap-16 items-center">
-            <div className="lg:col-span-2 relative">
-              <div className="aspect-[3/4] rounded-3xl flex items-center justify-center" style={{background:`linear-gradient(135deg,${th.bg},${th.s},${th.p}18,${th.bg})`,boxShadow:`0 32px 64px ${th.p}08`}}>
-                <div className="text-center p-6">
-                  {logo.r({c:dk?"rgba(255,255,255,.5)":"rgba(255,255,255,.6)",s:100})}
-                  <p className="mt-4" style={{fontFamily:'Playfair Display,serif',fontSize:'1.1rem',color:dk?"rgba(255,255,255,.3)":"rgba(255,255,255,.4)"}}>Henderson, BA</p>
-                </div>
-              </div>
-              <div className="absolute -bottom-3 -right-2 rounded-2xl px-5 py-3 shadow-xl" style={{background:dk?'rgba(20,20,20,.9)':'rgba(255,255,255,.88)',backdropFilter:'blur(12px)',border:`1px solid ${cardBd}`}}>
-                <p style={{fontFamily:'Playfair Display,serif',fontSize:'1.5rem',color:th.p}}>2026</p>
-                <p className="text-[10px]" style={{color:th.txs,opacity:.5}}>Próxima apertura</p>
-              </div>
-            </div>
-            <div className="lg:col-span-3">
-              <p className="text-[10px] uppercase tracking-[.4em] mb-2" style={{color:th.p}}>Nuestra historia</p>
-              <h2 className="mb-6" style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(1.6rem,3.5vw,2.5rem)',color:th.tx}}>Un espacio creado con <em style={{color:th.p}}>pasión</em></h2>
-              <div className="space-y-3 text-sm font-light leading-relaxed" style={{color:th.txs}}>
-                <p>GF Studio nace de la convicción de que Henderson merece un espacio de cosmética profesional, con tecnología de punta y una experiencia premium accesible.</p>
-                <p>Combinamos fototerapia LED, radiofrecuencia y dermapen con técnicas de perfilado y cuidado facial para resultados visibles desde la primera sesión.</p>
-                <p>Creemos que el cuidado personal no es un lujo — es bienestar. Y diseñamos cada detalle para que tu experiencia sea única.</p>
-              </div>
-              <div className="flex gap-10 mt-8">
-                {[{n:"4+",l:"Servicios especializados"},{n:"1°",l:"Centro profesional en Henderson"}].map((s,i)=><div key={i}><p style={{fontFamily:'Playfair Display,serif',fontSize:'2rem',color:th.p}}>{s.n}</p><p className="text-[10px]" style={{color:th.txs,opacity:.5}}>{s.l}</p></div>)}
-              </div>
-            </div>
           </div>
         </div>
       </section>
