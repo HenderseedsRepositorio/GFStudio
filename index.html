@@ -323,7 +323,7 @@ const ThemeGallery=({sel,onSel,logo:logoId})=>{
 };
 
 // ═══ LANDING ═══
-const Landing=({logoId,themeId})=>{
+const Landing=({logoId,themeId,embedMode})=>{
   const th=TH(themeId);
   const logo=LOGOS.find(l=>l.id===logoId)||LOGOS[0];
   const dk=!!th.dk;
@@ -434,6 +434,43 @@ const Landing=({logoId,themeId})=>{
   };
 
   const go=id=>{document.getElementById(id)?.scrollIntoView({behavior:"smooth"});setMn(false)};
+
+  // Embed mode — only booking section, no nav/hero/footer
+  if(embedMode) return(
+    <section className="py-16" style={{"--ac":th.p,"--gl":th.p+"18"}}>
+      <div className="max-w-xl mx-auto px-5">
+        {!bk?(
+          <div className="text-center">
+            <p className="text-[10px] uppercase tracking-[.4em] mb-2" style={{color:th.p}}>Turnos online</p>
+            <h2 className="mb-4" style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(1.6rem,4vw,2.5rem)',color:th.tx}}>Reservá tu <em style={{color:th.p}}>turno</em></h2>
+            <p className="text-sm font-light mb-8" style={{color:th.txs}}>Elegí servicio, día y horario. Te confirmamos por WhatsApp.</p>
+            <button onClick={()=>setBk(true)} className="cta text-sm font-medium px-10 py-4 rounded-full text-white" style={{background:th.p}}>Reservar turno</button>
+          </div>
+        ):sent?(
+          <div className="ap rounded-3xl p-8 text-center" style={{background:cardBg,border:`1px solid ${cardBd}`}}>
+            <div className="w-14 h-14 rounded-full mx-auto mb-3 flex items-center justify-center" style={{background:'#25D36618'}}><svg width="28" height="28" viewBox="0 0 24 24" fill="#25D366"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            <h3 className="mb-2" style={{fontFamily:'Playfair Display,serif',fontSize:'1.3rem',color:th.tx}}>¡Turno reservado!</h3>
+            {sentData&&<div className="text-left rounded-xl p-3 mb-3 space-y-1" style={{background:th.bg,border:`1px solid ${th.p}10`}}><p className="text-xs" style={{color:th.txs}}><strong style={{color:th.tx}}>{sentData.servicio}</strong> · {sentData.fecha} · {sentData.horario} hs · {sentData.precio}</p></div>}
+            <p className="text-xs font-light mb-4" style={{color:th.txs}}>Enviá el mensaje de WhatsApp para confirmar.</p>
+            <button onClick={()=>{setSent(false);setSentData(null);setFm({n:"",ph:"",sv:"",dt:"",tm:""})}} className="text-xs px-4 py-1.5 rounded-full" style={{background:th.p+'15',color:th.p}}>Reservar otro</button>
+          </div>
+        ):(
+          <div className="ap">
+            <div className="text-center mb-5"><h2 style={{fontFamily:'Playfair Display,serif',fontSize:'1.5rem',color:th.tx}}>Reservá tu <em style={{color:th.p}}>turno</em></h2></div>
+            <form onSubmit={sub} className="rounded-3xl p-6 sm:p-8 space-y-4" style={{background:cardBg,border:`1px solid ${cardBd}`}}>
+              <div><label className="text-[10px] uppercase tracking-widest block mb-1.5" style={{color:th.txs,opacity:.6}}>Nombre</label><input type="text" autoComplete="name" value={fm.n} onChange={e=>setFm(p=>({...p,n:e.target.value}))} className="fi w-full px-4 py-3.5 rounded-xl text-sm" style={{background:dk?'rgba(255,255,255,.05)':'rgba(255,255,255,.8)',color:th.tx}} placeholder="María García" required maxLength={80}/></div>
+              <div><label className="text-[10px] uppercase tracking-widest block mb-1.5" style={{color:th.txs,opacity:.6}}>WhatsApp</label><div className="flex gap-2"><span className="flex items-center px-3 py-3.5 rounded-xl text-xs font-medium" style={{background:dk?'rgba(255,255,255,.08)':'rgba(0,0,0,.04)',color:th.txs}}>+54</span><input type="tel" inputMode="numeric" autoComplete="tel" value={fm.ph} onChange={e=>setFm(p=>({...p,ph:e.target.value.replace(/[^\d\s\-]/g,'')}))} className="fi flex-1 px-4 py-3.5 rounded-xl text-sm" style={{background:dk?'rgba(255,255,255,.05)':'rgba(255,255,255,.8)',color:th.tx}} placeholder="2317 40-1234" required maxLength={20}/></div></div>
+              <div><label className="text-[10px] uppercase tracking-widest block mb-1.5" style={{color:th.txs,opacity:.6}}>Servicio</label><select value={fm.sv} onChange={e=>setFm(p=>({...p,sv:e.target.value}))} className="fi w-full px-4 py-3.5 rounded-xl text-sm appearance-none cursor-pointer" style={{background:dk?'rgba(255,255,255,.05)':'rgba(255,255,255,.8)',color:fm.sv?th.tx:th.txs}} required><option value="">Seleccioná un servicio</option>{SVCS.map(s=><option key={s.id} value={s.id}>{s.nm} — {fP(s.pr)}</option>)}</select></div>
+              <div><label className="text-[10px] uppercase tracking-widest block mb-1.5" style={{color:th.txs,opacity:.6}}>Fecha (Lun a Vie)</label><input type="date" value={fm.dt} min={minD()} onChange={e=>{setDateError("");if(!isWeekday(e.target.value)){setDateError("Solo lunes a viernes.");return}setFm(p=>({...p,dt:e.target.value,tm:""}));}} className="fi w-full px-4 py-3.5 rounded-xl text-sm" style={{background:dk?'rgba(255,255,255,.05)':'rgba(255,255,255,.8)',color:th.tx}} required/>{dateError&&<p className="text-[11px] mt-1.5 font-medium" style={{color:'#B91C1C'}}>{dateError}</p>}</div>
+              {fm.dt&&<div className="af"><label className="text-[10px] uppercase tracking-widest block mb-2" style={{color:th.txs,opacity:.6}}>Horario {loadingSlots&&<span className="opacity-50">· cargando...</span>}</label>{slotsError?<div className="text-center py-3 rounded-xl" style={{background:'rgba(0,0,0,.03)'}}><p className="text-xs mb-1" style={{color:'#B91C1C'}}>Error al cargar horarios</p><button type="button" onClick={()=>fetchSlots(fm.dt)} className="text-xs px-3 py-1 rounded-lg" style={{background:th.p+'15',color:th.p}}>Reintentar</button></div>:<div className="grid grid-cols-3 gap-2">{TIMES.map(t=>{const taken=takenSlots.includes(t);return<button key={t} type="button" disabled={taken} onClick={()=>!taken&&setFm(p=>({...p,tm:t}))} className="sb rounded-xl text-sm font-medium" style={{padding:'14px 0',minHeight:'48px',background:taken?'rgba(0,0,0,.03)':fm.tm===t?th.p:th.p+'10',color:taken?'rgba(0,0,0,.15)':fm.tm===t?'#fff':dk?th.tx:th.a,boxShadow:fm.tm===t?`0 4px 16px ${th.p}28`:'none',cursor:taken?'not-allowed':'pointer',textDecoration:taken?'line-through':'none'}}>{t}{taken&&<span className="block text-[9px] font-normal opacity-60" style={{textDecoration:'none'}}>Ocupado</span>}</button>})}</div>}</div>}
+              {submitError&&<p className="text-xs text-center py-2 px-3 rounded-lg" style={{background:'#fee2e2',color:'#991b1b'}}>{submitError}</p>}
+              <button type="submit" disabled={submitting} className="w-full text-sm font-medium py-3.5 rounded-xl text-white flex items-center justify-center gap-2 transition-all hover:shadow-lg disabled:opacity-50" style={{background:'#25D366'}}>{submitting?"Reservando...":"Confirmar por WhatsApp"}</button>
+            </form>
+          </div>
+        )}
+      </div>
+    </section>
+  );
 
   return(
     <div className="min-h-screen" style={{background:th.bg,"--ac":th.p,"--gl":th.p+"18"}}>
@@ -657,17 +694,179 @@ const Landing=({logoId,themeId})=>{
   );
 };
 
+// ═══ LAYOUT SELECTOR ═══
+const LayoutSelector=({current,onChange,th})=>(
+  <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 as" style={{maxWidth:'95%'}}>
+    <div className="flex items-center gap-1 rounded-full p-1" style={{background:'rgba(28,26,20,.9)',backdropFilter:'blur(12px)'}}>
+      <span className="text-[10px] text-white/25 px-2 hidden sm:inline">Layout:</span>
+      {[{k:1,l:"Centrado"},{k:2,l:"Minimal"},{k:3,l:"Bold"},{k:4,l:"Editorial"}].map(v=>(
+        <button key={v.k} onClick={()=>onChange(v.k)}
+          className="px-3 sm:px-4 py-2 rounded-full text-[11px] sm:text-xs font-medium transition-all"
+          style={{background:current===v.k?'rgba(255,255,255,.15)':'transparent',color:current===v.k?'#fff':'rgba(255,255,255,.3)'}}>
+          {v.l}
+        </button>
+      ))}
+    </div>
+  </div>
+);
+
+// ═══ LAYOUT 2 — MINIMAL ═══
+const Landing2=({logoId,themeId})=>{
+  const th=TH(themeId);const logo=LOGOS.find(l=>l.id===logoId)||LOGOS[0];const dk=!!th.dk;
+  const cardBg=dk?'rgba(255,255,255,.04)':'rgba(255,255,255,.55)';
+  const cardBd=dk?'rgba(255,255,255,.06)':'rgba(0,0,0,.04)';
+  const[bk,setBk]=useState(false);const go=id=>{document.getElementById(id)?.scrollIntoView({behavior:"smooth"})};
+  return(
+    <div className="min-h-screen" style={{background:th.bg}}>
+      <div className="max-w-3xl mx-auto px-5 pt-8 pb-20">
+        {/* Logo + Nav inline */}
+        <div className="flex items-center justify-between mb-20 sm:mb-32">
+          <div>{logo.r({c:th.a,s:48})}</div>
+          <div className="flex gap-6">{["servicios","reservar"].map(id=><button key={id} onClick={()=>{if(id==="reservar")setBk(true);go(id)}} className="text-xs" style={{color:th.txs}}>{id==="reservar"?"Turnos":id.charAt(0).toUpperCase()+id.slice(1)}</button>)}</div>
+        </div>
+        {/* Hero — ultra minimal */}
+        <div className="mb-20 sm:mb-32">
+          <div className="mb-8 flex justify-center">{logo.r({c:th.a,s:window.innerWidth<640?100:140})}</div>
+          <h1 className="text-center" style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(2rem,5vw,3.5rem)',fontWeight:400,lineHeight:1.15,color:th.tx}}>
+            Cosmética profesional<br/><em style={{color:th.p}}>en Henderson</em>
+          </h1>
+          <p className="text-center mt-4 text-sm font-light max-w-md mx-auto" style={{color:th.txs}}>Perfilado, laminado, fototerapia y skincare. Tecnología y cuidado en un espacio diseñado para vos.</p>
+          <div className="flex justify-center mt-8">
+            <button onClick={()=>{setBk(true);go("reservar")}} className="cta text-sm font-medium px-10 py-4 rounded-full text-white" style={{background:th.a}}>Reservar turno</button>
+          </div>
+        </div>
+        {/* Services — simple list */}
+        <div id="servicios" className="mb-20 sm:mb-32">
+          <h2 className="text-center mb-8" style={{fontFamily:'Playfair Display,serif',fontSize:'1.5rem',color:th.tx}}>Servicios</h2>
+          <div className="space-y-0 divide-y" style={{borderColor:th.p+'12'}}>
+            {SVCS.map(s=>(
+              <div key={s.id} className="flex items-center justify-between py-5 cursor-pointer group" onClick={()=>{setBk(true);go("reservar")}}>
+                <div>
+                  <h3 className="text-sm font-medium" style={{color:th.tx}}>{s.nm}</h3>
+                  <p className="text-xs font-light mt-0.5" style={{color:th.txs}}>{s.dur}</p>
+                </div>
+                <span className="text-sm font-medium" style={{color:th.p}}>{fP(s.pr)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* Booking — reuses Landing's form via render */}
+        <div id="reservar"><Landing logoId={logoId} themeId={themeId} embedMode/></div>
+      </div>
+    </div>
+  );
+};
+
+// ═══ LAYOUT 3 — BOLD ═══
+const Landing3=({logoId,themeId})=>{
+  const th=TH(themeId);const logo=LOGOS.find(l=>l.id===logoId)||LOGOS[0];const dk=!!th.dk;
+  const[bk,setBk]=useState(false);const go=id=>{document.getElementById(id)?.scrollIntoView({behavior:"smooth"})};
+  return(
+    <div className="min-h-screen" style={{background:th.tx}}>
+      {/* Dark hero — full viewport */}
+      <div className="min-h-screen flex flex-col items-center justify-center px-5 py-16 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10 pointer-events-none" style={{background:`radial-gradient(circle at 50% 50%,${th.p},transparent 70%)`}}/>
+        <div className="relative text-center">
+          <div className="mb-6 flex justify-center">{logo.r({c:th.bg,s:window.innerWidth<640?120:180})}</div>
+          <h1 style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(2.5rem,8vw,6rem)',fontWeight:700,lineHeight:1,color:th.bg}}>
+            GF<br/><em style={{color:th.p}}>Studio</em>
+          </h1>
+          <p className="mt-4 text-sm font-light max-w-md mx-auto" style={{color:th.bg+'70'}}>Cosmética profesional y cuidado de la piel en Henderson</p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center mt-10">
+            <button onClick={()=>go("s3")} className="cta text-sm font-medium px-10 py-4 rounded-full" style={{background:th.p,color:th.bg}}>Ver servicios</button>
+            <button onClick={()=>go("b3")} className="text-sm font-light px-10 py-4 rounded-full" style={{border:`1px solid ${th.bg}30`,color:th.bg+'90'}}>Reservar turno</button>
+          </div>
+        </div>
+      </div>
+      {/* Services on light bg */}
+      <div id="s3" className="py-16 sm:py-24" style={{background:th.bg}}>
+        <div className="max-w-5xl mx-auto px-5">
+          <h2 className="text-center mb-10" style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(1.8rem,4vw,3rem)',color:th.tx}}>Nuestros <em style={{color:th.p}}>tratamientos</em></h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+            {SVCS.map(s=>(
+              <div key={s.id} className="rounded-2xl p-5 text-center cursor-pointer sc" style={{background:'rgba(255,255,255,.5)',border:`1px solid rgba(0,0,0,.04)`}} onClick={()=>go("b3")}>
+                <p className="text-xl mb-1" style={{fontFamily:'Playfair Display,serif',color:th.p}}>{fP(s.pr)}</p>
+                <h3 className="text-xs font-semibold mb-1" style={{color:th.tx}}>{s.nm}</h3>
+                <p className="text-[10px]" style={{color:th.txs}}>{s.dur}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      {/* Booking */}
+      <div id="b3" style={{background:th.bg}}><Landing logoId={logoId} themeId={themeId} embedMode/></div>
+    </div>
+  );
+};
+
+// ═══ LAYOUT 4 — EDITORIAL ═══
+const Landing4=({logoId,themeId})=>{
+  const th=TH(themeId);const logo=LOGOS.find(l=>l.id===logoId)||LOGOS[0];const dk=!!th.dk;
+  const[bk,setBk]=useState(false);const go=id=>{document.getElementById(id)?.scrollIntoView({behavior:"smooth"})};
+  return(
+    <div className="min-h-screen" style={{background:th.bg}}>
+      {/* Sticky side logo */}
+      <div className="fixed top-4 left-4 z-40 hidden sm:block">{logo.r({c:th.a,s:36})}</div>
+      {/* Hero — editorial split */}
+      <div className="min-h-screen flex flex-col justify-center px-5 sm:px-16 py-20">
+        <div className="max-w-5xl mx-auto w-full">
+          <div className="flex justify-center sm:justify-start mb-6 sm:hidden">{logo.r({c:th.a,s:80})}</div>
+          <p className="text-[10px] uppercase tracking-[.5em] mb-4" style={{color:th.p}}>Henderson, Buenos Aires</p>
+          <h1 style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(2.5rem,7vw,5rem)',fontWeight:700,lineHeight:1.05,color:th.tx}}>
+            Tu espacio de<br/><em style={{color:th.p}}>belleza</em> y cuidado
+          </h1>
+          <div className="flex flex-col sm:flex-row gap-8 mt-10 sm:mt-16 items-start">
+            <div className="sm:w-1/2">
+              <p className="text-sm font-light leading-relaxed" style={{color:th.txs}}>GF Studio es el primer centro de cosmética especializado en Henderson. Fototerapia LED, radiofrecuencia y técnicas profesionales de cuidado facial en un espacio moderno y cálido.</p>
+              <button onClick={()=>go("e4")} className="cta text-sm font-medium px-8 py-3.5 rounded-full text-white mt-6" style={{background:th.a}}>Reservar turno</button>
+            </div>
+            <div className="sm:w-1/2 grid grid-cols-2 gap-2">
+              {SVCS.slice(0,4).map(s=>(
+                <div key={s.id} className="rounded-xl p-4" style={{background:'rgba(255,255,255,.4)',border:`1px solid rgba(0,0,0,.03)`}}>
+                  <p className="text-xs font-semibold" style={{color:th.tx}}>{s.nm}</p>
+                  <p className="text-sm mt-1" style={{fontFamily:'Playfair Display,serif',color:th.p}}>{fP(s.pr)}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* Full services */}
+      <div id="s4" className="py-16 border-t" style={{borderColor:th.p+'10'}}>
+        <div className="max-w-3xl mx-auto px-5">
+          <h2 className="text-center mb-8" style={{fontFamily:'Playfair Display,serif',fontSize:'1.8rem',color:th.tx}}>Todos los <em style={{color:th.p}}>servicios</em></h2>
+          {SVCS.map(s=>(
+            <div key={s.id} className="flex items-center justify-between py-4 border-b" style={{borderColor:th.p+'08'}}>
+              <div><h3 className="text-sm font-medium" style={{color:th.tx}}>{s.nm}</h3><p className="text-xs" style={{color:th.txs}}>{s.desc}</p></div>
+              <div className="text-right flex-shrink-0 ml-4"><p className="text-sm font-medium" style={{color:th.p}}>{fP(s.pr)}</p><p className="text-[10px]" style={{color:th.txs}}>{s.dur}</p></div>
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Booking */}
+      <div id="e4"><Landing logoId={logoId} themeId={themeId} embedMode/></div>
+    </div>
+  );
+};
+
 // ═══ APP ═══
 const App=()=>{
   const[view,setView]=useState("logos");
   const[logo,setLogo]=useState(1);
   const[theme,setTheme]=useState("oliva-arena");
+  const[layout,setLayout]=useState(1);
   return(
     <div className="min-h-screen" style={{background:'#E8E2D4'}}>
       <Nav view={view} setView={setView}/>
       {view==="logos"&&<LogoGallery sel={logo} onSel={setLogo} theme={theme}/>}
       {view==="temas"&&<ThemeGallery sel={theme} onSel={setTheme} logo={logo}/>}
-      {view==="landing"&&<Landing logoId={logo} themeId={theme}/>}
+      {view==="landing"&&<>
+        <LayoutSelector current={layout} onChange={setLayout} th={TH(theme)}/>
+        {layout===1&&<Landing logoId={logo} themeId={theme}/>}
+        {layout===2&&<Landing2 logoId={logo} themeId={theme}/>}
+        {layout===3&&<Landing3 logoId={logo} themeId={theme}/>}
+        {layout===4&&<Landing4 logoId={logo} themeId={theme}/>}
+      </>}
     </div>
   );
 };
