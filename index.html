@@ -333,11 +333,14 @@ const Landing=({logoId,themeId})=>{
   const[bk,setBk]=useState(false);
   const[fm,setFm]=useState({n:"",ph:"",sv:"",dt:"",tm:""});
   const[sent,setSent]=useState(false);
+  const[sentData,setSentData]=useState(null);
   const[mn,setMn]=useState(false);
   const[takenSlots,setTakenSlots]=useState([]);
   const[loadingSlots,setLoadingSlots]=useState(false);
+  const[slotsError,setSlotsError]=useState(false);
   const[submitting,setSubmitting]=useState(false);
   const[submitError,setSubmitError]=useState("");
+  const[dateError,setDateError]=useState("");
 
   useEffect(()=>{
     const o=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add("vis")})},{threshold:.06});
@@ -345,33 +348,57 @@ const Landing=({logoId,themeId})=>{
     return()=>o.disconnect();
   },[]);
 
-  // Fetch taken slots when date changes
-  useEffect(()=>{
-    if(!fm.dt)return;
-    setLoadingSlots(true);setTakenSlots([]);
-    sb.from("gf_appointments")
+  // Fetch taken slots — on date change + poll every 20s
+  const fetchSlots=useCallback(async(date)=>{
+    if(!date)return;
+    setLoadingSlots(true);setSlotsError(false);
+    const{data,error}=await sb.from("gf_appointments")
       .select("time_slot")
-      .eq("appointment_date",fm.dt)
-      .neq("status","cancelled")
-      .then(({data,error})=>{
-        if(data)setTakenSlots(data.map(r=>r.time_slot));
-        setLoadingSlots(false);
-      });
-  },[fm.dt]);
+      .eq("appointment_date",date)
+      .neq("status","cancelled");
+    if(error){setSlotsError(true);setLoadingSlots(false);return;}
+    setTakenSlots(data?data.map(r=>r.time_slot):[]);
+    setLoadingSlots(false);
+  },[]);
 
-  const minD=()=>{const d=new Date();d.setDate(d.getDate()+1);return d.toISOString().split("T")[0]};
-  const wk=v=>{if(!v)return 1;const d=new Date(v+"T12:00:00").getDay();return d>=1&&d<=5};
+  useEffect(()=>{
+    fetchSlots(fm.dt);
+    if(!fm.dt)return;
+    const iv=setInterval(()=>fetchSlots(fm.dt),20000);
+    return()=>clearInterval(iv);
+  },[fm.dt,fetchSlots]);
+
+  // Argentina timezone-safe min date (tomorrow)
+  const minD=()=>{
+    const now=new Date();
+    const ar=new Date(now.toLocaleString("en-US",{timeZone:"America/Argentina/Buenos_Aires"}));
+    ar.setDate(ar.getDate()+1);
+    return ar.getFullYear()+'-'+String(ar.getMonth()+1).padStart(2,'0')+'-'+String(ar.getDate()).padStart(2,'0');
+  };
+  const isWeekday=v=>{if(!v)return true;const d=new Date(v+"T12:00:00").getDay();return d>=1&&d<=5};
+  const validPhone=p=>/^\d[\d\s\-]{6,}$/.test(p.trim());
 
   const sub=async(e)=>{
     e.preventDefault();setSubmitError("");
     const{n,ph,sv,dt,tm}=fm;
-    if(!n||!ph||!sv||!dt||!tm){alert("Completá todos los campos");return}
+    if(!n||!ph||!sv||!dt||!tm){setSubmitError("Completá todos los campos.");return}
+    if(!validPhone(ph)){setSubmitError("Ingresá un número de teléfono válido.");return}
     setSubmitting(true);
 
-    // Save to Supabase
+    // 1. Refresh slots one last time before inserting
+    const{data:freshSlots}=await sb.from("gf_appointments")
+      .select("time_slot").eq("appointment_date",dt).neq("status","cancelled");
+    if(freshSlots&&freshSlots.some(r=>r.time_slot===tm)){
+      setTakenSlots(freshSlots.map(r=>r.time_slot));
+      setFm(p=>({...p,tm:""}));
+      setSubmitError("Ese horario acaba de ser reservado. Elegí otro.");
+      setSubmitting(false);return;
+    }
+
+    // 2. Insert into Supabase
     const{error}=await sb.from("gf_appointments").insert({
-      client_name:n,
-      client_phone:ph,
+      client_name:n.trim(),
+      client_phone:"+54"+ph.replace(/\D/g,''),
       service_id:parseInt(sv),
       appointment_date:dt,
       time_slot:tm,
@@ -385,19 +412,25 @@ const Landing=({logoId,themeId})=>{
       return;
     }
 
-    // Send WhatsApp confirmation to client
     const sn=SVCS.find(s=>s.id===+sv)?.nm||sv;
+    const pr=SVCS.find(s=>s.id===+sv)?.pr||0;
     const df=new Date(dt+"T12:00:00").toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"});
-    const msg=encodeURIComponent(`*Reserva — GF Studio*\n\n${n}\n${ph}\n${sn}\n${df}\n${tm} hs`);
-    window.open(`https://wa.me/${WA}?text=${msg}`,"_blank");
 
-    // Notify owner via Make.com webhook
-    fetch("https://hook.us2.make.com/vbqc4j85mqfp506npf3p99rnr1yl3a5n",{
-      method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({nombre:n,telefono:ph,servicio:sn,fecha:df,horario:tm+" hs",precio:fP(SVCS.find(s=>s.id===+sv)?.pr||0)})
-    }).catch(()=>{});
+    // 3. Notify owner FIRST (before opening WhatsApp which can kill the tab on mobile)
+    try{
+      await fetch("https://hook.us2.make.com/vbqc4j85mqfp506npf3p99rnr1yl3a5n",{
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({nombre:n.trim(),telefono:"+54"+ph.replace(/\D/g,''),servicio:sn,fecha:df,horario:tm+" hs",precio:fP(pr)})
+      });
+    }catch(e){}
 
+    // 4. Save confirmation data for display
+    setSentData({nombre:n.trim(),servicio:sn,fecha:df,horario:tm,precio:fP(pr)});
     setSubmitting(false);setSent(true);
+
+    // 5. Open WhatsApp LAST (this may navigate away on mobile)
+    const msg=encodeURIComponent(`*Reserva — GF Studio*\n\n${n.trim()}\n+54${ph.replace(/\D/g,'')}\n${sn}\n${df}\n${tm} hs`);
+    setTimeout(()=>window.open(`https://wa.me/${WA}?text=${msg}`,"_blank"),300);
   };
 
   const go=id=>{document.getElementById(id)?.scrollIntoView({behavior:"smooth"});setMn(false)};
@@ -505,11 +538,19 @@ const Landing=({logoId,themeId})=>{
               <button onClick={()=>setBk(true)} className="cta text-sm font-medium px-10 py-4 rounded-full text-white" style={{background:th.p,boxShadow:`0 8px 28px ${th.p}25`}}>Reservar turno</button>
             </div>
           ):sent?(
-            <div className="ap rounded-3xl p-10 text-center" style={{background:cardBg,backdropFilter:'blur(12px)',border:`1px solid ${cardBd}`}}>
+            <div className="ap rounded-3xl p-8 sm:p-10 text-center" style={{background:cardBg,backdropFilter:'blur(12px)',border:`1px solid ${cardBd}`}}>
               <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style={{background:'#25D36618'}}><svg width="30" height="30" viewBox="0 0 24 24" fill="#25D366"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
-              <h3 className="mb-2" style={{fontFamily:'Playfair Display,serif',fontSize:'1.5rem',color:th.tx}}>¡Turno enviado!</h3>
-              <p className="text-xs font-light mb-5" style={{color:th.txs}}>Se abrió WhatsApp con tu reserva.</p>
-              <button onClick={()=>{setSent(false);setFm({n:"",ph:"",sv:"",dt:"",tm:""})}} className="text-xs px-5 py-2 rounded-full" style={{background:th.p+'15',color:th.p}}>Reservar otro</button>
+              <h3 className="mb-2" style={{fontFamily:'Playfair Display,serif',fontSize:'1.5rem',color:th.tx}}>¡Turno reservado!</h3>
+              {sentData&&(
+                <div className="text-left rounded-2xl p-4 mb-4 space-y-1.5" style={{background:th.bg,border:`1px solid ${th.p}10`}}>
+                  <p className="text-xs" style={{color:th.txs}}><strong style={{color:th.tx}}>Servicio:</strong> {sentData.servicio}</p>
+                  <p className="text-xs" style={{color:th.txs}}><strong style={{color:th.tx}}>Fecha:</strong> {sentData.fecha}</p>
+                  <p className="text-xs" style={{color:th.txs}}><strong style={{color:th.tx}}>Horario:</strong> {sentData.horario} hs</p>
+                  <p className="text-xs" style={{color:th.txs}}><strong style={{color:th.tx}}>Precio:</strong> {sentData.precio}</p>
+                </div>
+              )}
+              <p className="text-xs font-light mb-5" style={{color:th.txs}}>Enviá el mensaje de WhatsApp para confirmar. Te responderemos a la brevedad.</p>
+              <button onClick={()=>{setSent(false);setSentData(null);setFm({n:"",ph:"",sv:"",dt:"",tm:""})}} className="text-xs px-5 py-2 rounded-full" style={{background:th.p+'15',color:th.p}}>Reservar otro turno</button>
             </div>
           ):(
             <div className="ap">
@@ -518,31 +559,48 @@ const Landing=({logoId,themeId})=>{
                 <h2 style={{fontFamily:'Playfair Display,serif',fontSize:'1.8rem',color:th.tx}}>Reservá tu <em style={{color:th.p}}>turno</em></h2>
               </div>
               <form onSubmit={sub} className="rounded-3xl p-6 sm:p-8 space-y-4" style={{background:cardBg,backdropFilter:'blur(12px)',border:`1px solid ${cardBd}`}}>
-                <div><label className="text-[10px] uppercase tracking-widest block mb-1.5" style={{color:th.txs,opacity:.6}}>Nombre</label><input type="text" value={fm.n} onChange={e=>setFm(p=>({...p,n:e.target.value}))} className="fi w-full px-4 py-3 rounded-xl text-sm" style={{background:dk?'rgba(255,255,255,.05)':'rgba(255,255,255,.8)',color:th.tx}} placeholder="María García" required/></div>
-                <div><label className="text-[10px] uppercase tracking-widest block mb-1.5" style={{color:th.txs,opacity:.6}}>WhatsApp</label><div className="flex gap-2"><span className="fi flex items-center px-3 py-3 rounded-xl text-xs" style={{background:dk?'rgba(255,255,255,.05)':'rgba(255,255,255,.8)',color:th.txs}}>+54</span><input type="tel" value={fm.ph} onChange={e=>setFm(p=>({...p,ph:e.target.value}))} className="fi flex-1 px-4 py-3 rounded-xl text-sm" style={{background:dk?'rgba(255,255,255,.05)':'rgba(255,255,255,.8)',color:th.tx}} placeholder="2317 40-1234" required/></div></div>
-                <div><label className="text-[10px] uppercase tracking-widest block mb-1.5" style={{color:th.txs,opacity:.6}}>Servicio</label><select value={fm.sv} onChange={e=>setFm(p=>({...p,sv:e.target.value}))} className="fi w-full px-4 py-3 rounded-xl text-sm appearance-none cursor-pointer" style={{background:dk?'rgba(255,255,255,.05)':'rgba(255,255,255,.8)',color:fm.sv?th.tx:th.txs}} required><option value="">Seleccioná un servicio</option>{SVCS.map(s=><option key={s.id} value={s.id}>{s.nm} — {fP(s.pr)}</option>)}</select></div>
-                <div><label className="text-[10px] uppercase tracking-widest block mb-1.5" style={{color:th.txs,opacity:.6}}>Fecha (Lun-Vie)</label><input type="date" value={fm.dt} min={minD()} onChange={e=>{if(wk(e.target.value))setFm(p=>({...p,dt:e.target.value,tm:""}));else alert("Solo lunes a viernes")}} className="fi w-full px-4 py-3 rounded-xl text-sm" style={{background:dk?'rgba(255,255,255,.05)':'rgba(255,255,255,.8)',color:th.tx}} required/></div>
+                <div><label className="text-[10px] uppercase tracking-widest block mb-1.5" style={{color:th.txs,opacity:.6}}>Nombre completo</label><input type="text" autoComplete="name" value={fm.n} onChange={e=>setFm(p=>({...p,n:e.target.value}))} className="fi w-full px-4 py-3.5 rounded-xl text-sm" style={{background:dk?'rgba(255,255,255,.05)':'rgba(255,255,255,.8)',color:th.tx}} placeholder="María García" required maxLength={80}/></div>
+                <div><label className="text-[10px] uppercase tracking-widest block mb-1.5" style={{color:th.txs,opacity:.6}}>WhatsApp</label><div className="flex gap-2"><span className="flex items-center px-3 py-3.5 rounded-xl text-xs font-medium" style={{background:dk?'rgba(255,255,255,.08)':'rgba(0,0,0,.04)',color:th.txs}}>+54</span><input type="tel" inputMode="numeric" autoComplete="tel" value={fm.ph} onChange={e=>setFm(p=>({...p,ph:e.target.value.replace(/[^\d\s\-]/g,'')}))} className="fi flex-1 px-4 py-3.5 rounded-xl text-sm" style={{background:dk?'rgba(255,255,255,.05)':'rgba(255,255,255,.8)',color:th.tx}} placeholder="2317 40-1234" required maxLength={20}/></div></div>
+                <div><label className="text-[10px] uppercase tracking-widest block mb-1.5" style={{color:th.txs,opacity:.6}}>Servicio</label><select value={fm.sv} onChange={e=>setFm(p=>({...p,sv:e.target.value}))} className="fi w-full px-4 py-3.5 rounded-xl text-sm appearance-none cursor-pointer" style={{background:dk?'rgba(255,255,255,.05)':'rgba(255,255,255,.8)',color:fm.sv?th.tx:th.txs}} required><option value="">Seleccioná un servicio</option>{SVCS.map(s=><option key={s.id} value={s.id}>{s.nm} — {fP(s.pr)}</option>)}</select></div>
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest block mb-1.5" style={{color:th.txs,opacity:.6}}>Fecha (Lun a Vie)</label>
+                  <input type="date" value={fm.dt} min={minD()} onChange={e=>{
+                    setDateError("");
+                    if(!isWeekday(e.target.value)){setDateError("Solo atendemos de lunes a viernes.");return}
+                    setFm(p=>({...p,dt:e.target.value,tm:""}));
+                  }} className="fi w-full px-4 py-3.5 rounded-xl text-sm" style={{background:dk?'rgba(255,255,255,.05)':'rgba(255,255,255,.8)',color:th.tx}} required/>
+                  {dateError&&<p className="text-[11px] mt-1.5 font-medium" style={{color:'#B91C1C'}}>{dateError}</p>}
+                </div>
                 {fm.dt&&<div className="af">
                   <label className="text-[10px] uppercase tracking-widest block mb-2" style={{color:th.txs,opacity:.6}}>
-                    Horario {loadingSlots&&<span className="opacity-50">(cargando...)</span>}
+                    Horario {loadingSlots&&<span className="opacity-50">· cargando...</span>}
                   </label>
-                  <div className="grid grid-cols-3 gap-1.5">
+                  {slotsError?(
+                    <div className="text-center py-4 rounded-xl" style={{background:'rgba(0,0,0,.03)'}}>
+                      <p className="text-xs mb-2" style={{color:'#B91C1C'}}>No se pudieron cargar los horarios</p>
+                      <button type="button" onClick={()=>fetchSlots(fm.dt)} className="text-xs font-medium px-4 py-1.5 rounded-lg" style={{background:th.p+'15',color:th.p}}>Reintentar</button>
+                    </div>
+                  ):(
+                  <div className="grid grid-cols-3 gap-2">
                     {TIMES.map(t=>{
                       const taken=takenSlots.includes(t);
                       return <button key={t} type="button" disabled={taken}
                         onClick={()=>!taken&&setFm(p=>({...p,tm:t}))}
-                        className="sb py-2.5 rounded-xl text-xs font-medium relative"
+                        className="sb rounded-xl text-sm font-medium relative"
                         style={{
+                          padding:'14px 0',
                           background:taken?'rgba(0,0,0,.03)':fm.tm===t?th.p:th.p+'10',
-                          color:taken?'rgba(0,0,0,.18)':fm.tm===t?'#fff':dk?th.tx:th.a,
+                          color:taken?'rgba(0,0,0,.15)':fm.tm===t?'#fff':dk?th.tx:th.a,
                           boxShadow:fm.tm===t?`0 4px 16px ${th.p}28`:'none',
                           cursor:taken?'not-allowed':'pointer',
-                          textDecoration:taken?'line-through':'none'
+                          textDecoration:taken?'line-through':'none',
+                          minHeight:'48px'
                         }}>
-                        {t}{taken&&<span className="block text-[8px] opacity-60 no-underline" style={{textDecoration:'none'}}>Ocupado</span>}
+                        {t}{taken&&<span className="block text-[9px] font-normal opacity-60" style={{textDecoration:'none'}}>Ocupado</span>}
                       </button>
                     })}
                   </div>
+                  )}
                 </div>}
                 {submitError&&<p className="text-xs text-center py-2 px-3 rounded-lg" style={{background:'#fee2e2',color:'#991b1b'}}>{submitError}</p>}
                 <button type="submit" disabled={submitting}
