@@ -140,7 +140,7 @@ const TIMES=["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17
 /* ═══ APP ═══ */
 const App=()=>{
   const[bk,setBk]=useState(false);
-  const[fm,setFm]=useState({n:"",ph:"",sv:"",dt:"",tm:""});
+  const[fm,setFm]=useState({n:"",em:"",ph:"",sv:"",dt:"",tm:""});
   const[sent,setSent]=useState(false);
   const[sentData,setSentData]=useState(null);
   const[mn,setMn]=useState(false);
@@ -200,8 +200,9 @@ const App=()=>{
 
   const sub=async(e)=>{
     e.preventDefault();setSubmitError("");
-    const{n,ph,sv,dt,tm}=fm;
-    if(!n||!ph||!sv||!dt||!tm){setSubmitError("Completá todos los campos.");return}
+    const{n,em,ph,sv,dt,tm}=fm;
+    if(!n||!em||!ph||!sv||!dt||!tm){setSubmitError("Completá todos los campos.");return}
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.trim())){setSubmitError("Ingresá un email válido.");return}
     if(!validPhone(ph)){setSubmitError("Ingresá un número de teléfono válido.");return}
     if(!sb){setSubmitError("Error de conexión. Intentá de nuevo.");return}
     setSubmitting(true);
@@ -219,6 +220,7 @@ const App=()=>{
 
       const{error}=await sb.from("gf_appointments").insert({
         client_name:n.trim(),
+        client_email:em.trim(),
         client_phone:"+54"+ph.replace(/\D/g,''),
         service_id:parseInt(sv),
         appointment_date:dt,
@@ -239,7 +241,7 @@ const App=()=>{
       try{
         await fetch("https://hook.us2.make.com/vbqc4j85mqfp506npf3p99rnr1yl3a5n",{
           method:"POST",headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({nombre:n.trim(),telefono:"+54"+ph.replace(/\D/g,''),servicio:sn,fecha:df,horario:tm+" hs",precio:fP(pr)})
+          body:JSON.stringify({nombre:n.trim(),email:em.trim(),telefono:"+54"+ph.replace(/\D/g,''),servicio:sn,fecha:df,horario:tm+" hs",precio:fP(pr)})
         });
       }catch(e){}
 
@@ -440,7 +442,7 @@ const App=()=>{
                 </div>
               )}
               <p className="text-xs font-light mb-6" style={{color:'var(--muted)'}}>Enviá el mensaje de WhatsApp para confirmar. Te respondemos a la brevedad.</p>
-              <button onClick={()=>{setSent(false);setSentData(null);setFm({n:"",ph:"",sv:"",dt:"",tm:""})}} className="btn-ghost text-xs px-6 py-2.5 rounded-full">Reservar otro turno</button>
+              <button onClick={()=>{setSent(false);setSentData(null);setFm({n:"",em:"",ph:"",sv:"",dt:"",tm:""})}} className="btn-ghost text-xs px-6 py-2.5 rounded-full">Reservar otro turno</button>
             </div>
           ):(
             <div className="grow">
@@ -453,6 +455,11 @@ const App=()=>{
                 <div>
                   <label className="text-[10px] uppercase tracking-[.2em] block mb-2 font-medium" style={{color:'var(--muted)',opacity:.5}}>Nombre completo</label>
                   <input type="text" autoComplete="name" value={fm.n} onChange={e=>setFm(p=>({...p,n:e.target.value}))} className="field w-full px-4 py-3.5 rounded-xl text-sm" placeholder="María García" required maxLength={80}/>
+                </div>
+                {/* Email */}
+                <div>
+                  <label className="text-[10px] uppercase tracking-[.2em] block mb-2 font-medium" style={{color:'var(--muted)',opacity:.5}}>Email</label>
+                  <input type="email" autoComplete="email" value={fm.em} onChange={e=>setFm(p=>({...p,em:e.target.value}))} className="field w-full px-4 py-3.5 rounded-xl text-sm" placeholder="maria@email.com" required maxLength={120}/>
                 </div>
                 {/* Phone */}
                 <div>
