@@ -19,7 +19,14 @@ function row(label: string, value: string, last = false, highlight = false): str
 }
 
 export function clientEmailHTML(d: BookingData): string {
-  return `
+  return `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recibimos tu reserva</title>
+</head>
+<body style="margin: 0; padding: 0;">
 <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #F5F1E8; padding: 40px 20px; margin: 0;">
   <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width: 560px; margin: 0 auto;">
     <tr><td style="padding: 0 8px;">
@@ -48,12 +55,21 @@ export function clientEmailHTML(d: BookingData): string {
       <p style="color: #8A8470; font-size: 11px; margin: 0; letter-spacing: 0.3px;">GF Studio — Henderson, Buenos Aires</p>
     </td></tr>
   </table>
-</div>`;
+</div>
+</body>
+</html>`;
 }
 
 export function guadaEmailHTML(d: BookingData): string {
   const waLink = `https://wa.me/${d.telefono.replace(/\D/g, '')}`;
-  return `
+  return `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nuevo turno</title>
+</head>
+<body style="margin: 0; padding: 0;">
 <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #F5F1E8; padding: 40px 20px; margin: 0;">
   <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width: 560px; margin: 0 auto;">
     <tr><td style="padding: 0 8px;">
@@ -81,7 +97,9 @@ export function guadaEmailHTML(d: BookingData): string {
       <p style="color: #8A8470; font-size: 12px; text-align: center; margin: 0;">Entrá al panel para confirmar o cancelar.</p>
     </td></tr>
   </table>
-</div>`;
+</div>
+</body>
+</html>`;
 }
 
 export type { BookingData };
