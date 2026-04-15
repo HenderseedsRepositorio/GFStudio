@@ -108,7 +108,7 @@ body{font-family:'Figtree',sans-serif;background:var(--sand)!important;color:var
 <div id="root"></div>
 <script type="text/babel">
 /* ═══════════ CONFIG ═══════════ */
-const WA="5491112345678";
+const WA="5492314573218"; // Número de Alvaro para testing. CAMBIAR al de Guada cuando esté listo.
 const SB_URL="https://ibikdnjuctopdkmtmgdd.supabase.co";
 const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImliaWtkbmp1Y3RvcGRrbXRtZ2RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1MjEwOTMsImV4cCI6MjA5MTA5NzA5M30.Tzsi0ZbcdohuJLFTut4z8h2vf5yi1dv_KfA_6m6COBI";
 let sb;
@@ -239,17 +239,15 @@ const App=()=>{
       const df=new Date(dt+"T12:00:00").toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"});
 
       try{
-        await fetch("https://hook.us2.make.com/vbqc4j85mqfp506npf3p99rnr1yl3a5n",{
-          method:"POST",headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({nombre:n.trim(),email:em.trim(),telefono:"+54"+ph.replace(/\D/g,''),servicio:sn,fecha:df,horario:tm+" hs",precio:fP(pr)})
+        await fetch(`${SB_URL}/functions/v1/notify-booking`,{
+          method:"POST",
+          headers:{"Content-Type":"application/json","apikey":SB_KEY},
+          body:JSON.stringify({nombre:n.trim(),email:em.trim(),telefono:"+54"+ph.replace(/\D/g,''),servicio:sn,fecha:df,horario:tm,precio:fP(pr)})
         });
-      }catch(e){}
+      }catch(e){console.warn("notify-booking failed",e)}
 
       setSentData({nombre:n.trim(),servicio:sn,fecha:df,horario:tm,precio:fP(pr)});
       setSubmitting(false);setSent(true);
-
-      const msg=encodeURIComponent(`*Reserva — GF Studio*\n\n${n.trim()}\n+54${ph.replace(/\D/g,'')}\n${sn}\n${df}\n${tm} hs`);
-      setTimeout(()=>window.open(`https://wa.me/${WA}?text=${msg}`,"_blank"),300);
     }catch(err){
       setSubmitError("Error de conexión. Intentá de nuevo.");
       setSubmitting(false);
@@ -435,7 +433,7 @@ const App=()=>{
                   )}
                 </div>
               )}
-              <p className="text-xs font-light mb-6" style={{color:'var(--muted)'}}>Enviá el mensaje de WhatsApp para confirmar. Te respondemos a la brevedad.</p>
+              <p className="text-xs font-light mb-6" style={{color:'var(--muted)'}}>Te mandamos un email con los detalles. Te confirmamos a la brevedad.</p>
               <button onClick={()=>{setSent(false);setSentData(null);setFm({n:"",em:"",ph:"",sv:"",dt:"",tm:""})}} className="btn-ghost text-xs px-6 py-2.5 rounded-full">Reservar otro turno</button>
             </div>
           ):(
