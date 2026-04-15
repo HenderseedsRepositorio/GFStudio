@@ -84,7 +84,7 @@ const App=()=>{
     await sb.from("gf_appointments").update({status:"confirmed"}).eq("id",appt.id);
     const svc=services.find(s=>s.id===appt.service_id)?.name||"tu turno";
     const fecha=fDate(appt.appointment_date);
-    const msg=`\u00a1Hola ${appt.client_name}! \u2728\n\nTe confirmamos tu turno en *GF Studio*:\n\n\u{1F4C5} *Fecha y hora:* ${fecha} \u2014 ${appt.time_slot} hs\n\u{1F486} *Servicio:* ${svc}\n\u{1F469}\u200D\u{1F3A8} *Profesional:* Guada\n\u{1F4CD} *Direcci\u00f3n:* Hip\u00f3lito Yrigoyen 229, Henderson\n\nCualquier cambio o reagendamiento, avisanos por ac\u00e1 con anticipaci\u00f3n \u{1F49A}\n\n\u00a1Te esperamos!\n\u2014 Guada, GF Studio`;
+    const msg=`\u00a1Hola ${appt.client_name}! \u2728\n\nTe confirmamos tu turno en *GF Studio*:\n\n\u{1F4C5} *Fecha y hora:* ${fecha} \u2014 ${appt.time_slot} hs\n\u{1F486} *Servicio:* ${svc}\n\u{1F469} *Profesional:* Guada\n\u{1F4CD} *Direcci\u00f3n:* Hip\u00f3lito Yrigoyen 229, Henderson\n\nCualquier cambio o reagendamiento, avisanos por ac\u00e1 con anticipaci\u00f3n \u{1F49A}\n\n\u00a1Te esperamos!\n\u2014 Guada, GF Studio`;
     window.open(`https://api.whatsapp.com/send?phone=${waTel(appt.client_phone)}&text=${encodeURIComponent(msg)}`,"_blank");
     await fetchData();
     setUpdating(null);
