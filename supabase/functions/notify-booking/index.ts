@@ -1,5 +1,6 @@
 // @ts-ignore - Deno import
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { clientEmailHTML, guadaEmailHTML, BookingData } from "./templates.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -7,26 +8,70 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+const FROM = "GF Studio <onboarding@resend.dev>";
+
+async function sendEmail(to: string, subject: string, html: string, apiKey: string) {
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ from: FROM, to, subject, html }),
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Resend ${res.status}: ${err}`);
   }
-  if (req.method !== "POST") {
-    return new Response("Method not allowed", { status: 405, headers: corsHeaders });
+  return res.json();
+}
+
+function validate(body: any): BookingData | null {
+  const required = ["nombre", "email", "telefono", "servicio", "fecha", "horario", "precio"];
+  for (const k of required) {
+    if (typeof body?.[k] !== "string" || !body[k].trim()) return null;
+  }
+  return body as BookingData;
+}
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  if (req.method !== "POST") return new Response("Method not allowed", { status: 405, headers: corsHeaders });
+
+  const apiKey = Deno.env.get("RESEND_API_KEY");
+  const guadaEmail = Deno.env.get("GUADA_EMAIL");
+  if (!apiKey || !guadaEmail) {
+    console.error("Missing secrets");
+    return new Response(JSON.stringify({ ok: false, error: "missing_secrets" }), {
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 
-  try {
-    const body = await req.json();
-    console.log("notify-booking received:", body);
-    return new Response(JSON.stringify({ ok: true }), {
-      status: 200,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  } catch (err) {
-    console.error("notify-booking error:", err);
-    return new Response(JSON.stringify({ ok: false, error: String(err) }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+  let body: any;
+  try { body = await req.json(); } catch {
+    return new Response(JSON.stringify({ ok: false, error: "invalid_json" }), {
+      status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
+
+  const data = validate(body);
+  if (!data) {
+    return new Response(JSON.stringify({ ok: false, error: "missing_fields" }), {
+      status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  const results = await Promise.allSettled([
+    sendEmail(data.email, "Recibimos tu reserva — GF Studio", clientEmailHTML(data), apiKey),
+    sendEmail(guadaEmail, `Nuevo turno — ${data.nombre} — ${data.fecha} ${data.horario}`, guadaEmailHTML(data), apiKey),
+  ]);
+
+  const failures = results.filter(r => r.status === "rejected");
+  if (failures.length) console.error("Email failures:", failures.map((f: any) => f.reason?.message));
+
+  return new Response(JSON.stringify({
+    ok: true,
+    client_sent: results[0].status === "fulfilled",
+    guada_sent: results[1].status === "fulfilled",
+  }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 });
