@@ -166,20 +166,21 @@ const ROW_STYLE = `
 export function clientEmailHTML(d: BookingData): string {
   return `
 <div style="${BASE_STYLE}">
-  <h1 style="font-family: 'Playfair Display', Georgia, serif; color: #3D4A18; font-size: 28px; margin: 0 0 8px;">GF Studio</h1>
-  <p style="color: #5C5840; font-size: 14px; margin: 0 0 24px;">El arte de cuidarte</p>
-  <h2 style="font-size: 20px; margin: 0 0 8px;">¡Hola ${d.nombre}!</h2>
-  <p style="color: #5C5840; line-height: 1.6;">Recibimos tu reserva. Estos son los detalles:</p>
+  <h1 style="font-family: 'Playfair Display', Georgia, serif; color: #3D4A18; font-size: 28px; margin: 0 0 6px; font-weight: 700;">GF Studio</h1>
+  <p style="color: #5C5840; font-size: 13px; margin: 0 0 28px; font-style: italic;">El arte de cuidarte</p>
+  <h2 style="font-size: 22px; margin: 0 0 8px; color: #1C1A14;">¡Hola ${d.nombre}! ✨</h2>
+  <p style="color: #5C5840; line-height: 1.6; font-size: 15px;">Recibimos tu reserva. Estos son los detalles:</p>
   <div style="${BOX_STYLE}">
-    <div style="${ROW_STYLE}"><span style="color:#8A8470;">Servicio</span><strong>${d.servicio}</strong></div>
-    <div style="${ROW_STYLE}"><span style="color:#8A8470;">Fecha</span><strong>${d.fecha}</strong></div>
-    <div style="${ROW_STYLE}"><span style="color:#8A8470;">Horario</span><strong>${d.horario}</strong></div>
-    <div style="${ROW_STYLE} border-bottom: none;"><span style="color:#8A8470;">Precio</span><strong style="color:#3D4A18;">${d.precio}</strong></div>
+    <div style="${ROW_STYLE}"><span style="color:#8A8470;">📅 Fecha y hora</span><strong>${d.fecha} — ${d.horario} hs</strong></div>
+    <div style="${ROW_STYLE}"><span style="color:#8A8470;">💆 Servicio</span><strong>${d.servicio}</strong></div>
+    <div style="${ROW_STYLE}"><span style="color:#8A8470;">👩‍🎨 Profesional</span><strong>Guada</strong></div>
+    <div style="${ROW_STYLE}"><span style="color:#8A8470;">📍 Dirección</span><strong>Hipólito Yrigoyen 229, Henderson</strong></div>
+    <div style="${ROW_STYLE} border-bottom: none;"><span style="color:#8A8470;">💰 Precio</span><strong style="color:#3D4A18;">${d.precio}</strong></div>
   </div>
-  <p style="color: #5C5840; line-height: 1.6;">Te confirmamos a la brevedad por WhatsApp. Si querés reagendar o cancelar, respondé este mail.</p>
-  <p style="color: #5C5840; font-size: 13px; margin-top: 24px;">📍 Hipólito Yrigoyen 229, Henderson</p>
+  <p style="color: #5C5840; line-height: 1.6; font-size: 14px;">Te confirmamos a la brevedad por WhatsApp. Cualquier cambio o reagendamiento, respondé este mail o escribinos con anticipación.</p>
+  <p style="color: #5C5840; line-height: 1.6; font-size: 14px; margin-top: 20px;">¡Te esperamos! 💚</p>
   <hr style="border: none; border-top: 1px solid rgba(0,0,0,.06); margin: 32px 0 16px;"/>
-  <p style="color: #8A8470; font-size: 11px;">GF Studio — Henderson, Buenos Aires</p>
+  <p style="color: #8A8470; font-size: 11px; margin: 0;">GF Studio — Henderson, Buenos Aires</p>
 </div>`;
 }
 
@@ -443,7 +444,7 @@ const confirmAndWA=async(appt)=>{
   await sb.from("gf_appointments").update({status:"confirmed"}).eq("id",appt.id);
   const svc=services.find(s=>s.id===appt.service_id)?.name||"tu turno";
   const fecha=fDate(appt.appointment_date);
-  const msg=`Hola ${appt.client_name}! Soy Guada de GF Studio ✨\n\nTe confirmo tu turno:\n📅 ${fecha}\n🕐 ${appt.time_slot} hs\n💆 ${svc}\n\nTe espero en Hipólito Yrigoyen 229, Henderson. Cualquier cambio avisame por acá.\n¡Nos vemos!`;
+  const msg=`¡Hola ${appt.client_name}! ✨\n\nTe confirmamos tu turno en *GF Studio*:\n\n📅 *Fecha y hora:* ${fecha} — ${appt.time_slot} hs\n💆 *Servicio:* ${svc}\n👩‍🎨 *Profesional:* Guada\n📍 *Dirección:* Hipólito Yrigoyen 229, Henderson\n\nCualquier cambio o reagendamiento, avisanos por acá con anticipación 💚\n\n¡Te esperamos!\n— Guada, GF Studio`;
   const tel=appt.client_phone.replace(/\D/g,'');
   window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`,"_blank");
   await fetchData();
