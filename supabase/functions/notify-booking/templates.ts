@@ -60,8 +60,15 @@ export function clientEmailHTML(d: BookingData): string {
 </html>`;
 }
 
+function waTel(p: string): string {
+  const t = (p || "").replace(/\D/g, "");
+  if (t.startsWith("549")) return t;
+  if (t.startsWith("54")) return "549" + t.slice(2);
+  return "549" + t;
+}
+
 export function guadaEmailHTML(d: BookingData): string {
-  const waLink = `https://wa.me/${d.telefono.replace(/\D/g, '')}`;
+  const waLink = `https://wa.me/${waTel(d.telefono)}`;
   return `<!DOCTYPE html>
 <html lang="es">
 <head>
