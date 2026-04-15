@@ -197,6 +197,8 @@ const App=()=>{
   };
   const isWeekday=v=>{if(!v)return true;const d=new Date(v+"T12:00:00").getDay();return d>=1&&d<=5};
   const validPhone=p=>/^\d[\d\s\-]{6,}$/.test(p.trim());
+  // Normaliza a "+549..." aceptando que el usuario pegue con o sin 54/549 adelante
+  const normPhone=p=>{let t=(p||"").replace(/\D/g,'');if(t.startsWith("549"))return "+"+t;if(t.startsWith("54"))return "+549"+t.slice(2);return "+549"+t};
 
   const sub=async(e)=>{
     e.preventDefault();setSubmitError("");
@@ -221,7 +223,7 @@ const App=()=>{
       const{error}=await sb.from("gf_appointments").insert({
         client_name:n.trim(),
         client_email:em.trim(),
-        client_phone:"+549"+ph.replace(/\D/g,''),
+        client_phone:normPhone(ph),
         service_id:parseInt(sv),
         appointment_date:dt,
         time_slot:tm,
@@ -242,7 +244,7 @@ const App=()=>{
         await fetch(`${SB_URL}/functions/v1/notify-booking`,{
           method:"POST",
           headers:{"Content-Type":"application/json","apikey":SB_KEY},
-          body:JSON.stringify({nombre:n.trim(),email:em.trim(),telefono:"+549"+ph.replace(/\D/g,''),servicio:sn,fecha:df,horario:tm,precio:fP(pr)})
+          body:JSON.stringify({nombre:n.trim(),email:em.trim(),telefono:normPhone(ph),servicio:sn,fecha:df,horario:tm,precio:fP(pr)})
         });
       }catch(e){console.warn("notify-booking failed",e)}
 
