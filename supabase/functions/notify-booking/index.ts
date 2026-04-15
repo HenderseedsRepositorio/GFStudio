@@ -1,6 +1,6 @@
 // @ts-ignore - Deno import
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { clientEmailHTML, guadaEmailHTML, BookingData } from "./templates.ts";
+import { clientEmailHTML, guadaEmailHTML, cancellationClientEmailHTML, BookingData } from "./templates.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -61,17 +61,22 @@ serve(async (req) => {
     });
   }
 
-  const results = await Promise.allSettled([
-    sendEmail(data.email, "Recibimos tu reserva — GF Studio", clientEmailHTML(data), apiKey),
-    sendEmail(guadaEmail, `Nuevo turno — ${data.nombre} — ${data.fecha} ${data.horario}`, guadaEmailHTML(data), apiKey),
-  ]);
+  const event = body.event === "cancellation" ? "cancellation" : "booking";
 
+  const tasks = event === "cancellation"
+    ? [sendEmail(data.email, "Tu turno fue cancelado — GF Studio", cancellationClientEmailHTML(data), apiKey)]
+    : [
+        sendEmail(data.email, "Recibimos tu reserva — GF Studio", clientEmailHTML(data), apiKey),
+        sendEmail(guadaEmail, `Nuevo turno — ${data.nombre} — ${data.fecha} ${data.horario}`, guadaEmailHTML(data), apiKey),
+      ];
+
+  const results = await Promise.allSettled(tasks);
   const failures = results.filter(r => r.status === "rejected");
   if (failures.length) console.error("Email failures:", failures.map((f: any) => f.reason?.message));
 
   return new Response(JSON.stringify({
     ok: true,
-    client_sent: results[0].status === "fulfilled",
-    guada_sent: results[1].status === "fulfilled",
+    event,
+    sent: results.map(r => r.status === "fulfilled"),
   }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 });

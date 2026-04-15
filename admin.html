@@ -90,6 +90,26 @@ const App=()=>{
     setUpdating(null);
   };
 
+  const cancelAndNotify=async(appt)=>{
+    if(!confirm(`¿Cancelar turno de ${appt.client_name}?\n\nSe le enviará un email de cancelación y se abrirá WhatsApp con el mensaje.`))return;
+    setUpdating(appt.id);
+    await sb.from("gf_appointments").update({status:"cancelled"}).eq("id",appt.id);
+    const svc=services.find(s=>s.id===appt.service_id)?.name||"tu turno";
+    const pr=services.find(s=>s.id===appt.service_id)?.price||0;
+    const fecha=fDate(appt.appointment_date);
+    // Fire email (no bloqueamos UI si falla)
+    fetch("https://ibikdnjuctopdkmtmgdd.supabase.co/functions/v1/notify-booking",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","apikey":SB_KEY},
+      body:JSON.stringify({event:"cancellation",nombre:appt.client_name,email:appt.client_email,telefono:appt.client_phone,servicio:svc,fecha,horario:appt.time_slot,precio:fP(pr)})
+    }).catch(e=>console.warn("cancel email failed",e));
+    // Abrir WA con mensaje de cancelación
+    const msg=`Hola ${appt.client_name} 💚\n\nLamentablemente tenemos que cancelar tu turno en *GF Studio*:\n\n📅 *Fecha y hora:* ${fecha} — ${appt.time_slot} hs\n💆 *Servicio:* ${svc}\n\nDisculpá las molestias. Cuando quieras reagendar, avisanos por acá o volvé a reservar en la web.\n\n— Guada, GF Studio`;
+    window.open(`https://wa.me/${waTel(appt.client_phone)}?text=${encodeURIComponent(msg)}`,"_blank");
+    await fetchData();
+    setUpdating(null);
+  };
+
   const deleteAppt=async(id)=>{
     if(!confirm("¿Eliminar este turno?"))return;
     await sb.from("gf_appointments").delete().eq("id",id);
@@ -99,7 +119,7 @@ const App=()=>{
   const today=new Date().toISOString().split("T")[0];
   const filtered=appointments.filter(a=>{
     if(filter==="today")return a.appointment_date===today;
-    if(filter==="upcoming")return a.appointment_date>=today&&a.status!=="cancelled";
+    if(filter==="upcoming")return a.appointment_date>=today;
     return true;
   });
 
@@ -208,9 +228,9 @@ const App=()=>{
                       </button>
                     )}
                     {a.status!=="cancelled"&&(
-                      <button onClick={()=>updateStatus(a.id,"cancelled")} disabled={updating===a.id}
+                      <button onClick={()=>cancelAndNotify(a)} disabled={updating===a.id}
                         className="text-[11px] font-medium px-3 py-1.5 rounded-lg" style={{background:'#FEE2E2',color:'#991B1B'}}>
-                        Cancelar
+                        {updating===a.id?"...":"Cancelar + Avisar"}
                       </button>
                     )}
                     {a.status==="cancelled"&&(
