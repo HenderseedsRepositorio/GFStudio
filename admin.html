@@ -526,7 +526,7 @@ const App=()=>{
                       background:isSelected?'#3D4A18':isToday?'rgba(61,74,24,.12)':'#FEFDF8',
                       color:isSelected?'#F5F1E8':isPast?'#A8A296':'#1C1A14',
                       border:isSelected?'none':'1px solid rgba(0,0,0,.04)',
-                      opacity:isPast&&!isSelected?.7:1,
+                      opacity:(isPast&&!isSelected)?0.7:1,
                     }}>
                     <span className="text-[12px] font-semibold leading-none mt-0.5">{parseInt(cell.split("-")[2])}</span>
                     <div className="flex gap-0.5">
@@ -829,7 +829,7 @@ const App=()=>{
           {blockList.filter(b=>b.type==="weekly"||b.type==="date_range").map(b=>{
             const dayName=["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"][b.day_of_week]||"—";
             const desc=b.type==="weekly"
-              ?`${dayName}${b.start_time?` ${b.start_time.slice(0,5)}–${b.end_time?.slice(0,5)}`:" (día completo)"}${b.recurring_from?` · desde ${b.recurring_from}`:""}${b.recurring_to?` hasta ${b.recurring_to}`:""}`
+              ?`${dayName}${b.start_time?` ${b.start_time.slice(0,5)}–${b.end_time?.slice(0,5)||"??"}`:" (día completo)"}${b.recurring_from?` · desde ${b.recurring_from}`:""}${b.recurring_to?` hasta ${b.recurring_to}`:""}`
               :`${b.date_from} → ${b.date_to}`;
             return(
               <div key={b.id} className="flex items-center justify-between gap-3 p-2.5 rounded-lg" style={{background:'#FEE2E2'}}>
