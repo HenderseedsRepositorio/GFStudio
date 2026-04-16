@@ -434,6 +434,7 @@ const App=()=>{
       payment_method:edit.payment_method||null,
       notes:edit.notes||null,
     }).eq("id",id);
+    setApptEdit(p=>{const n={...p};delete n[id];return n;});
     await fetchData();
     setSavingAppt(null);
   };
@@ -982,7 +983,7 @@ const App=()=>{
                   <div>
                     <label className="text-[10px] uppercase tracking-widest font-medium block mb-1" style={{color:'#8A8470'}}>Precio cobrado ($)</label>
                     <input type="number" value={edit.charged_price}
-                      onChange={e=>setApptEdit(p=>({...p,[a.id]:{...edit,charged_price:e.target.value}}))}
+                      onChange={e=>setApptEdit(p=>({...p,[a.id]:{...(p[a.id]||{}),charged_price:e.target.value}}))}
                       className="w-full px-2.5 py-2 rounded-lg text-sm"
                       style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}}
                       placeholder={String(listPrice)}/>
@@ -991,7 +992,7 @@ const App=()=>{
                   <div>
                     <label className="text-[10px] uppercase tracking-widest font-medium block mb-1" style={{color:'#8A8470'}}>M\u00e9todo de pago</label>
                     <select value={edit.payment_method}
-                      onChange={e=>setApptEdit(p=>({...p,[a.id]:{...edit,payment_method:e.target.value}}))}
+                      onChange={e=>setApptEdit(p=>({...p,[a.id]:{...(p[a.id]||{}),payment_method:e.target.value}}))}
                       className="w-full px-2.5 py-2 rounded-lg text-sm appearance-none"
                       style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}}>
                       <option value="">Sin registrar</option>
@@ -1005,7 +1006,7 @@ const App=()=>{
                 <div>
                   <label className="text-[10px] uppercase tracking-widest font-medium block mb-1" style={{color:'#8A8470'}}>Notas internas</label>
                   <input value={edit.notes}
-                    onChange={e=>setApptEdit(p=>({...p,[a.id]:{...edit,notes:e.target.value}}))}
+                    onChange={e=>setApptEdit(p=>({...p,[a.id]:{...(p[a.id]||{}),notes:e.target.value}}))}
                     className="w-full px-2.5 py-2 rounded-lg text-sm"
                     style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}}
                     placeholder="Observaciones, descuentos, etc."/>
