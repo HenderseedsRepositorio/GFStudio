@@ -185,7 +185,6 @@ const App=()=>{
   const[mn,setMn]=useState(false);
   const[takenSlots,setTakenSlots]=useState([]);
   const[loadingSlots,setLoadingSlots]=useState(false);
-  const[slotsError,setSlotsError]=useState(false);
   const[submitting,setSubmitting]=useState(false);
   const[submitError,setSubmitError]=useState("");
   const[dateError,setDateError]=useState("");
@@ -425,7 +424,7 @@ const App=()=>{
                         <span className="flex-shrink-0 text-right" style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(1rem,2.5vw,1.35rem)',color:'var(--olive)',fontWeight:600}}>{fP(s.price)}</span>
                       </div>
                       <div className="flex items-center gap-3 mt-1">
-                        <span className="text-[11px] font-light" style={{color:'var(--muted)',opacity:.6}}>{"\u23F1"} {s.duration}</span>
+                        <span className="text-[11px] font-light" style={{color:'var(--muted)',opacity:.6}}>{"\u23F1"} {s.duration || (s.duration_minutes ? s.duration_minutes + " min" : "")}</span>
                         {s.description&&<p className="text-xs sm:text-[13px] font-light truncate hidden sm:block" style={{color:'var(--muted)'}}>{s.description}</p>}
                       </div>
                     </div>
