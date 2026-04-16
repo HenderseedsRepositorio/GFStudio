@@ -39,6 +39,46 @@ const STATUS_COLORS={
   cancelled:{bg:"#FEE2E2",tx:"#991B1B",label:"Cancelado"},
 };
 
+const MONTHS_ES=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+const DAYS_ES=["LUN","MAR","MIÉ","JUE","VIE","SÁB","DOM"];
+const BLK_TIMES=[];
+for(let h=9;h<18;h++){BLK_TIMES.push(`${String(h).padStart(2,'0')}:00`);BLK_TIMES.push(`${String(h).padStart(2,'0')}:30`);}
+
+const getWeekDates=(offset)=>{
+  const now=new Date();
+  const dow=now.getDay();
+  const diff=dow===0?-6:1-dow;
+  const mon=new Date(now);
+  mon.setDate(now.getDate()+diff+offset*7);
+  return Array.from({length:7},(_,i)=>{const d=new Date(mon);d.setDate(mon.getDate()+i);return d});
+};
+
+const dateToYMD=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0');
+
+const toMinB=t=>{if(!t)return 0;const[h,m]=t.split(":").map(Number);return h*60+m};
+
+const isSlotBlockedAdmin=(date,time,blocks)=>{
+  const dow=new Date(date+"T12:00:00").getDay();
+  const mb=dow===0?6:dow-1;
+  const tMin=toMinB(time),tEnd=tMin+30;
+  return blocks.some(b=>{
+    switch(b.type){
+      case"full_day": return b.block_date===date;
+      case"datetime_range":
+        if(b.block_date!==date)return false;
+        return toMinB(b.start_time.slice(0,5))<tEnd&&toMinB(b.end_time.slice(0,5))>tMin;
+      case"date_range": return date>=b.date_from&&date<=b.date_to;
+      case"weekly":
+        if(b.day_of_week!==mb)return false;
+        if(b.recurring_from&&date<b.recurring_from)return false;
+        if(b.recurring_to&&date>b.recurring_to)return false;
+        if(b.start_time&&b.end_time) return toMinB(b.start_time.slice(0,5))<tEnd&&toMinB(b.end_time.slice(0,5))>tMin;
+        return true;
+      default: return false;
+    }
+  });
+};
+
 const App=()=>{
   const[auth,setAuth]=useState(false);
   const[pass,setPass]=useState("");
@@ -56,6 +96,10 @@ const App=()=>{
   const[svcForm,setSvcForm]=useState({name:"",price:"",duration_minutes:60,description:""});
   const[editingSvc,setEditingSvc]=useState(null);
   const[svcLoading,setSvcLoading]=useState(false);
+  const[blockList,setBlockList]=useState([]);
+  const[blkWeekOffset,setBlkWeekOffset]=useState(0);
+  const[blkSaving,setBlkSaving]=useState(false);
+  const[recForm,setRecForm]=useState({type:"weekly",day_of_week:5,start_time:"",end_time:"",date_from:"",date_to:"",label:""});
 
   const login=e=>{
     e.preventDefault();
@@ -172,6 +216,68 @@ const App=()=>{
 
   const showConfirm=(title,message,confirmLabel,confirmColor,onConfirm)=>{
     setModal({title,message,confirmLabel,confirmColor,onConfirm});
+  };
+
+  const fetchBlocks=async()=>{
+    const{data}=await sb.from("gf_blocked_slots").select("*").order("created_at",{ascending:false});
+    setBlockList(data||[]);
+  };
+
+  useEffect(()=>{if(auth)fetchBlocks();},[auth]);
+
+  const toggleDayTimeBlock=async(date,time)=>{
+    const[h,m]=time.split(":").map(Number);
+    const endTot=h*60+m+30;
+    const endStr=`${String(Math.floor(endTot/60)).padStart(2,'0')}:${String(endTot%60).padStart(2,'0')}`;
+    const existing=blockList.find(b=>
+      b.type==="datetime_range"&&
+      b.block_date===date&&
+      b.start_time?.slice(0,5)===time&&
+      b.end_time?.slice(0,5)===endStr
+    );
+    if(existing){
+      await sb.from("gf_blocked_slots").delete().eq("id",existing.id);
+    }else{
+      await sb.from("gf_blocked_slots").insert({
+        type:"datetime_range",block_date:date,
+        start_time:time+":00",end_time:endStr+":00",
+        label:""
+      });
+    }
+    await fetchBlocks();
+  };
+
+  const toggleFullDayBlock=async(date)=>{
+    const existing=blockList.find(b=>b.type==="full_day"&&b.block_date===date);
+    if(existing){
+      await sb.from("gf_blocked_slots").delete().eq("id",existing.id);
+    }else{
+      await sb.from("gf_blocked_slots").insert({type:"full_day",block_date:date,label:"Día bloqueado"});
+    }
+    await fetchBlocks();
+  };
+
+  const deleteBlock=async(id)=>{
+    await sb.from("gf_blocked_slots").delete().eq("id",id);
+    await fetchBlocks();
+  };
+
+  const saveRecBlock=async()=>{
+    setBlkSaving(true);
+    const payload={type:recForm.type,label:recForm.label||""};
+    if(recForm.type==="weekly"){
+      payload.day_of_week=Number(recForm.day_of_week);
+      if(recForm.start_time&&recForm.end_time){payload.start_time=recForm.start_time+":00";payload.end_time=recForm.end_time+":00";}
+      if(recForm.date_from)payload.recurring_from=recForm.date_from;
+      if(recForm.date_to)payload.recurring_to=recForm.date_to;
+    }else if(recForm.type==="date_range"){
+      payload.date_from=recForm.date_from;
+      payload.date_to=recForm.date_to;
+    }
+    await sb.from("gf_blocked_slots").insert(payload);
+    await fetchBlocks();
+    setRecForm({type:"weekly",day_of_week:5,start_time:"",end_time:"",date_from:"",date_to:"",label:""});
+    setBlkSaving(false);
   };
 
   const cancelAndNotify=(appt)=>{
@@ -550,11 +656,197 @@ const App=()=>{
           </div>
         </div>
       )}
-      {tab==="bloqueos"&&(
-        <div className="px-4 py-4 max-w-3xl mx-auto">
-          <p className="text-sm text-center py-10" style={{color:'#8A8470'}}>Cargando tab Bloqueos...</p>
+      {tab==="bloqueos"&&(()=>{
+  const weekDates=getWeekDates(blkWeekOffset);
+  const todayYMD=new Date().toISOString().split("T")[0];
+  const fromD=weekDates[0],toD=weekDates[6];
+  const weekLabel=`${fromD.getDate()} ${MONTHS_ES[fromD.getMonth()]} — ${toD.getDate()} ${MONTHS_ES[toD.getMonth()]} ${toD.getFullYear()}`;
+  return(
+  <div className="px-4 py-4 max-w-3xl mx-auto space-y-4">
+    {/* Grilla semanal */}
+    <div className="rounded-xl p-3" style={{background:'#FEFDF8',border:'1px solid rgba(0,0,0,.05)'}}>
+      <div className="flex items-center justify-between mb-3">
+        <button onClick={()=>setBlkWeekOffset(o=>o-1)} className="w-8 h-8 rounded-lg flex items-center justify-center text-sm" style={{background:'rgba(0,0,0,.05)'}}>←</button>
+        <span className="text-xs font-semibold" style={{color:'#1C1A14'}}>{weekLabel}</span>
+        <button onClick={()=>setBlkWeekOffset(o=>o+1)} className="w-8 h-8 rounded-lg flex items-center justify-center text-sm" style={{background:'rgba(0,0,0,.05)'}}>→</button>
+      </div>
+
+      <div style={{overflowX:'auto'}}>
+        <table style={{width:'100%',borderCollapse:'collapse',fontSize:'10px',minWidth:'340px'}}>
+          <thead>
+            <tr>
+              <th style={{width:'36px',background:'transparent'}}></th>
+              {weekDates.map((d,i)=>{
+                const isToday=dateToYMD(d)===todayYMD;
+                const isFullBlocked=blockList.some(b=>b.type==="full_day"&&b.block_date===dateToYMD(d));
+                return(
+                  <th key={i} onClick={()=>toggleFullDayBlock(dateToYMD(d))}
+                    style={{
+                      padding:'5px 2px 7px',textAlign:'center',cursor:'pointer',
+                      background:isFullBlocked?'#FECACA':isToday?'#5E6B2E':'#3D4A18',
+                      color:'#F5F1E8',userSelect:'none'
+                    }}>
+                    <span style={{display:'block',fontSize:'9px',fontWeight:700,letterSpacing:'.05em'}}>{DAYS_ES[i]}</span>
+                    <span style={{display:'block',fontSize:'13px',fontWeight:700,marginTop:'2px'}}>{d.getDate()}</span>
+                    <span style={{display:'block',fontSize:'9px',opacity:.7}}>{MONTHS_ES[d.getMonth()]}</span>
+                    {isFullBlocked&&<span style={{display:'block',fontSize:'8px',marginTop:'2px'}}>CERRADO</span>}
+                  </th>
+                );
+              })}
+            </tr>
+          </thead>
+          <tbody>
+            {BLK_TIMES.map(t=>(
+              <tr key={t}>
+                <td style={{background:'#F5F1E8',color:'#8A8470',textAlign:'right',paddingRight:'4px',fontSize:'9px',fontWeight:500,border:'none',whiteSpace:'nowrap'}}>{t}</td>
+                {weekDates.map((d,ci)=>{
+                  const date=dateToYMD(d);
+                  const isBlocked=isSlotBlockedAdmin(date,t,blockList);
+                  const hasAppt=appointments.some(a=>a.appointment_date===date&&a.time_slot===t&&a.status!=="cancelled");
+                  return(
+                    <td key={ci} onClick={()=>!hasAppt&&toggleDayTimeBlock(date,t)}
+                      style={{
+                        border:'1px solid rgba(0,0,0,.05)',height:'20px',textAlign:'center',
+                        cursor:hasAppt?'default':'pointer',fontSize:'10px',userSelect:'none',
+                        background:isBlocked?'#FECACA':hasAppt?'#D1FAE5':'#fff',
+                        color:isBlocked?'#991B1B':hasAppt?'#065F46':'transparent',
+                        transition:'background .12s',
+                      }}>
+                      {isBlocked?'✕':hasAppt?'●':''}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="flex gap-4 mt-3 flex-wrap">
+        {[{c:'#fff',b:'1px solid rgba(0,0,0,.1)',l:'Libre'},{c:'#FECACA',b:'none',l:'Bloqueado'},{c:'#D1FAE5',b:'none',l:'Turno confirmado'}].map((x,i)=>(
+          <div key={i} className="flex items-center gap-1.5">
+            <div style={{width:10,height:10,borderRadius:3,background:x.c,border:x.b,flexShrink:0}}/>
+            <span style={{fontSize:10,color:'#5C5840'}}>{x.l}</span>
+          </div>
+        ))}
+      </div>
+      <p style={{fontSize:10,color:'#8A8470',marginTop:6}}>Tocá una celda para bloquear/desbloquear · Tocá el encabezado del día para bloquear el día completo</p>
+    </div>
+
+    {/* Form bloqueos recurrentes */}
+    <div className="rounded-xl p-4" style={{background:'#FEFDF8',border:'1px solid rgba(0,0,0,.05)'}}>
+      <h2 className="text-sm font-bold mb-3">Agregar bloqueo recurrente / rango</h2>
+      <div className="space-y-3">
+        <div className="flex gap-2">
+          {[{v:"weekly",l:"Día recurrente"},{v:"date_range",l:"Rango de fechas"}].map(opt=>(
+            <button key={opt.v} onClick={()=>setRecForm(p=>({...p,type:opt.v}))}
+              className="flex-1 py-2 rounded-lg text-xs font-semibold transition-all"
+              style={{background:recForm.type===opt.v?'#3D4A18':'rgba(0,0,0,.05)',color:recForm.type===opt.v?'#fff':'#8A8470'}}>
+              {opt.l}
+            </button>
+          ))}
         </div>
-      )}
+
+        {recForm.type==="weekly"&&(
+          <>
+            <div>
+              <label className="text-[10px] uppercase tracking-widest font-medium block mb-1" style={{color:'#8A8470'}}>Día de la semana</label>
+              <select value={recForm.day_of_week} onChange={e=>setRecForm(p=>({...p,day_of_week:+e.target.value}))}
+                className="w-full px-3 py-2 rounded-lg text-sm"
+                style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}}>
+                {["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"].map((d,i)=><option key={i} value={i}>{d}</option>)}
+              </select>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-[10px] uppercase tracking-widest font-medium block mb-1" style={{color:'#8A8470'}}>Desde hora (opcional)</label>
+                <input type="time" value={recForm.start_time} onChange={e=>setRecForm(p=>({...p,start_time:e.target.value}))}
+                  className="w-full px-3 py-2 rounded-lg text-sm"
+                  style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}}/>
+              </div>
+              <div>
+                <label className="text-[10px] uppercase tracking-widest font-medium block mb-1" style={{color:'#8A8470'}}>Hasta hora (opcional)</label>
+                <input type="time" value={recForm.end_time} onChange={e=>setRecForm(p=>({...p,end_time:e.target.value}))}
+                  className="w-full px-3 py-2 rounded-lg text-sm"
+                  style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}}/>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-[10px] uppercase tracking-widest font-medium block mb-1" style={{color:'#8A8470'}}>Vigente desde (opcional)</label>
+                <input type="date" value={recForm.date_from} onChange={e=>setRecForm(p=>({...p,date_from:e.target.value}))}
+                  className="w-full px-3 py-2 rounded-lg text-sm"
+                  style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}}/>
+              </div>
+              <div>
+                <label className="text-[10px] uppercase tracking-widest font-medium block mb-1" style={{color:'#8A8470'}}>Vigente hasta (opcional)</label>
+                <input type="date" value={recForm.date_to} onChange={e=>setRecForm(p=>({...p,date_to:e.target.value}))}
+                  className="w-full px-3 py-2 rounded-lg text-sm"
+                  style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}}/>
+              </div>
+            </div>
+          </>
+        )}
+
+        {recForm.type==="date_range"&&(
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="text-[10px] uppercase tracking-widest font-medium block mb-1" style={{color:'#8A8470'}}>Desde</label>
+              <input type="date" value={recForm.date_from} onChange={e=>setRecForm(p=>({...p,date_from:e.target.value}))}
+                className="w-full px-3 py-2 rounded-lg text-sm"
+                style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}}/>
+            </div>
+            <div>
+              <label className="text-[10px] uppercase tracking-widest font-medium block mb-1" style={{color:'#8A8470'}}>Hasta</label>
+              <input type="date" value={recForm.date_to} onChange={e=>setRecForm(p=>({...p,date_to:e.target.value}))}
+                className="w-full px-3 py-2 rounded-lg text-sm"
+                style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}}/>
+            </div>
+          </div>
+        )}
+
+        <div>
+          <label className="text-[10px] uppercase tracking-widest font-medium block mb-1" style={{color:'#8A8470'}}>Motivo (opcional)</label>
+          <input value={recForm.label} onChange={e=>setRecForm(p=>({...p,label:e.target.value}))}
+            className="w-full px-3 py-2 rounded-lg text-sm"
+            style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}}
+            placeholder="Ej: Vacaciones, Feriado, Tarde libre"/>
+        </div>
+
+        <button onClick={saveRecBlock} disabled={blkSaving}
+          className="w-full py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-40"
+          style={{background:'#3D4A18'}}>
+          {blkSaving?"Guardando...":"+ Guardar bloqueo"}
+        </button>
+      </div>
+    </div>
+
+    {/* Lista bloqueos recurrentes activos */}
+    {blockList.filter(b=>b.type==="weekly"||b.type==="date_range").length>0&&(
+      <div className="rounded-xl p-4" style={{background:'#FEFDF8',border:'1px solid rgba(0,0,0,.05)'}}>
+        <h2 className="text-sm font-bold mb-3">Bloqueos recurrentes / rangos activos</h2>
+        <div className="space-y-2">
+          {blockList.filter(b=>b.type==="weekly"||b.type==="date_range").map(b=>{
+            const dayName=["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"][b.day_of_week]||"—";
+            const desc=b.type==="weekly"
+              ?`${dayName}${b.start_time?` ${b.start_time.slice(0,5)}–${b.end_time?.slice(0,5)}`:" (día completo)"}${b.recurring_from?` · desde ${b.recurring_from}`:""}${b.recurring_to?` hasta ${b.recurring_to}`:""}`
+              :`${b.date_from} → ${b.date_to}`;
+            return(
+              <div key={b.id} className="flex items-center justify-between gap-3 p-2.5 rounded-lg" style={{background:'#FEE2E2'}}>
+                <div className="min-w-0">
+                  <p className="text-xs font-medium truncate" style={{color:'#991B1B'}}>{b.label||desc}</p>
+                  <p className="text-[10px]" style={{color:'#991B1B',opacity:.7}}>{desc}</p>
+                </div>
+                <button onClick={()=>deleteBlock(b.id)} className="text-sm font-bold flex-shrink-0" style={{color:'#991B1B',opacity:.6}}>×</button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    )}
+  </div>
+  );
+})()}
       {tab==="resultados"&&(
         <div className="px-4 py-4 max-w-3xl mx-auto">
           <p className="text-sm text-center py-10" style={{color:'#8A8470'}}>Cargando tab Resultados...</p>
