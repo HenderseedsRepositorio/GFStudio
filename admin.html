@@ -79,12 +79,23 @@ const App=()=>{
     setUpdating(null);
   };
 
+  // Calcula horario de fin sumando la duracion del servicio (en minutos) al time_slot
+  const endTime=(start,dur)=>{
+    const min=parseInt((dur||"").match(/\d+/)?.[0])||60;
+    const[h,m]=start.split(":").map(Number);
+    const total=h*60+m+min;
+    const eh=Math.floor(total/60)%24,em=total%60;
+    return `${String(eh).padStart(2,'0')}:${String(em).padStart(2,'0')}`;
+  };
+
   const confirmAndWA=async(appt)=>{
     setUpdating(appt.id);
     await sb.from("gf_appointments").update({status:"confirmed"}).eq("id",appt.id);
-    const svc=services.find(s=>s.id===appt.service_id)?.name||"tu turno";
+    const svcObj=services.find(s=>s.id===appt.service_id);
+    const svc=svcObj?.name||"tu turno";
+    const fin=endTime(appt.time_slot,svcObj?.duration);
     const fecha=fDate(appt.appointment_date);
-    const msg=`\u00a1Hola ${appt.client_name}! \u2728\n\nTe confirmamos tu turno en *GF Studio*:\n\n\u{1F4C5} *Fecha y hora:* ${fecha} \u2014 ${appt.time_slot} hs\n\u{1F486} *Servicio:* ${svc}\n\u{1F469} *Profesional:* Guada\n\u{1F4CD} *Direcci\u00f3n:* Hip\u00f3lito Yrigoyen 229, Henderson\n\nCualquier cambio o reagendamiento, avisanos por ac\u00e1 con anticipaci\u00f3n \u{1F49A}\n\n\u00a1Te esperamos!\n\u2014 Guada, GF Studio`;
+    const msg=`\u00a1Hola ${appt.client_name}! \u2728\n\nTe confirmamos tu turno en *GF Studio*:\n\n\u{1F4C5} *Fecha:* ${fecha}\n\u{1F552} *Horario:* ${appt.time_slot} a ${fin} hs\n\u{1F486} *Servicio:* ${svc}\n\u{1F4CD} *Direcci\u00f3n:* Hip\u00f3lito Yrigoyen 229, Henderson\n\nCualquier cambio o reagendamiento, avisanos por ac\u00e1 con anticipaci\u00f3n \u{1F49A}\n\n\u00a1Te esperamos!\n\u2014 Guada, GF Studio`;
     window.open(`https://api.whatsapp.com/send?phone=${waTel(appt.client_phone)}&text=${encodeURIComponent(msg)}`,"_blank");
     await fetchData();
     setUpdating(null);
