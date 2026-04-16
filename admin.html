@@ -50,6 +50,7 @@ const App=()=>{
   const[view,setView]=useState("list"); // "list" | "calendar"
   const[calMonth,setCalMonth]=useState(()=>{const d=new Date();return new Date(d.getFullYear(),d.getMonth(),1)});
   const[calSelectedDay,setCalSelectedDay]=useState(null);
+  const[modal,setModal]=useState(null); // {title, message, onConfirm, confirmLabel, confirmColor}
 
   const login=e=>{e.preventDefault();if(pass===ADMIN_PASS)setAuth(true);else alert("Contraseña incorrecta")};
 
@@ -104,30 +105,46 @@ const App=()=>{
     setUpdating(null);
   };
 
-  const cancelAndNotify=async(appt)=>{
-    if(!confirm(`¿Cancelar turno de ${appt.client_name}?\n\nSe le enviará un email de cancelación y se abrirá WhatsApp con el mensaje.`))return;
-    setUpdating(appt.id);
-    await sb.from("gf_appointments").update({status:"cancelled"}).eq("id",appt.id);
-    const svc=services.find(s=>s.id===appt.service_id)?.name||"tu turno";
-    const pr=services.find(s=>s.id===appt.service_id)?.price||0;
-    const fecha=fDate(appt.appointment_date);
-    // Fire email (no bloqueamos UI si falla)
-    fetch("https://ibikdnjuctopdkmtmgdd.supabase.co/functions/v1/notify-booking",{
-      method:"POST",
-      headers:{"Content-Type":"application/json","apikey":SB_KEY},
-      body:JSON.stringify({event:"cancellation",nombre:appt.client_name,email:appt.client_email,telefono:appt.client_phone,servicio:svc,fecha,horario:appt.time_slot,precio:fP(pr)})
-    }).catch(e=>console.warn("cancel email failed",e));
-    // Abrir WA con mensaje de cancelación
-    const msg=`Hola ${appt.client_name} \u{1F49A}\n\nLamentablemente tenemos que cancelar tu turno en *GF Studio*:\n\n\u{1F4C5} *Fecha y hora:* ${fecha} \u2014 ${appt.time_slot} hs\n\u{1F486} *Servicio:* ${svc}\n\nDisculp\u00e1 las molestias. Cuando quieras reagendar, avisanos por ac\u00e1 o volv\u00e9 a reservar en la web.\n\n\u2014 Guada, GF Studio`;
-    window.open(`https://api.whatsapp.com/send?phone=${waTel(appt.client_phone)}&text=${encodeURIComponent(msg)}`,"_blank");
-    await fetchData();
-    setUpdating(null);
+  const showConfirm=(title,message,confirmLabel,confirmColor,onConfirm)=>{
+    setModal({title,message,confirmLabel,confirmColor,onConfirm});
   };
 
-  const deleteAppt=async(id)=>{
-    if(!confirm("¿Eliminar este turno?"))return;
-    await sb.from("gf_appointments").delete().eq("id",id);
-    await fetchData();
+  const cancelAndNotify=(appt)=>{
+    const svc=services.find(s=>s.id===appt.service_id)?.name||"tu turno";
+    showConfirm(
+      "Cancelar turno",
+      `Se cancelar\u00e1 el turno de ${appt.client_name} (${svc}, ${fDate(appt.appointment_date)} ${appt.time_slot} hs).\n\nSe le enviar\u00e1 un email y se abrir\u00e1 WhatsApp con el aviso.`,
+      "Cancelar turno",
+      "#991B1B",
+      async()=>{
+        setUpdating(appt.id);
+        const pr=services.find(s=>s.id===appt.service_id)?.price||0;
+        const fecha=fDate(appt.appointment_date);
+        await sb.from("gf_appointments").update({status:"cancelled"}).eq("id",appt.id);
+        fetch(`${SB_URL}/functions/v1/notify-booking`,{
+          method:"POST",
+          headers:{"Content-Type":"application/json","apikey":SB_KEY},
+          body:JSON.stringify({event:"cancellation",nombre:appt.client_name,email:appt.client_email,telefono:appt.client_phone,servicio:svc,fecha,horario:appt.time_slot,precio:fP(pr)})
+        }).catch(e=>console.warn("cancel email failed",e));
+        const msg=`Hola ${appt.client_name} \u{1F49A}\n\nLamentablemente tenemos que cancelar tu turno en *GF Studio*:\n\n\u{1F4C5} *Fecha y hora:* ${fecha} \u2014 ${appt.time_slot} hs\n\u{1F486} *Servicio:* ${svc}\n\nDisculp\u00e1 las molestias. Cuando quieras reagendar, avisanos por ac\u00e1 o volv\u00e9 a reservar en la web.\n\n\u2014 Guada, GF Studio`;
+        window.open(`https://api.whatsapp.com/send?phone=${waTel(appt.client_phone)}&text=${encodeURIComponent(msg)}`,"_blank");
+        await fetchData();
+        setUpdating(null);
+      }
+    );
+  };
+
+  const deleteAppt=(id,name)=>{
+    showConfirm(
+      "Eliminar turno",
+      `\u00bfEliminar el turno de ${name||"este cliente"}?\n\nEsta acci\u00f3n no se puede deshacer.`,
+      "Eliminar",
+      "#991B1B",
+      async()=>{
+        await sb.from("gf_appointments").delete().eq("id",id);
+        await fetchData();
+      }
+    );
   };
 
   const today=new Date().toISOString().split("T")[0];
@@ -198,9 +215,11 @@ const App=()=>{
               Reactivar
             </button>
           )}
-          <button onClick={()=>deleteAppt(a.id)} className="text-[11px] px-3 py-1.5 rounded-lg ml-auto" style={{color:'#8A8470'}}>Eliminar</button>
+          <button onClick={()=>deleteAppt(a.id,a.client_name)} className="text-[11px] px-3 py-1.5 rounded-lg ml-auto" style={{color:'#8A8470'}}>Eliminar</button>
           <a href={`https://api.whatsapp.com/send?phone=${waTel(a.client_phone)}`} target="_blank"
-            className="text-[11px] font-medium px-3 py-1.5 rounded-lg text-white" style={{background:'#25D366'}}>WA</a>
+            className="text-[11px] font-medium px-2.5 py-1.5 rounded-lg text-white flex items-center justify-center" style={{background:'#25D366'}}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          </a>
         </div>
         <p className="text-[9px] mt-2" style={{color:'rgba(0,0,0,.15)'}}>Reservado: {new Date(a.created_at).toLocaleString("es-AR")}</p>
       </div>
@@ -372,6 +391,27 @@ const App=()=>{
         </>
         )}
       </div>
+
+      {/* Modal de confirmación custom */}
+      {modal&&(
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-5" style={{background:'rgba(0,0,0,.4)',backdropFilter:'blur(4px)'}}>
+          <div className="w-full max-w-sm rounded-2xl p-6 text-center" style={{background:'#FEFDF8',boxShadow:'0 24px 80px rgba(0,0,0,.15)',animation:'rise .25s ease-out'}}>
+            <div className="w-12 h-12 rounded-full mx-auto mb-4 flex items-center justify-center" style={{background:'#FEE2E2'}}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#991B1B" strokeWidth="1.5" strokeLinecap="round"/></svg>
+            </div>
+            <h3 className="text-base font-bold mb-2" style={{color:'#1C1A14'}}>{modal.title}</h3>
+            <p className="text-sm mb-6 leading-relaxed whitespace-pre-line" style={{color:'#5C5840'}}>{modal.message}</p>
+            <div className="flex gap-2">
+              <button onClick={()=>setModal(null)} className="flex-1 py-2.5 rounded-xl text-sm font-medium" style={{background:'rgba(0,0,0,.05)',color:'#5C5840'}}>
+                Volver
+              </button>
+              <button onClick={()=>{setModal(null);modal.onConfirm()}} className="flex-1 py-2.5 rounded-xl text-sm font-medium text-white" style={{background:modal.confirmColor||'#991B1B'}}>
+                {modal.confirmLabel||"Confirmar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
