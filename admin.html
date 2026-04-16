@@ -52,6 +52,10 @@ const App=()=>{
   const[calSelectedDay,setCalSelectedDay]=useState(null);
   const[modal,setModal]=useState(null); // {title, message, onConfirm, confirmLabel, confirmColor}
   const[tab,setTab]=useState("turnos"); // "turnos"|"servicios"|"bloqueos"|"resultados"
+  const[svcList,setSvcList]=useState([]);
+  const[svcForm,setSvcForm]=useState({name:"",price:"",duration_minutes:60,description:""});
+  const[editingSvc,setEditingSvc]=useState(null);
+  const[svcLoading,setSvcLoading]=useState(false);
 
   const login=e=>{
     e.preventDefault();
@@ -98,6 +102,50 @@ const App=()=>{
     await sb.from("gf_appointments").update({status}).eq("id",id);
     await fetchData();
     setUpdating(null);
+  };
+
+  const fetchSvcs=async()=>{
+    const{data}=await sb.from("gf_services").select("*").order("id");
+    setSvcList(data||[]);
+  };
+
+  useEffect(()=>{if(auth)fetchSvcs();},[auth]);
+
+  const saveSvc=async()=>{
+    setSvcLoading(true);
+    const payload={
+      name:svcForm.name.trim(),
+      price:Number(svcForm.price),
+      duration_minutes:Number(svcForm.duration_minutes),
+      duration:`${svcForm.duration_minutes} min`,
+      description:svcForm.description.trim()||null,
+    };
+    if(editingSvc){
+      await sb.from("gf_services").update(payload).eq("id",editingSvc);
+    }else{
+      await sb.from("gf_services").insert(payload);
+    }
+    await fetchSvcs();
+    setSvcForm({name:"",price:"",duration_minutes:60,description:""});
+    setEditingSvc(null);
+    setSvcLoading(false);
+  };
+
+  const deleteSvc=async(id,name)=>{
+    showConfirm(
+      "Eliminar servicio",
+      `\u00bfEliminar "${name}"?\n\nLos turnos existentes con este servicio no se ver\u00e1n afectados.`,
+      "Eliminar","#991B1B",
+      async()=>{
+        await sb.from("gf_services").delete().eq("id",id);
+        await fetchSvcs();
+      }
+    );
+  };
+
+  const startEditSvc=(s)=>{
+    setEditingSvc(s.id);
+    setSvcForm({name:s.name,price:String(s.price),duration_minutes:s.duration_minutes||60,description:s.description||""});
   };
 
   // Calcula horario de fin sumando la duracion del servicio (en minutos) al time_slot
@@ -436,8 +484,70 @@ const App=()=>{
       )}
 
       {tab==="servicios"&&(
-        <div className="px-4 py-4 max-w-3xl mx-auto">
-          <p className="text-sm text-center py-10" style={{color:'#8A8470'}}>Cargando tab Servicios...</p>
+        <div className="px-4 py-4 max-w-3xl mx-auto space-y-4">
+          {/* Form */}
+          <div className="rounded-xl p-4" style={{background:'#FEFDF8',border:'1px solid rgba(0,0,0,.05)'}}>
+            <h2 className="text-sm font-bold mb-3" style={{color:'#1C1A14'}}>{editingSvc?"Editar servicio":"Nuevo servicio"}</h2>
+            <div className="space-y-3">
+              <div>
+                <label className="text-[10px] uppercase tracking-widest font-medium block mb-1" style={{color:'#8A8470'}}>Nombre</label>
+                <input value={svcForm.name} onChange={e=>setSvcForm(p=>({...p,name:e.target.value}))}
+                  className="w-full px-3 py-2.5 rounded-lg text-sm"
+                  style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}}
+                  placeholder="Ej: Limpieza Facial"/>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest font-medium block mb-1" style={{color:'#8A8470'}}>Precio ($)</label>
+                  <input type="number" value={svcForm.price} onChange={e=>setSvcForm(p=>({...p,price:e.target.value}))}
+                    className="w-full px-3 py-2.5 rounded-lg text-sm"
+                    style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}}
+                    placeholder="20000"/>
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest font-medium block mb-1" style={{color:'#8A8470'}}>Duración</label>
+                  <select value={svcForm.duration_minutes} onChange={e=>setSvcForm(p=>({...p,duration_minutes:+e.target.value}))}
+                    className="w-full px-3 py-2.5 rounded-lg text-sm appearance-none"
+                    style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}}>
+                    {[30,45,60,90,120].map(m=><option key={m} value={m}>{m} min</option>)}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="text-[10px] uppercase tracking-widest font-medium block mb-1" style={{color:'#8A8470'}}>Descripción (opcional)</label>
+                <input value={svcForm.description} onChange={e=>setSvcForm(p=>({...p,description:e.target.value}))}
+                  className="w-full px-3 py-2.5 rounded-lg text-sm"
+                  style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}}
+                  placeholder="Breve descripción del servicio"/>
+              </div>
+              <div className="flex gap-2 pt-1">
+                {editingSvc&&<button onClick={()=>{setEditingSvc(null);setSvcForm({name:"",price:"",duration_minutes:60,description:""})}}
+                  className="flex-1 py-2.5 rounded-xl text-sm" style={{background:'rgba(0,0,0,.05)',color:'#8A8470'}}>
+                  Cancelar
+                </button>}
+                <button onClick={saveSvc} disabled={!svcForm.name||!svcForm.price||svcLoading}
+                  className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-40"
+                  style={{background:'#3D4A18'}}>
+                  {svcLoading?"Guardando...":(editingSvc?"Guardar cambios":"+ Agregar servicio")}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Lista */}
+          <div className="space-y-2">
+            {svcList.map(s=>(
+              <div key={s.id} className="rounded-xl p-3.5 flex items-center gap-3" style={{background:'#FEFDF8',border:'1px solid rgba(0,0,0,.05)'}}>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold truncate">{s.name}</p>
+                  <p className="text-xs" style={{color:'#8A8470'}}>{s.duration_minutes||60} min · ${(s.price||0).toLocaleString("es-AR")}</p>
+                </div>
+                <button onClick={()=>startEditSvc(s)} className="text-xs px-2.5 py-1.5 rounded-lg flex-shrink-0" style={{background:'rgba(61,74,24,.08)',color:'#3D4A18'}}>Editar</button>
+                <button onClick={()=>deleteSvc(s.id,s.name)} className="text-xs px-2.5 py-1.5 rounded-lg flex-shrink-0" style={{background:'#FEE2E2',color:'#991B1B'}}>Eliminar</button>
+              </div>
+            ))}
+            {svcList.length===0&&<p className="text-center text-sm py-6" style={{color:'#8A8470'}}>No hay servicios cargados</p>}
+          </div>
         </div>
       )}
       {tab==="bloqueos"&&(
