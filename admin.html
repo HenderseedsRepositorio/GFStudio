@@ -174,9 +174,9 @@ const App=()=>{
           <span className="text-[10px] font-medium px-2.5 py-1 rounded-full" style={{background:st.bg,color:st.tx}}>{st.label}</span>
         </div>
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs mb-3" style={{color:'#5C5840'}}>
-          <span>\u{1F4C5} {fDate(a.appointment_date)}</span>
-          <span>\u{1F552} {a.time_slot} hs</span>
-          <span>\u{1F486} {svcName(a.service_id)}</span>
+          <span>{"\u{1F4C5}"} {fDate(a.appointment_date)}</span>
+          <span>{"\u{1F552}"} {a.time_slot} hs</span>
+          <span>{"\u{1F486}"} {svcName(a.service_id)}</span>
           <span className="font-medium" style={{color:'#3D4A18'}}>{fP(svcPrice(a.service_id))}</span>
         </div>
         <div className="flex gap-1.5 flex-wrap">
