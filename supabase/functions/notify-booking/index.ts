@@ -31,6 +31,7 @@ function validate(body: any): BookingData | null {
   for (const k of required) {
     if (typeof body?.[k] !== "string" || !body[k].trim()) return null;
   }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email)) return null;
   return body as BookingData;
 }
 
