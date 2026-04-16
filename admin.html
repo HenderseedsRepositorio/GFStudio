@@ -92,6 +92,12 @@ const App=()=>{
   const[calSelectedDay,setCalSelectedDay]=useState(null);
   const[modal,setModal]=useState(null); // {title, message, onConfirm, confirmLabel, confirmColor}
   const[tab,setTab]=useState("turnos"); // "turnos"|"servicios"|"bloqueos"|"resultados"
+  const[resFilter,setResFilter]=useState("month"); // "today"|"week"|"month"|"custom"
+  const[resFrom,setResFrom]=useState("");
+  const[resTo,setResTo]=useState("");
+  const[expandedAppt,setExpandedAppt]=useState(null); // id del turno expandido
+  const[apptEdit,setApptEdit]=useState({}); // {[id]: {charged_price, payment_method, notes}}
+  const[savingAppt,setSavingAppt]=useState(null);
   const[svcList,setSvcList]=useState([]);
   const[svcForm,setSvcForm]=useState({name:"",price:"",duration_minutes:60,description:""});
   const[editingSvc,setEditingSvc]=useState(null);
@@ -400,6 +406,37 @@ const App=()=>{
 
   const svcName=id=>services.find(s=>s.id===id)?.name||"—";
   const svcPrice=id=>services.find(s=>s.id===id)?.price||0;
+
+  const getPeriodDates=(filter,from,to)=>{
+    const now=new Date();
+    const pad=n=>String(n).padStart(2,'0');
+    const fmt=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    if(filter==="today"){const t=fmt(now);return{from:t,to:t};}
+    if(filter==="week"){
+      const dow=now.getDay(),diff=dow===0?-6:1-dow;
+      const mon=new Date(now);mon.setDate(now.getDate()+diff);
+      const sun=new Date(mon);sun.setDate(mon.getDate()+6);
+      return{from:fmt(mon),to:fmt(sun)};
+    }
+    if(filter==="month"){
+      const f=new Date(now.getFullYear(),now.getMonth(),1);
+      const l=new Date(now.getFullYear(),now.getMonth()+1,0);
+      return{from:fmt(f),to:fmt(l)};
+    }
+    return{from,to};
+  };
+
+  const saveApptDetails=async(id)=>{
+    setSavingAppt(id);
+    const edit=apptEdit[id]||{};
+    await sb.from("gf_appointments").update({
+      charged_price:edit.charged_price?Number(edit.charged_price):null,
+      payment_method:edit.payment_method||null,
+      notes:edit.notes||null,
+    }).eq("id",id);
+    await fetchData();
+    setSavingAppt(null);
+  };
 
   // Stats
   const pendingCount=appointments.filter(a=>a.status==="pending"&&a.appointment_date>=today).length;
@@ -847,11 +884,146 @@ const App=()=>{
   </div>
   );
 })()}
-      {tab==="resultados"&&(
-        <div className="px-4 py-4 max-w-3xl mx-auto">
-          <p className="text-sm text-center py-10" style={{color:'#8A8470'}}>Cargando tab Resultados...</p>
+      {tab==="resultados"&&(()=>{
+  const{from:pFrom,to:pTo}=getPeriodDates(resFilter,resFrom,resTo);
+  const periodAppts=appointments.filter(a=>{
+    if(!pFrom||!pTo)return false;
+    return a.appointment_date>=pFrom&&a.appointment_date<=pTo&&a.status!=="cancelled";
+  });
+  const totalIngresos=periodAppts.reduce((acc,a)=>{
+    const precio=a.charged_price!=null?Number(a.charged_price):svcPrice(a.service_id);
+    return acc+precio;
+  },0);
+  const totalTurnos=periodAppts.length;
+  const avgIngreso=totalTurnos>0?totalIngresos/totalTurnos:0;
+  const totalMinutos=periodAppts.reduce((acc,a)=>{
+    const s=services.find(sv=>sv.id===a.service_id);
+    return acc+(s?.duration_minutes||60);
+  },0);
+  const ingPorHora=totalMinutos>0?(totalIngresos/(totalMinutos/60)):0;
+
+  const metodoCounts={"efectivo":0,"transferencia":0,"tarjeta_debito":0,"tarjeta_credito":0};
+  periodAppts.forEach(a=>{if(a.payment_method)metodoCounts[a.payment_method]=(metodoCounts[a.payment_method]||0)+1;});
+  const METODOS={"efectivo":"Efectivo","transferencia":"Transferencia","tarjeta_debito":"D\u00e9bito","tarjeta_credito":"Cr\u00e9dito"};
+
+  return(
+  <div className="px-4 py-4 max-w-3xl mx-auto space-y-4">
+    {/* Filtro período */}
+    <div className="flex gap-1.5 flex-wrap">
+      {[{k:"today",l:"Hoy"},{k:"week",l:"Esta semana"},{k:"month",l:"Este mes"},{k:"custom",l:"Personalizado"}].map(f=>(
+        <button key={f.k} onClick={()=>setResFilter(f.k)}
+          className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+          style={{background:resFilter===f.k?'#3D4A18':'rgba(0,0,0,.04)',color:resFilter===f.k?'#F5F1E8':'#8A8470'}}>
+          {f.l}
+        </button>
+      ))}
+    </div>
+    {resFilter==="custom"&&(
+      <div className="flex gap-2">
+        <input type="date" value={resFrom} onChange={e=>setResFrom(e.target.value)} className="flex-1 px-3 py-2 rounded-lg text-sm" style={{background:'#FEFDF8',border:'1.5px solid rgba(0,0,0,.07)'}}/>
+        <input type="date" value={resTo} onChange={e=>setResTo(e.target.value)} className="flex-1 px-3 py-2 rounded-lg text-sm" style={{background:'#FEFDF8',border:'1.5px solid rgba(0,0,0,.07)'}}/>
+      </div>
+    )}
+
+    {/* Stats cards */}
+    <div className="grid grid-cols-2 gap-2">
+      {[
+        {n:"$"+totalIngresos.toLocaleString("es-AR"),l:"Ingresos totales",bg:"#3D4A18",tx:"#F5F1E8"},
+        {n:totalTurnos,l:"Turnos realizados",bg:"#D1FAE5",tx:"#065F46"},
+        {n:"$"+Math.round(avgIngreso).toLocaleString("es-AR"),l:"Promedio por turno",bg:"#FEF3C7",tx:"#92400E"},
+        {n:"$"+Math.round(ingPorHora).toLocaleString("es-AR"),l:"Ingreso por hora",bg:"#EDE9FE",tx:"#5B21B6"},
+      ].map((s,i)=>(
+        <div key={i} className="rounded-xl p-3 text-center" style={{background:s.bg,color:s.tx}}>
+          <p className="text-xl font-bold leading-tight">{s.n}</p>
+          <p className="text-[10px] opacity-70 mt-0.5">{s.l}</p>
         </div>
-      )}
+      ))}
+    </div>
+
+    {/* Métodos de pago */}
+    {totalTurnos>0&&(
+      <div className="rounded-xl p-3 flex gap-3 flex-wrap" style={{background:'#FEFDF8',border:'1px solid rgba(0,0,0,.05)'}}>
+        {Object.entries(metodoCounts).filter(([,v])=>v>0).map(([k,v])=>(
+          <div key={k} className="text-center flex-1 min-w-[60px]">
+            <p className="text-base font-bold" style={{color:'#1C1A14'}}>{v}</p>
+            <p className="text-[10px]" style={{color:'#8A8470'}}>{METODOS[k]}</p>
+          </div>
+        ))}
+        {Object.values(metodoCounts).every(v=>v===0)&&<p className="text-xs" style={{color:'#8A8470'}}>Sin datos de m\u00e9todo de pago a\u00fan</p>}
+      </div>
+    )}
+
+    {/* Lista de turnos del período */}
+    <div className="space-y-2">
+      {periodAppts.length===0&&<p className="text-center text-sm py-8" style={{color:'#8A8470'}}>No hay turnos en este per\u00edodo</p>}
+      {periodAppts.map(a=>{
+        const isExp=expandedAppt===a.id;
+        const edit=apptEdit[a.id]||{charged_price:a.charged_price!=null?String(a.charged_price):"",payment_method:a.payment_method||"",notes:a.notes||""};
+        const listPrice=svcPrice(a.service_id);
+        const chargedN=a.charged_price!=null?Number(a.charged_price):listPrice;
+        const disc=listPrice>0?Math.round((1-chargedN/listPrice)*100):0;
+        return(
+          <div key={a.id} className="rounded-xl overflow-hidden" style={{background:'#FEFDF8',border:'1px solid rgba(0,0,0,.05)'}}>
+            <div className="p-3 flex items-center gap-2 cursor-pointer" onClick={()=>setExpandedAppt(isExp?null:a.id)}>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold truncate">{a.client_name}</p>
+                <p className="text-[11px]" style={{color:'#8A8470'}}>{fDate(a.appointment_date)} \u00b7 {a.time_slot} \u00b7 {svcName(a.service_id)}</p>
+              </div>
+              <div className="text-right flex-shrink-0">
+                <p className="text-sm font-bold" style={{color:'#3D4A18'}}>${chargedN.toLocaleString("es-AR")}</p>
+                {disc>0&&<p className="text-[10px]" style={{color:'#92400E'}}>-{disc}% dto</p>}
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{flexShrink:0,transform:isExp?'rotate(180deg)':'none',transition:'transform .2s'}}><path d="M6 9l6 6 6-6" stroke="#8A8470" strokeWidth="2" strokeLinecap="round"/></svg>
+            </div>
+
+            {isExp&&(
+              <div className="px-3 pb-3 pt-0 space-y-2.5" style={{borderTop:'1px solid rgba(0,0,0,.05)'}}>
+                <div className="grid grid-cols-2 gap-2 pt-3">
+                  <div>
+                    <label className="text-[10px] uppercase tracking-widest font-medium block mb-1" style={{color:'#8A8470'}}>Precio cobrado ($)</label>
+                    <input type="number" value={edit.charged_price}
+                      onChange={e=>setApptEdit(p=>({...p,[a.id]:{...edit,charged_price:e.target.value}}))}
+                      className="w-full px-2.5 py-2 rounded-lg text-sm"
+                      style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}}
+                      placeholder={String(listPrice)}/>
+                    <p className="text-[9px] mt-0.5" style={{color:'#8A8470'}}>Precio lista: ${listPrice.toLocaleString("es-AR")}</p>
+                  </div>
+                  <div>
+                    <label className="text-[10px] uppercase tracking-widest font-medium block mb-1" style={{color:'#8A8470'}}>M\u00e9todo de pago</label>
+                    <select value={edit.payment_method}
+                      onChange={e=>setApptEdit(p=>({...p,[a.id]:{...edit,payment_method:e.target.value}}))}
+                      className="w-full px-2.5 py-2 rounded-lg text-sm appearance-none"
+                      style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}}>
+                      <option value="">Sin registrar</option>
+                      <option value="efectivo">Efectivo</option>
+                      <option value="transferencia">Transferencia</option>
+                      <option value="tarjeta_debito">Tarjeta d\u00e9bito</option>
+                      <option value="tarjeta_credito">Tarjeta cr\u00e9dito</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest font-medium block mb-1" style={{color:'#8A8470'}}>Notas internas</label>
+                  <input value={edit.notes}
+                    onChange={e=>setApptEdit(p=>({...p,[a.id]:{...edit,notes:e.target.value}}))}
+                    className="w-full px-2.5 py-2 rounded-lg text-sm"
+                    style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}}
+                    placeholder="Observaciones, descuentos, etc."/>
+                </div>
+                <button onClick={()=>saveApptDetails(a.id)} disabled={savingAppt===a.id}
+                  className="w-full py-2 rounded-lg text-xs font-semibold text-white disabled:opacity-40"
+                  style={{background:'#3D4A18'}}>
+                  {savingAppt===a.id?"Guardando...":"Guardar"}
+                </button>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  </div>
+  );
+})()}
 
       {/* Modal de confirmación custom */}
       {modal&&(
