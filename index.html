@@ -108,11 +108,62 @@ body{font-family:'Figtree',sans-serif;background:var(--sand)!important;color:var
 <div id="root"></div>
 <script type="text/babel">
 /* ═══════════ CONFIG ═══════════ */
-const WA="5492314573218"; // Número de Alvaro para testing. CAMBIAR al de Guada cuando esté listo.
+const WA="5492314573218";
 const SB_URL="https://ibikdnjuctopdkmtmgdd.supabase.co";
 const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImliaWtkbmp1Y3RvcGRrbXRtZ2RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1MjEwOTMsImV4cCI6MjA5MTA5NzA5M30.Tzsi0ZbcdohuJLFTut4z8h2vf5yi1dv_KfA_6m6COBI";
 let sb;
 try{ sb=window.supabase.createClient(SB_URL,SB_KEY); }catch(e){ sb=null; }
+
+const SLOT_START=9*60, SLOT_END=18*60, SLOT_STEP=30;
+const toMin=t=>{const[h,m]=t.split(":").map(Number);return h*60+m};
+const toHHMM=m=>`${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;
+
+const genSlots=dur=>{
+  const s=[];
+  for(let t=SLOT_START;t+dur<=SLOT_END;t+=SLOT_STEP) s.push(toHHMM(t));
+  return s;
+};
+
+const blockCoversSlot=(block,date,sMin,eMin)=>{
+  const dow=new Date(date+"T12:00:00").getDay();
+  const mb=dow===0?6:dow-1;
+  switch(block.type){
+    case"full_day": return block.block_date===date;
+    case"datetime_range":{
+      if(block.block_date!==date)return false;
+      const bs=toMin(block.start_time.slice(0,5)),be=toMin(block.end_time.slice(0,5));
+      return bs<eMin&&be>sMin;
+    }
+    case"date_range": return date>=block.date_from&&date<=block.date_to;
+    case"weekly":{
+      if(block.day_of_week!==mb)return false;
+      if(block.recurring_from&&date<block.recurring_from)return false;
+      if(block.recurring_to&&date>block.recurring_to)return false;
+      if(block.start_time&&block.end_time){
+        const bs=toMin(block.start_time.slice(0,5)),be=toMin(block.end_time.slice(0,5));
+        return bs<eMin&&be>sMin;
+      }
+      return true;
+    }
+    default: return false;
+  }
+};
+
+const slotAvailable=(slot,dur,appts,svcs,blocks,date)=>{
+  const sMin=toMin(slot),eMin=sMin+dur;
+  for(const a of appts){
+    if(a.status==="cancelled")continue;
+    const aMin=toMin(a.time_slot);
+    const aDur=(svcs.find(s=>s.id===a.service_id)?.duration_minutes)||60;
+    if(aMin<eMin&&(aMin+aDur)>sMin)return false;
+  }
+  for(const b of blocks){
+    if(blockCoversSlot(b,date,sMin,eMin))return false;
+  }
+  return true;
+};
+
+const fP=n=>"$"+n.toLocaleString("es-AR");
 
 const{useState,useEffect,useCallback,useRef}=React;
 
@@ -124,18 +175,6 @@ const Logo=({c="#3D4A18",s=100})=>(
     <text x="50" y="84" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="12" letterSpacing="7" fill={c} opacity=".5" fontWeight="400">STUDIO</text>
   </svg>
 );
-
-/* ═══ SERVICES ═══ */
-const SVCS=[
-{id:1,nm:"Perfilado de Cejas",pr:18000,dur:"45 min",desc:"Diseño personalizado según morfología facial con técnica de cera y pinza profesional.",det:["Diseño según rostro","Cera profesional","Pinza de precisión","Tinte opcional"],icon:"✦"},
-{id:2,nm:"Laminado de Cejas y Pestañas",pr:22000,dur:"60 min",desc:"Keratina que alisa, fija y da forma natural a cejas y pestañas por 6-8 semanas.",det:["Keratina vegetal","Fijación duradera","Efecto lifting","Nutrición profunda"],icon:"❋"},
-{id:3,nm:"Fototerapia LED Facial",pr:25000,dur:"50 min",desc:"Tecnología de luz LED que estimula colágeno, reduce acné y unifica tono.",det:["Luz roja antiedad","Luz azul anti-acné","Sin dolor","Resultados acumulativos"],icon:"◈"},
-{id:4,nm:"Limpieza Facial Profunda",pr:20000,dur:"60 min",desc:"Protocolo completo: desmaquillado, vaporización, extracción, máscara y protección solar.",det:["Desmaquillado enzimático","Vaporización + extracción","Máscara hidratante","SPF50"],icon:"✧"},
-{id:5,nm:"Anti-Edad con Radiofrecuencia",pr:35000,dur:"60 min",desc:"Calor controlado en dermis profunda estimulando colágeno y elastina para firmeza visible.",det:["RF tripolar","Estimula colágeno","Efecto tensor","6-8 sesiones"],icon:"◇"},
-{id:6,nm:"Skincare Personalizado",pr:15000,dur:"30 min",desc:"Diagnóstico completo de tu piel con lupa profesional y armado de rutina personalizada.",det:["Diagnóstico LED","Análisis hidratación","Rutina AM/PM","Seguimiento"],icon:"○"},
-];
-const fP=n=>"$"+n.toLocaleString("es-AR");
-const TIMES=["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00"];
 
 /* ═══ APP ═══ */
 const App=()=>{
@@ -152,6 +191,9 @@ const App=()=>{
   const[dateError,setDateError]=useState("");
   const[expandedSvc,setExpandedSvc]=useState(null);
   const[scrolled,setScrolled]=useState(false);
+  const[svcs,setSvcs]=useState([]);
+  const[blocks,setBlocks]=useState([]);
+  const[loadingSvcs,setLoadingSvcs]=useState(true);
 
   // Scroll observer for nav + reveal
   useEffect(()=>{
@@ -162,24 +204,30 @@ const App=()=>{
     return()=>{window.removeEventListener("scroll",onScroll);o.disconnect()};
   },[]);
 
-  // Fetch taken slots — resilient: on error show all available
+  useEffect(()=>{
+    if(!sb){setLoadingSvcs(false);return;}
+    Promise.all([
+      sb.from("gf_services").select("*").order("id"),
+      sb.from("gf_blocked_slots").select("*")
+    ]).then(([{data:s},{data:b}])=>{
+      setSvcs(s||[]);
+      setBlocks(b||[]);
+      setLoadingSvcs(false);
+    }).catch(()=>setLoadingSvcs(false));
+  },[]);
+
   const fetchSlots=useCallback(async(date)=>{
-    if(!date)return;
-    if(!sb){setTakenSlots([]);return;}
-    setLoadingSlots(true);setSlotsError(false);
+    if(!date||!sb)return;
+    setLoadingSlots(true);
     try{
-      const{data,error}=await sb.from("gf_appointments")
-        .select("time_slot")
-        .eq("appointment_date",date)
-        .neq("status","cancelled");
-      if(error)throw error;
-      setTakenSlots(data?data.map(r=>r.time_slot):[]);
+      const{data}=await sb.from("gf_appointments")
+        .select("time_slot,service_id,status")
+        .eq("appointment_date",date);
+      setTakenSlots(data||[]);
     }catch(e){
-      console.warn("Slots fetch failed, showing all available:",e);
-      setTakenSlots([]);// Show all slots available on error
-    }finally{
-      setLoadingSlots(false);
-    }
+      console.warn("Slots fetch failed",e);
+      setTakenSlots([]);
+    }finally{setLoadingSlots(false);}
   },[]);
 
   useEffect(()=>{
@@ -212,9 +260,9 @@ const App=()=>{
     try{
       // Refresh slots before inserting
       const{data:freshSlots}=await sb.from("gf_appointments")
-        .select("time_slot").eq("appointment_date",dt).neq("status","cancelled");
-      if(freshSlots&&freshSlots.some(r=>r.time_slot===tm)){
-        setTakenSlots(freshSlots.map(r=>r.time_slot));
+        .select("time_slot,service_id,status").eq("appointment_date",dt);
+      if(freshSlots&&freshSlots.some(r=>r.time_slot===tm&&r.status!=="cancelled")){
+        setTakenSlots(freshSlots);
         setFm(p=>({...p,tm:""}));
         setSubmitError("Ese horario acaba de ser reservado. Elegí otro.");
         setSubmitting(false);return;
@@ -231,13 +279,13 @@ const App=()=>{
       });
 
       if(error){
-        if(error.code==="23505"){setSubmitError("Ese horario acaba de ser reservado. Elegí otro.");setTakenSlots(p=>[...p,tm]);setFm(p=>({...p,tm:""}));}
+        if(error.code==="23505"){setSubmitError("Ese horario acaba de ser reservado. Elegí otro.");setTakenSlots(p=>[...p,{time_slot:tm,service_id:parseInt(sv),status:"pending"}]);setFm(p=>({...p,tm:""}));}
         else{setSubmitError("Error al reservar. Intentá de nuevo.");}
         setSubmitting(false);return;
       }
 
-      const sn=SVCS.find(s=>s.id===+sv)?.nm||sv;
-      const pr=SVCS.find(s=>s.id===+sv)?.pr||0;
+      const sn=svcs.find(s=>s.id===+sv)?.name||sv;
+      const pr=svcs.find(s=>s.id===+sv)?.price||0;
       const df=new Date(dt+"T12:00:00").toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"});
 
       try{
@@ -362,40 +410,28 @@ const App=()=>{
           </div>
 
           <div className="space-y-3 sm:space-y-4">
-            {SVCS.map((s,i)=>(
+            {(loadingSvcs?[]:svcs).map((s,i)=>(
               <div key={s.id} className="reveal svc glass rounded-2xl sm:rounded-[20px] overflow-hidden cursor-pointer group"
                 style={{transitionDelay:`${i*.05}s`}}
-                onClick={()=>{setFm(p=>({...p,sv:String(s.id)}));setBk(true);setTimeout(()=>go("reservar"),100)}}>
+                onClick={()=>{setFm(p=>({...p,sv:String(s.id),tm:""}));setBk(true);setTimeout(()=>go("reservar"),100)}}>
                 <div className="p-5 sm:p-7">
                   <div className="flex items-center gap-4 sm:gap-5">
-                    {/* Number badge */}
                     <div className="num w-11 h-11 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center text-xs sm:text-sm font-semibold flex-shrink-0 transition-all duration-500" style={{background:'rgba(94,107,46,.06)',color:'var(--olive)'}}>
-                      {String(s.id).padStart(2,'0')}
+                      {String(i+1).padStart(2,'0')}
                     </div>
-
-                    {/* Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
-                        <h3 className="text-sm sm:text-[15px] font-semibold truncate" style={{color:'var(--ink)'}}>{s.nm}</h3>
-                        <span className="flex-shrink-0 text-right" style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(1rem,2.5vw,1.35rem)',color:'var(--olive)',fontWeight:600}}>{fP(s.pr)}</span>
+                        <h3 className="text-sm sm:text-[15px] font-semibold truncate" style={{color:'var(--ink)'}}>{s.name}</h3>
+                        <span className="flex-shrink-0 text-right" style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(1rem,2.5vw,1.35rem)',color:'var(--olive)',fontWeight:600}}>{fP(s.price)}</span>
                       </div>
                       <div className="flex items-center gap-3 mt-1">
-                        <span className="text-[11px] font-light" style={{color:'var(--muted)',opacity:.6}}>⏱ {s.dur}</span>
-                        <p className="text-xs sm:text-[13px] font-light truncate hidden sm:block" style={{color:'var(--muted)'}}>{s.desc}</p>
+                        <span className="text-[11px] font-light" style={{color:'var(--muted)',opacity:.6}}>{"\u23F1"} {s.duration}</span>
+                        {s.description&&<p className="text-xs sm:text-[13px] font-light truncate hidden sm:block" style={{color:'var(--muted)'}}>{s.description}</p>}
                       </div>
                     </div>
-
-                    {/* Arrow */}
                     <div className="arrow flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center" style={{background:'var(--olive-dk)',color:'#fff'}}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     </div>
-                  </div>
-
-                  {/* Detail chips — visible on mobile tap */}
-                  <div className="sm:hidden mt-3 flex flex-wrap gap-1.5">
-                    {s.det.map((d,di)=>(
-                      <span key={di} className="text-[10px] px-2 py-1 rounded-full font-light" style={{background:'rgba(94,107,46,.05)',color:'var(--olive-dk)',border:'1px solid rgba(94,107,46,.08)'}}>{d}</span>
-                    ))}
                   </div>
                 </div>
               </div>
@@ -435,7 +471,7 @@ const App=()=>{
                   )}
                 </div>
               )}
-              <p className="text-xs font-light mb-6" style={{color:'var(--muted)'}}>Te mandamos un email con los detalles. Te confirmamos a la brevedad.</p>
+              <p className="text-xs font-light mb-6" style={{color:'var(--muted)'}}>Recibimos tu reserva. Te confirmamos por WhatsApp a la brevedad.</p>
               <button onClick={()=>{setSent(false);setSentData(null);setFm({n:"",em:"",ph:"",sv:"",dt:"",tm:""})}} className="btn-ghost text-xs px-6 py-2.5 rounded-full">Reservar otro turno</button>
             </div>
           ):(
@@ -466,9 +502,12 @@ const App=()=>{
                 {/* Service */}
                 <div>
                   <label className="text-[10px] uppercase tracking-[.2em] block mb-2 font-medium" style={{color:'var(--muted)',opacity:.5}}>Servicio</label>
-                  <select value={fm.sv} onChange={e=>setFm(p=>({...p,sv:e.target.value}))} className="field w-full px-4 py-3.5 rounded-xl text-sm appearance-none cursor-pointer" style={{color:fm.sv?'var(--ink)':'var(--muted)'}} required>
-                    <option value="">Seleccioná un servicio</option>
-                    {SVCS.map(s=><option key={s.id} value={s.id}>{s.nm} — {fP(s.pr)}</option>)}
+                  <select value={fm.sv} onChange={e=>setFm(p=>({...p,sv:e.target.value,tm:""}))}
+                    className="field w-full px-4 py-3.5 rounded-xl text-sm appearance-none cursor-pointer"
+                    style={{color:fm.sv?'var(--ink)':'var(--muted)'}} required
+                    disabled={loadingSvcs}>
+                    <option value="">{loadingSvcs?"Cargando servicios...":"Seleccioná un servicio"}</option>
+                    {svcs.map(s=><option key={s.id} value={s.id}>{s.name} — {fP(s.price)}</option>)}
                   </select>
                 </div>
                 {/* Date */}
@@ -482,32 +521,41 @@ const App=()=>{
                   {dateError&&<p className="text-[11px] mt-2 font-medium" style={{color:'#B91C1C'}}>{dateError}</p>}
                 </div>
                 {/* Time slots */}
-                {fm.dt&&<div className="fade">
-                  <label className="text-[10px] uppercase tracking-[.2em] block mb-3 font-medium" style={{color:'var(--muted)',opacity:.5}}>
-                    Horario {loadingSlots&&<span className="opacity-50 normal-case tracking-normal">· cargando...</span>}
-                  </label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {TIMES.map(t=>{
-                      const taken=takenSlots.includes(t);
-                      const sel=fm.tm===t;
-                      return <button key={t} type="button" disabled={taken}
-                        onClick={()=>!taken&&setFm(p=>({...p,tm:t}))}
-                        className="slot-btn rounded-xl text-sm font-medium relative"
-                        style={{
-                          padding:'13px 0',minHeight:'48px',
-                          background:taken?'rgba(0,0,0,.02)':sel?'var(--olive-dk)':
-                            'rgba(255,255,255,.6)',
-                          color:taken?'rgba(0,0,0,.12)':sel?'#fff':'var(--olive-dk)',
-                          borderColor:taken?'rgba(0,0,0,.03)':sel?'var(--olive-dk)':'rgba(94,107,46,.12)',
-                          boxShadow:sel?'0 6px 24px rgba(61,74,24,.2)':'none',
-                          cursor:taken?'not-allowed':'pointer',
-                          textDecoration:taken?'line-through':'none',
-                        }}>
-                        {t}{taken&&<span className="block text-[9px] font-normal opacity-50" style={{textDecoration:'none'}}>Ocupado</span>}
-                      </button>
-                    })}
+                {fm.dt&&fm.sv&&(()=>{
+                  const selSvc=svcs.find(s=>s.id===+fm.sv);
+                  const dur=selSvc?.duration_minutes||60;
+                  const slots=genSlots(dur);
+                  return(
+                  <div className="fade">
+                    <label className="text-[10px] uppercase tracking-[.2em] block mb-3 font-medium" style={{color:'var(--muted)',opacity:.5}}>
+                      Horario {loadingSlots&&<span className="opacity-50 normal-case tracking-normal">· cargando...</span>}
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {slots.map(t=>{
+                        const avail=slotAvailable(t,dur,takenSlots,svcs,blocks,fm.dt);
+                        const sel=fm.tm===t;
+                        return <button key={t} type="button" disabled={!avail}
+                          onClick={()=>avail&&setFm(p=>({...p,tm:t}))}
+                          className="slot-btn rounded-xl text-sm font-medium relative"
+                          style={{
+                            padding:'13px 0',minHeight:'48px',
+                            background:!avail?'rgba(0,0,0,.02)':sel?'var(--olive-dk)':'rgba(255,255,255,.6)',
+                            color:!avail?'rgba(0,0,0,.12)':sel?'#fff':'var(--olive-dk)',
+                            borderColor:!avail?'rgba(0,0,0,.03)':sel?'var(--olive-dk)':'rgba(94,107,46,.12)',
+                            boxShadow:sel?'0 6px 24px rgba(61,74,24,.2)':'none',
+                            cursor:!avail?'not-allowed':'pointer',
+                            textDecoration:!avail?'line-through':'none',
+                          }}>
+                          {t}{!avail&&<span className="block text-[9px] font-normal opacity-50" style={{textDecoration:'none'}}>Ocupado</span>}
+                        </button>
+                      })}
+                    </div>
                   </div>
-                </div>}
+                  );
+                })()}
+                {fm.dt&&!fm.sv&&(
+                  <p className="text-xs text-center py-3" style={{color:'var(--muted)',opacity:.6}}>Elegí un servicio para ver los horarios disponibles</p>
+                )}
                 {/* Error */}
                 {submitError&&<p className="text-xs text-center py-2.5 px-4 rounded-xl" style={{background:'#fef2f2',color:'#991b1b',border:'1px solid #fecaca'}}>{submitError}</p>}
                 {/* Submit */}
