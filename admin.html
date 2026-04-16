@@ -37,6 +37,7 @@ const STATUS_COLORS={
   pending:{bg:"#FEF3C7",tx:"#92400E",label:"Pendiente"},
   confirmed:{bg:"#D1FAE5",tx:"#065F46",label:"Confirmado"},
   cancelled:{bg:"#FEE2E2",tx:"#991B1B",label:"Cancelado"},
+  no_show:{bg:"#F3F4F6",tx:"#374151",label:"No vino"},
 };
 
 const MONTHS_ES=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
@@ -106,6 +107,12 @@ const App=()=>{
   const[blkWeekOffset,setBlkWeekOffset]=useState(0);
   const[blkSaving,setBlkSaving]=useState(false);
   const[recForm,setRecForm]=useState({type:"weekly",day_of_week:5,start_time:"",end_time:"",date_from:"",date_to:"",label:""});
+  const[rescheduleModal,setRescheduleModal]=useState(null); // {appt,date,slot,loading,error,slots}
+  const[selectedClient,setSelectedClient]=useState(null); // email string
+  const[packList,setPackList]=useState([]);
+  const[packForm,setPackForm]=useState({name:"",services_included:"",pack_price:"",list_price:"",uses_count:1});
+  const[editingPack,setEditingPack]=useState(null);
+  const[packLoading,setPackLoading]=useState(false);
 
   const login=e=>{
     e.preventDefault();
@@ -141,8 +148,10 @@ const App=()=>{
 
   useEffect(()=>{
     if(!auth)return;
-    const channel=sb.channel("admin-appointments")
+    const channel=sb.channel("admin-all")
       .on("postgres_changes",{event:"*",schema:"public",table:"gf_appointments"},debouncedFetch)
+      .on("postgres_changes",{event:"*",schema:"public",table:"gf_blocked_slots"},debouncedFetch)
+      .on("postgres_changes",{event:"*",schema:"public",table:"gf_services"},debouncedFetch)
       .subscribe();
     return()=>{sb.removeChannel(channel);clearTimeout(fetchTimeout.current)};
   },[auth,debouncedFetch]);
@@ -311,6 +320,81 @@ const App=()=>{
     );
   };
 
+  const toHHMMAdmin=m=>`${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;
+
+  const markNoShow=(appt)=>{
+    showConfirm("No vino",`¿${appt.client_name} no se presentó?\n\nSe marcará como "No vino" en el sistema.`,"Confirmar","#374151",async()=>{
+      setUpdating(appt.id);
+      await sb.from("gf_appointments").update({status:"no_show"}).eq("id",appt.id);
+      await fetchData();
+      setUpdating(null);
+    });
+  };
+
+  const openReschedule=(appt)=>{
+    setRescheduleModal({appt,date:"",slot:"",loading:false,error:"",slots:[]});
+  };
+
+  const fetchRescheduleSlots=async(date,appt)=>{
+    if(!date)return;
+    setRescheduleModal(p=>({...p,loading:true,error:"",slots:[],slot:""}));
+    const dur=services.find(s=>s.id===appt.service_id)?.duration_minutes||60;
+    const[{data:taken},{data:blks}]=await Promise.all([
+      sb.from("gf_appointments").select("id,time_slot,service_id,status").eq("appointment_date",date),
+      sb.from("gf_blocked_slots").select("*")
+    ]);
+    const others=(taken||[]).filter(a=>a.id!==appt.id&&a.status!=="cancelled"&&a.status!=="no_show");
+    const available=[];
+    for(let t=9*60;t+dur<=18*60;t+=30){
+      const slotStr=toHHMMAdmin(t);
+      let ok=true;
+      for(const a of others){
+        const[ah,am]=a.time_slot.split(":").map(Number);
+        const aMin=ah*60+am;
+        const aDur=services.find(s=>s.id===a.service_id)?.duration_minutes||60;
+        if(aMin<t+dur&&(aMin+aDur)>t){ok=false;break;}
+      }
+      if(ok)for(const b of(blks||[])){if(isSlotBlockedAdmin(date,slotStr,[b])){ok=false;break;}}
+      if(ok)available.push(slotStr);
+    }
+    setRescheduleModal(p=>({...p,loading:false,slots:available}));
+  };
+
+  const doReschedule=async()=>{
+    const{appt,date,slot}=rescheduleModal;
+    if(!date||!slot){setRescheduleModal(p=>({...p,error:"Elegí fecha y horario."}));return;}
+    setRescheduleModal(p=>({...p,loading:true,error:""}));
+    const{error}=await sb.from("gf_appointments").update({appointment_date:date,time_slot:slot}).eq("id",appt.id);
+    if(error){setRescheduleModal(p=>({...p,loading:false,error:"Error al reagendar. El horario puede estar ocupado."}));return;}
+    setRescheduleModal(null);
+    await fetchData();
+  };
+
+  const fetchPacks=async()=>{
+    const{data}=await sb.from("gf_packs").select("*").order("id");
+    setPackList(data||[]);
+  };
+
+  useEffect(()=>{if(auth)fetchPacks();},[auth]);
+
+  const savePack=async()=>{
+    setPackLoading(true);
+    const payload={name:packForm.name.trim(),services_included:packForm.services_included.trim()||null,pack_price:Number(packForm.pack_price),list_price:packForm.list_price?Number(packForm.list_price):null,uses_count:Number(packForm.uses_count)||1};
+    if(editingPack){await sb.from("gf_packs").update(payload).eq("id",editingPack);}
+    else{await sb.from("gf_packs").insert(payload);}
+    await fetchPacks();
+    setPackForm({name:"",services_included:"",pack_price:"",list_price:"",uses_count:1});
+    setEditingPack(null);
+    setPackLoading(false);
+  };
+
+  const deletePack=(id,name)=>{
+    showConfirm("Eliminar pack",`¿Eliminar el pack "${name}"?\n\nEsta acción no se puede deshacer.`,"Eliminar","#991B1B",async()=>{
+      await sb.from("gf_packs").delete().eq("id",id);
+      await fetchPacks();
+    });
+  };
+
   const deleteAppt=(id,name)=>{
     showConfirm(
       "Eliminar turno",
@@ -381,13 +465,25 @@ const App=()=>{
               {updating===a.id?"...":"Confirmar por WA"}
             </button>
           )}
-          {a.status!=="cancelled"&&(
+          {a.status==="confirmed"&&(
+            <button onClick={()=>markNoShow(a)} disabled={updating===a.id}
+              className="text-[11px] font-medium px-3 py-1.5 rounded-lg" style={{background:'#F3F4F6',color:'#374151'}}>
+              {updating===a.id?"...":"No vino"}
+            </button>
+          )}
+          {(a.status==="pending"||a.status==="confirmed")&&(
+            <button onClick={()=>openReschedule(a)}
+              className="text-[11px] font-medium px-3 py-1.5 rounded-lg" style={{background:'rgba(61,74,24,.08)',color:'#3D4A18'}}>
+              Reagendar
+            </button>
+          )}
+          {a.status!=="cancelled"&&a.status!=="no_show"&&(
             <button onClick={()=>cancelAndNotify(a)} disabled={updating===a.id}
               className="text-[11px] font-medium px-3 py-1.5 rounded-lg" style={{background:'#FEE2E2',color:'#991B1B'}}>
               {updating===a.id?"...":"Cancelar + Avisar"}
             </button>
           )}
-          {a.status==="cancelled"&&(
+          {(a.status==="cancelled"||a.status==="no_show")&&(
             <button onClick={()=>updateStatus(a.id,"pending")} disabled={updating===a.id}
               className="text-[11px] font-medium px-3 py-1.5 rounded-lg" style={{background:'rgba(0,0,0,.04)',color:'#8A8470'}}>
               Reactivar
@@ -489,7 +585,7 @@ const App=()=>{
           </button>
         </div>
         <div className="flex gap-1 overflow-x-auto pb-0.5">
-          {[{k:"turnos",l:"Turnos"},{k:"servicios",l:"Servicios"},{k:"bloqueos",l:"Bloqueos"},{k:"resultados",l:"Resultados"}].map(t=>(
+          {[{k:"turnos",l:"Turnos"},{k:"servicios",l:"Servicios"},{k:"bloqueos",l:"Bloqueos"},{k:"resultados",l:"Resultados"},{k:"clientes",l:"Clientes"},{k:"packs",l:"Packs"}].map(t=>(
             <button key={t.k} onClick={()=>setTab(t.k)}
               className="px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex-shrink-0"
               style={{background:tab===t.k?'#3D4A18':'rgba(0,0,0,.04)',color:tab===t.k?'#F5F1E8':'#8A8470'}}>
@@ -891,32 +987,68 @@ const App=()=>{
     if(!pFrom||!pTo)return false;
     return a.appointment_date>=pFrom&&a.appointment_date<=pTo&&a.status!=="cancelled";
   });
-  const totalIngresos=periodAppts.reduce((acc,a)=>{
-    const precio=a.charged_price!=null?Number(a.charged_price):svcPrice(a.service_id);
-    return acc+precio;
-  },0);
-  const totalTurnos=periodAppts.length;
+  const revenueAppts=periodAppts.filter(a=>a.status!=="no_show");
+  const noShowAppts=periodAppts.filter(a=>a.status==="no_show");
+  const totalIngresos=revenueAppts.reduce((acc,a)=>acc+(a.charged_price!=null?Number(a.charged_price):svcPrice(a.service_id)),0);
+  const totalTurnos=revenueAppts.length;
   const avgIngreso=totalTurnos>0?totalIngresos/totalTurnos:0;
-  const totalMinutos=periodAppts.reduce((acc,a)=>{
-    const s=services.find(sv=>sv.id===a.service_id);
-    return acc+(s?.duration_minutes||60);
-  },0);
+  const totalMinutos=revenueAppts.reduce((acc,a)=>acc+(services.find(sv=>sv.id===a.service_id)?.duration_minutes||60),0);
   const ingPorHora=totalMinutos>0?(totalIngresos/(totalMinutos/60)):0;
 
+  const getPrevDates=(f,from,to)=>{
+    const now=new Date();const pad=n=>String(n).padStart(2,'0');const fmt=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    if(f==="today"){const p=new Date(now);p.setDate(now.getDate()-1);const t=fmt(p);return{from:t,to:t};}
+    if(f==="week"){const dow=now.getDay(),diff=dow===0?-6:1-dow;const mon=new Date(now);mon.setDate(now.getDate()+diff-7);const sun=new Date(mon);sun.setDate(mon.getDate()+6);return{from:fmt(mon),to:fmt(sun)};}
+    if(f==="month"){return{from:fmt(new Date(now.getFullYear(),now.getMonth()-1,1)),to:fmt(new Date(now.getFullYear(),now.getMonth(),0))};}
+    if(from&&to){const fd=new Date(from),td=new Date(to);const dur=td-fd+86400000;return{from:fmt(new Date(fd.getTime()-dur)),to:fmt(new Date(fd.getTime()-86400000))};}
+    return{from:'',to:''};
+  };
+  const{from:prevFrom,to:prevTo}=getPrevDates(resFilter,resFrom,resTo);
+  const prevAppts=appointments.filter(a=>prevFrom&&prevTo&&a.appointment_date>=prevFrom&&a.appointment_date<=prevTo&&(a.status==="confirmed"||a.status==="pending"));
+  const prevIngresos=prevAppts.reduce((acc,a)=>acc+(a.charged_price!=null?Number(a.charged_price):svcPrice(a.service_id)),0);
+  const prevTurnos=prevAppts.length;
+  const pctIng=prevIngresos>0?Math.round((totalIngresos-prevIngresos)/prevIngresos*100):null;
+  const pctTrn=prevTurnos>0?Math.round((totalTurnos-prevTurnos)/prevTurnos*100):null;
+  const badge=pct=>pct===null?null:<span className="text-[10px] font-bold ml-1" style={{color:pct>=0?"#10B981":"#EF4444"}}>{pct>=0?"+":""}{pct}%</span>;
+
+  const svcRev={},svcCnt={};
+  revenueAppts.forEach(a=>{const id=a.service_id;svcRev[id]=(svcRev[id]||0)+(a.charged_price!=null?Number(a.charged_price):svcPrice(a.service_id));svcCnt[id]=(svcCnt[id]||0)+1;});
+  const top3Rev=Object.entries(svcRev).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  const top3Cnt=Object.entries(svcCnt).sort((a,b)=>b[1]-a[1]).slice(0,3);
+
+  const emailsInPeriod=[...new Set(periodAppts.map(a=>a.client_email).filter(Boolean))];
+  let nuevos=0,recurrentes=0;
+  emailsInPeriod.forEach(email=>{
+    const all=appointments.filter(a=>a.client_email===email&&a.status!=="cancelled").sort((a,b)=>a.appointment_date.localeCompare(b.appointment_date));
+    (all[0]?.appointment_date>=pFrom&&all[0]?.appointment_date<=pTo)?nuevos++:recurrentes++;
+  });
+
+  const slotCts={},dayCts={};
+  const DNAMES=["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+  revenueAppts.forEach(a=>{slotCts[a.time_slot]=(slotCts[a.time_slot]||0)+1;const dow=new Date(a.appointment_date+"T12:00:00").getDay();dayCts[dow]=(dayCts[dow]||0)+1;});
+  const topSlot=Object.entries(slotCts).sort((a,b)=>b[1]-a[1])[0];
+  const topDay=Object.entries(dayCts).sort((a,b)=>b[1]-a[1])[0];
+
   const metodoCounts={"efectivo":0,"transferencia":0,"tarjeta_debito":0,"tarjeta_credito":0};
-  periodAppts.forEach(a=>{if(a.payment_method)metodoCounts[a.payment_method]=(metodoCounts[a.payment_method]||0)+1;});
-  const METODOS={"efectivo":"Efectivo","transferencia":"Transferencia","tarjeta_debito":"D\u00e9bito","tarjeta_credito":"Cr\u00e9dito"};
+  revenueAppts.forEach(a=>{if(a.payment_method)metodoCounts[a.payment_method]=(metodoCounts[a.payment_method]||0)+1;});
+  const METODOS={"efectivo":"Efectivo","transferencia":"Transferencia","tarjeta_debito":"Débito","tarjeta_credito":"Crédito"};
+
+  const exportCSV=()=>{
+    const rows=[["Fecha","Cliente","Servicio","Precio cobrado","Método de pago"]];
+    revenueAppts.forEach(a=>rows.push([a.appointment_date,a.client_name,svcName(a.service_id),a.charged_price!=null?a.charged_price:svcPrice(a.service_id),a.payment_method||""]));
+    const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
+    const url=URL.createObjectURL(new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"}));
+    const el=document.createElement("a");el.href=url;el.download=`gf-studio-${pFrom}-${pTo}.csv`;el.click();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+  };
 
   return(
   <div className="px-4 py-4 max-w-3xl mx-auto space-y-4">
-    {/* Filtro período */}
     <div className="flex gap-1.5 flex-wrap">
       {[{k:"today",l:"Hoy"},{k:"week",l:"Esta semana"},{k:"month",l:"Este mes"},{k:"custom",l:"Personalizado"}].map(f=>(
         <button key={f.k} onClick={()=>setResFilter(f.k)}
           className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-          style={{background:resFilter===f.k?'#3D4A18':'rgba(0,0,0,.04)',color:resFilter===f.k?'#F5F1E8':'#8A8470'}}>
-          {f.l}
-        </button>
+          style={{background:resFilter===f.k?'#3D4A18':'rgba(0,0,0,.04)',color:resFilter===f.k?'#F5F1E8':'#8A8470'}}>{f.l}</button>
       ))}
     </div>
     {resFilter==="custom"&&(
@@ -926,23 +1058,82 @@ const App=()=>{
       </div>
     )}
 
-    {/* Stats cards */}
     <div className="grid grid-cols-2 gap-2">
-      {[
-        {n:"$"+totalIngresos.toLocaleString("es-AR"),l:"Ingresos totales",bg:"#3D4A18",tx:"#F5F1E8"},
-        {n:totalTurnos,l:"Turnos realizados",bg:"#D1FAE5",tx:"#065F46"},
-        {n:"$"+Math.round(avgIngreso).toLocaleString("es-AR"),l:"Promedio por turno",bg:"#FEF3C7",tx:"#92400E"},
-        {n:"$"+Math.round(ingPorHora).toLocaleString("es-AR"),l:"Ingreso por hora",bg:"#EDE9FE",tx:"#5B21B6"},
-      ].map((s,i)=>(
-        <div key={i} className="rounded-xl p-3 text-center" style={{background:s.bg,color:s.tx}}>
-          <p className="text-xl font-bold leading-tight">{s.n}</p>
-          <p className="text-[10px] opacity-70 mt-0.5">{s.l}</p>
-        </div>
-      ))}
+      <div className="rounded-xl p-3 text-center" style={{background:'#3D4A18',color:'#F5F1E8'}}>
+        <p className="text-xl font-bold leading-tight">${totalIngresos.toLocaleString("es-AR")}{badge(pctIng)}</p>
+        <p className="text-[10px] opacity-70 mt-0.5">Ingresos totales</p>
+      </div>
+      <div className="rounded-xl p-3 text-center" style={{background:'#D1FAE5',color:'#065F46'}}>
+        <p className="text-xl font-bold leading-tight">{totalTurnos}{badge(pctTrn)}</p>
+        <p className="text-[10px] opacity-70 mt-0.5">Turnos realizados</p>
+      </div>
+      <div className="rounded-xl p-3 text-center" style={{background:'#FEF3C7',color:'#92400E'}}>
+        <p className="text-xl font-bold leading-tight">${Math.round(avgIngreso).toLocaleString("es-AR")}</p>
+        <p className="text-[10px] opacity-70 mt-0.5">Promedio por turno</p>
+      </div>
+      <div className="rounded-xl p-3 text-center" style={{background:'#EDE9FE',color:'#5B21B6'}}>
+        <p className="text-xl font-bold leading-tight">${Math.round(ingPorHora).toLocaleString("es-AR")}</p>
+        <p className="text-[10px] opacity-70 mt-0.5">Ingreso por hora</p>
+      </div>
     </div>
 
-    {/* Métodos de pago */}
-    {totalTurnos>0&&(
+    {totalTurnos+noShowAppts.length>0&&(
+      <div className="grid grid-cols-3 gap-2">
+        <div className="rounded-xl p-3 text-center" style={{background:'#F3F4F6',color:'#374151'}}>
+          <p className="text-xl font-bold">{noShowAppts.length}</p>
+          <p className="text-[10px] opacity-70">No shows</p>
+          {totalTurnos+noShowAppts.length>0&&<p className="text-[9px] opacity-50">{Math.round(noShowAppts.length/(totalTurnos+noShowAppts.length)*100)}%</p>}
+        </div>
+        <div className="rounded-xl p-3 text-center" style={{background:'#DBEAFE',color:'#1D4ED8'}}>
+          <p className="text-xl font-bold">{nuevos}</p>
+          <p className="text-[10px] opacity-70">Nuevos</p>
+        </div>
+        <div className="rounded-xl p-3 text-center" style={{background:'#FCE7F3',color:'#9D174D'}}>
+          <p className="text-xl font-bold">{recurrentes}</p>
+          <p className="text-[10px] opacity-70">Recurrentes</p>
+        </div>
+      </div>
+    )}
+
+    {(topSlot||topDay)&&(
+      <div className="grid grid-cols-2 gap-2">
+        {topSlot&&<div className="rounded-xl p-3 text-center" style={{background:'#FEFDF8',border:'1px solid rgba(0,0,0,.05)'}}>
+          <p className="text-lg font-bold" style={{color:'#1C1A14'}}>{topSlot[0]} hs</p>
+          <p className="text-[10px]" style={{color:'#8A8470'}}>Horario más reservado</p>
+        </div>}
+        {topDay&&<div className="rounded-xl p-3 text-center" style={{background:'#FEFDF8',border:'1px solid rgba(0,0,0,.05)'}}>
+          <p className="text-lg font-bold" style={{color:'#1C1A14'}}>{DNAMES[topDay[0]]}</p>
+          <p className="text-[10px]" style={{color:'#8A8470'}}>Día más activo</p>
+        </div>}
+      </div>
+    )}
+
+    {top3Rev.length>0&&(
+      <div className="rounded-xl p-3.5" style={{background:'#FEFDF8',border:'1px solid rgba(0,0,0,.05)'}}>
+        <p className="text-xs font-bold mb-2" style={{color:'#1C1A14'}}>Top servicios por ingreso</p>
+        {top3Rev.map(([id,rev],i)=>(
+          <div key={id} className="flex items-center justify-between py-1.5" style={{borderTop:i>0?'1px solid rgba(0,0,0,.04)':'none'}}>
+            <span className="text-[10px] font-bold mr-2 w-4" style={{color:'#8A8470'}}>#{i+1}</span>
+            <span className="text-xs flex-1 truncate" style={{color:'#1C1A14'}}>{svcName(Number(id))}</span>
+            <span className="text-xs font-bold" style={{color:'#3D4A18'}}>${rev.toLocaleString("es-AR")}</span>
+          </div>
+        ))}
+      </div>
+    )}
+    {top3Cnt.length>0&&(
+      <div className="rounded-xl p-3.5" style={{background:'#FEFDF8',border:'1px solid rgba(0,0,0,.05)'}}>
+        <p className="text-xs font-bold mb-2" style={{color:'#1C1A14'}}>Top servicios por cantidad</p>
+        {top3Cnt.map(([id,cnt],i)=>(
+          <div key={id} className="flex items-center justify-between py-1.5" style={{borderTop:i>0?'1px solid rgba(0,0,0,.04)':'none'}}>
+            <span className="text-[10px] font-bold mr-2 w-4" style={{color:'#8A8470'}}>#{i+1}</span>
+            <span className="text-xs flex-1 truncate" style={{color:'#1C1A14'}}>{svcName(Number(id))}</span>
+            <span className="text-xs font-bold" style={{color:'#065F46'}}>{cnt} {cnt===1?"turno":"turnos"}</span>
+          </div>
+        ))}
+      </div>
+    )}
+
+    {totalTurnos>0&&Object.values(metodoCounts).some(v=>v>0)&&(
       <div className="rounded-xl p-3 flex gap-3 flex-wrap" style={{background:'#FEFDF8',border:'1px solid rgba(0,0,0,.05)'}}>
         {Object.entries(metodoCounts).filter(([,v])=>v>0).map(([k,v])=>(
           <div key={k} className="text-center flex-1 min-w-[60px]">
@@ -950,14 +1141,19 @@ const App=()=>{
             <p className="text-[10px]" style={{color:'#8A8470'}}>{METODOS[k]}</p>
           </div>
         ))}
-        {Object.values(metodoCounts).every(v=>v===0)&&<p className="text-xs" style={{color:'#8A8470'}}>Sin datos de m\u00e9todo de pago a\u00fan</p>}
       </div>
     )}
 
-    {/* Lista de turnos del período */}
+    {revenueAppts.length>0&&(
+      <button onClick={exportCSV} className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold" style={{background:'rgba(61,74,24,.06)',color:'#3D4A18',border:'1px solid rgba(61,74,24,.1)'}}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar CSV ({revenueAppts.length} turnos)
+      </button>
+    )}
+
     <div className="space-y-2">
-      {periodAppts.length===0&&<p className="text-center text-sm py-8" style={{color:'#8A8470'}}>No hay turnos en este per\u00edodo</p>}
-      {periodAppts.map(a=>{
+      {revenueAppts.length===0&&<p className="text-center text-sm py-8" style={{color:'#8A8470'}}>No hay turnos en este período</p>}
+      {revenueAppts.map(a=>{
         const isExp=expandedAppt===a.id;
         const edit=apptEdit[a.id]||{charged_price:a.charged_price!=null?String(a.charged_price):"",payment_method:a.payment_method||"",notes:a.notes||""};
         const listPrice=svcPrice(a.service_id);
@@ -968,7 +1164,7 @@ const App=()=>{
             <div className="p-3 flex items-center gap-2 cursor-pointer" onClick={()=>setExpandedAppt(isExp?null:a.id)}>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold truncate">{a.client_name}</p>
-                <p className="text-[11px]" style={{color:'#8A8470'}}>{fDate(a.appointment_date)} \u00b7 {a.time_slot} \u00b7 {svcName(a.service_id)}</p>
+                <p className="text-[11px]" style={{color:'#8A8470'}}>{fDate(a.appointment_date)} · {a.time_slot} · {svcName(a.service_id)}</p>
               </div>
               <div className="text-right flex-shrink-0">
                 <p className="text-sm font-bold" style={{color:'#3D4A18'}}>${chargedN.toLocaleString("es-AR")}</p>
@@ -976,44 +1172,30 @@ const App=()=>{
               </div>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{flexShrink:0,transform:isExp?'rotate(180deg)':'none',transition:'transform .2s'}}><path d="M6 9l6 6 6-6" stroke="#8A8470" strokeWidth="2" strokeLinecap="round"/></svg>
             </div>
-
             {isExp&&(
               <div className="px-3 pb-3 pt-0 space-y-2.5" style={{borderTop:'1px solid rgba(0,0,0,.05)'}}>
                 <div className="grid grid-cols-2 gap-2 pt-3">
                   <div>
                     <label className="text-[10px] uppercase tracking-widest font-medium block mb-1" style={{color:'#8A8470'}}>Precio cobrado ($)</label>
-                    <input type="number" value={edit.charged_price}
-                      onChange={e=>setApptEdit(p=>({...p,[a.id]:{...(p[a.id]||{}),charged_price:e.target.value}}))}
-                      className="w-full px-2.5 py-2 rounded-lg text-sm"
-                      style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}}
-                      placeholder={String(listPrice)}/>
-                    <p className="text-[9px] mt-0.5" style={{color:'#8A8470'}}>Precio lista: ${listPrice.toLocaleString("es-AR")}</p>
+                    <input type="number" value={edit.charged_price} onChange={e=>setApptEdit(p=>({...p,[a.id]:{...(p[a.id]||{}),charged_price:e.target.value}}))} className="w-full px-2.5 py-2 rounded-lg text-sm" style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}} placeholder={String(listPrice)}/>
+                    <p className="text-[9px] mt-0.5" style={{color:'#8A8470'}}>Lista: ${listPrice.toLocaleString("es-AR")}</p>
                   </div>
                   <div>
-                    <label className="text-[10px] uppercase tracking-widest font-medium block mb-1" style={{color:'#8A8470'}}>M\u00e9todo de pago</label>
-                    <select value={edit.payment_method}
-                      onChange={e=>setApptEdit(p=>({...p,[a.id]:{...(p[a.id]||{}),payment_method:e.target.value}}))}
-                      className="w-full px-2.5 py-2 rounded-lg text-sm appearance-none"
-                      style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}}>
+                    <label className="text-[10px] uppercase tracking-widest font-medium block mb-1" style={{color:'#8A8470'}}>Método de pago</label>
+                    <select value={edit.payment_method} onChange={e=>setApptEdit(p=>({...p,[a.id]:{...(p[a.id]||{}),payment_method:e.target.value}}))} className="w-full px-2.5 py-2 rounded-lg text-sm appearance-none" style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}}>
                       <option value="">Sin registrar</option>
                       <option value="efectivo">Efectivo</option>
                       <option value="transferencia">Transferencia</option>
-                      <option value="tarjeta_debito">Tarjeta d\u00e9bito</option>
-                      <option value="tarjeta_credito">Tarjeta cr\u00e9dito</option>
+                      <option value="tarjeta_debito">Tarjeta débito</option>
+                      <option value="tarjeta_credito">Tarjeta crédito</option>
                     </select>
                   </div>
                 </div>
                 <div>
                   <label className="text-[10px] uppercase tracking-widest font-medium block mb-1" style={{color:'#8A8470'}}>Notas internas</label>
-                  <input value={edit.notes}
-                    onChange={e=>setApptEdit(p=>({...p,[a.id]:{...(p[a.id]||{}),notes:e.target.value}}))}
-                    className="w-full px-2.5 py-2 rounded-lg text-sm"
-                    style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}}
-                    placeholder="Observaciones, descuentos, etc."/>
+                  <input value={edit.notes} onChange={e=>setApptEdit(p=>({...p,[a.id]:{...(p[a.id]||{}),notes:e.target.value}}))} className="w-full px-2.5 py-2 rounded-lg text-sm" style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}} placeholder="Observaciones, descuentos, etc."/>
                 </div>
-                <button onClick={()=>saveApptDetails(a.id)} disabled={savingAppt===a.id}
-                  className="w-full py-2 rounded-lg text-xs font-semibold text-white disabled:opacity-40"
-                  style={{background:'#3D4A18'}}>
+                <button onClick={()=>saveApptDetails(a.id)} disabled={savingAppt===a.id} className="w-full py-2 rounded-lg text-xs font-semibold text-white disabled:opacity-40" style={{background:'#3D4A18'}}>
                   {savingAppt===a.id?"Guardando...":"Guardar"}
                 </button>
               </div>
@@ -1025,6 +1207,187 @@ const App=()=>{
   </div>
   );
 })()}
+
+      {tab==="clientes"&&(()=>{
+  const clientMap={};
+  appointments.filter(a=>a.status!=="cancelled").forEach(a=>{
+    if(!a.client_email)return;
+    if(!clientMap[a.client_email])clientMap[a.client_email]={email:a.client_email,name:a.client_name,phone:a.client_phone,turnos:[]};
+    clientMap[a.client_email].turnos.push(a);
+    clientMap[a.client_email].name=a.client_name;
+    clientMap[a.client_email].phone=a.client_phone;
+  });
+  const clients=Object.values(clientMap).sort((a,b)=>{
+    const la=a.turnos.slice().sort((x,y)=>y.appointment_date.localeCompare(x.appointment_date))[0]?.appointment_date||'';
+    const lb=b.turnos.slice().sort((x,y)=>y.appointment_date.localeCompare(x.appointment_date))[0]?.appointment_date||'';
+    return lb.localeCompare(la);
+  });
+  return(
+  <div className="px-4 py-4 max-w-3xl mx-auto space-y-2">
+    <p className="text-xs font-semibold mb-1" style={{color:'#8A8470'}}>{clients.length} clientes únicos</p>
+    {clients.length===0&&<p className="text-center text-sm py-8" style={{color:'#8A8470'}}>No hay clientes aún</p>}
+    {clients.map(c=>{
+      const sorted=c.turnos.slice().sort((a,b)=>b.appointment_date.localeCompare(a.appointment_date));
+      const ltv=c.turnos.reduce((acc,a)=>acc+(a.charged_price!=null?Number(a.charged_price):svcPrice(a.service_id)),0);
+      const lastVisit=sorted[0]?.appointment_date;
+      const isExp=selectedClient===c.email;
+      return(
+        <div key={c.email} className="rounded-xl overflow-hidden" style={{background:'#FEFDF8',border:'1px solid rgba(0,0,0,.05)'}}>
+          <div className="p-3 flex items-center gap-3 cursor-pointer" onClick={()=>setSelectedClient(isExp?null:c.email)}>
+            <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold" style={{background:'rgba(61,74,24,.08)',color:'#3D4A18'}}>
+              {c.name.charAt(0).toUpperCase()}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold truncate">{c.name}</p>
+              <p className="text-[11px]" style={{color:'#8A8470'}}>{c.phone} · {c.email}</p>
+            </div>
+            <div className="text-right flex-shrink-0">
+              <p className="text-xs font-bold" style={{color:'#3D4A18'}}>${ltv.toLocaleString("es-AR")}</p>
+              <p className="text-[10px]" style={{color:'#8A8470'}}>{c.turnos.length} {c.turnos.length===1?"turno":"turnos"}</p>
+            </div>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style={{flexShrink:0,transform:isExp?'rotate(180deg)':'none',transition:'transform .2s'}}><path d="M6 9l6 6 6-6" stroke="#8A8470" strokeWidth="2" strokeLinecap="round"/></svg>
+          </div>
+          {isExp&&(
+            <div className="px-3 pb-3 space-y-1.5" style={{borderTop:'1px solid rgba(0,0,0,.04)'}}>
+              <p className="text-[10px] font-semibold pt-2 mb-1" style={{color:'#8A8470'}}>Última visita: {lastVisit?fDate(lastVisit):"—"}</p>
+              {sorted.map(a=>{
+                const st=STATUS_COLORS[a.status]||STATUS_COLORS.pending;
+                return(
+                  <div key={a.id} className="flex items-center justify-between p-2 rounded-lg" style={{background:'#F5F1E8'}}>
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium truncate">{fDate(a.appointment_date)} · {a.time_slot} hs</p>
+                      <p className="text-[10px]" style={{color:'#8A8470'}}>{svcName(a.service_id)}</p>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{background:st.bg,color:st.tx}}>{st.label}</span>
+                      <span className="text-xs font-bold" style={{color:'#3D4A18'}}>${(a.charged_price!=null?Number(a.charged_price):svcPrice(a.service_id)).toLocaleString("es-AR")}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      );
+    })}
+  </div>
+  );
+})()}
+
+      {tab==="packs"&&(
+        <div className="px-4 py-4 max-w-3xl mx-auto space-y-4">
+          <div className="rounded-xl p-4" style={{background:'#FEFDF8',border:'1px solid rgba(0,0,0,.05)'}}>
+            <h2 className="text-sm font-bold mb-3" style={{color:'#1C1A14'}}>{editingPack?"Editar pack":"Nuevo pack"}</h2>
+            <div className="space-y-3">
+              <div>
+                <label className="text-[10px] uppercase tracking-widest font-medium block mb-1" style={{color:'#8A8470'}}>Nombre del pack</label>
+                <input value={packForm.name} onChange={e=>setPackForm(p=>({...p,name:e.target.value}))} className="w-full px-3 py-2.5 rounded-lg text-sm" style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}} placeholder="Ej: Pack 3 Limpiezas"/>
+              </div>
+              <div>
+                <label className="text-[10px] uppercase tracking-widest font-medium block mb-1" style={{color:'#8A8470'}}>Servicios incluidos</label>
+                <input value={packForm.services_included} onChange={e=>setPackForm(p=>({...p,services_included:e.target.value}))} className="w-full px-3 py-2.5 rounded-lg text-sm" style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}} placeholder="Ej: 3x Limpieza Facial Profunda"/>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest font-medium block mb-1" style={{color:'#8A8470'}}>Precio pack ($)</label>
+                  <input type="number" value={packForm.pack_price} onChange={e=>setPackForm(p=>({...p,pack_price:e.target.value}))} className="w-full px-3 py-2.5 rounded-lg text-sm" style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}} placeholder="50000"/>
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest font-medium block mb-1" style={{color:'#8A8470'}}>Precio lista ($)</label>
+                  <input type="number" value={packForm.list_price} onChange={e=>setPackForm(p=>({...p,list_price:e.target.value}))} className="w-full px-3 py-2.5 rounded-lg text-sm" style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}} placeholder="60000"/>
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest font-medium block mb-1" style={{color:'#8A8470'}}>Usos</label>
+                  <input type="number" min="1" value={packForm.uses_count} onChange={e=>setPackForm(p=>({...p,uses_count:e.target.value}))} className="w-full px-3 py-2.5 rounded-lg text-sm" style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}}/>
+                </div>
+              </div>
+              <div className="flex gap-2 pt-1">
+                {editingPack&&<button onClick={()=>{setEditingPack(null);setPackForm({name:"",services_included:"",pack_price:"",list_price:"",uses_count:1})}} className="flex-1 py-2.5 rounded-xl text-sm" style={{background:'rgba(0,0,0,.05)',color:'#8A8470'}}>Cancelar</button>}
+                <button onClick={savePack} disabled={!packForm.name||!packForm.pack_price||packLoading} className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-40" style={{background:'#3D4A18'}}>
+                  {packLoading?"Guardando...":(editingPack?"Guardar cambios":"+ Agregar pack")}
+                </button>
+              </div>
+            </div>
+          </div>
+          <div className="space-y-2">
+            {packList.map(pk=>{
+              const disc=pk.list_price&&pk.list_price>pk.pack_price?Math.round((1-pk.pack_price/pk.list_price)*100):0;
+              return(
+                <div key={pk.id} className="rounded-xl p-3.5" style={{background:'#FEFDF8',border:'1px solid rgba(0,0,0,.05)'}}>
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-sm font-semibold">{pk.name}</p>
+                        {disc>0&&<span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{background:'#D1FAE5',color:'#065F46'}}>-{disc}%</span>}
+                      </div>
+                      {pk.services_included&&<p className="text-xs mt-0.5" style={{color:'#8A8470'}}>{pk.services_included}</p>}
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-sm font-bold" style={{color:'#3D4A18'}}>${(pk.pack_price||0).toLocaleString("es-AR")}</p>
+                      {pk.list_price&&<p className="text-[10px] line-through" style={{color:'#8A8470'}}>${pk.list_price.toLocaleString("es-AR")}</p>}
+                      <p className="text-[10px]" style={{color:'#8A8470'}}>{pk.uses_count} {pk.uses_count===1?"uso":"usos"}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 mt-2">
+                    <button onClick={()=>{setEditingPack(pk.id);setPackForm({name:pk.name,services_included:pk.services_included||"",pack_price:String(pk.pack_price),list_price:String(pk.list_price||""),uses_count:pk.uses_count||1})}} className="text-xs px-2.5 py-1.5 rounded-lg" style={{background:'rgba(61,74,24,.08)',color:'#3D4A18'}}>Editar</button>
+                    <button onClick={()=>deletePack(pk.id,pk.name)} className="text-xs px-2.5 py-1.5 rounded-lg" style={{background:'#FEE2E2',color:'#991B1B'}}>Eliminar</button>
+                  </div>
+                </div>
+              );
+            })}
+            {packList.length===0&&<p className="text-center text-sm py-6" style={{color:'#8A8470'}}>No hay packs cargados</p>}
+          </div>
+        </div>
+      )}
+
+      {/* Modal Reagendar */}
+      {rescheduleModal&&(
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-5" style={{background:'rgba(0,0,0,.4)',backdropFilter:'blur(4px)'}}>
+          <div className="w-full max-w-sm rounded-2xl p-6" style={{background:'#FEFDF8',boxShadow:'0 24px 80px rgba(0,0,0,.15)'}}>
+            <h3 className="text-base font-bold mb-1" style={{color:'#1C1A14'}}>Reagendar turno</h3>
+            <p className="text-xs mb-4" style={{color:'#8A8470'}}>{rescheduleModal.appt.client_name} · {svcName(rescheduleModal.appt.service_id)}</p>
+            <div className="space-y-3">
+              <div>
+                <label className="text-[10px] uppercase tracking-widest font-medium block mb-1" style={{color:'#8A8470'}}>Nueva fecha</label>
+                <input type="date" value={rescheduleModal.date}
+                  onChange={e=>{
+                    const d=e.target.value;
+                    setRescheduleModal(p=>({...p,date:d,slot:""}));
+                    fetchRescheduleSlots(d,rescheduleModal.appt);
+                  }}
+                  min={today}
+                  className="w-full px-3 py-2.5 rounded-lg text-sm" style={{background:'#F5F1E8',border:'1.5px solid rgba(0,0,0,.07)'}}/>
+              </div>
+              {rescheduleModal.date&&(
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest font-medium block mb-2" style={{color:'#8A8470'}}>
+                    Horario disponible {rescheduleModal.loading&&<span className="opacity-50 normal-case">· cargando...</span>}
+                  </label>
+                  {!rescheduleModal.loading&&rescheduleModal.slots.length===0&&(
+                    <p className="text-xs text-center py-2" style={{color:'#8A8470'}}>No hay horarios disponibles ese día</p>
+                  )}
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {rescheduleModal.slots.map(s=>(
+                      <button key={s} type="button" onClick={()=>setRescheduleModal(p=>({...p,slot:s}))}
+                        className="py-2 rounded-lg text-xs font-medium transition-all"
+                        style={{background:rescheduleModal.slot===s?'#3D4A18':'#F5F1E8',color:rescheduleModal.slot===s?'#fff':'#3D4A18',border:rescheduleModal.slot===s?'none':'1.5px solid rgba(0,0,0,.07)'}}>
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {rescheduleModal.error&&<p className="text-xs text-center py-2 px-3 rounded-lg" style={{background:'#FEE2E2',color:'#991B1B'}}>{rescheduleModal.error}</p>}
+            </div>
+            <div className="flex gap-2 mt-5">
+              <button onClick={()=>setRescheduleModal(null)} className="flex-1 py-2.5 rounded-xl text-sm font-medium" style={{background:'rgba(0,0,0,.05)',color:'#5C5840'}}>Cancelar</button>
+              <button onClick={doReschedule} disabled={rescheduleModal.loading||!rescheduleModal.slot} className="flex-1 py-2.5 rounded-xl text-sm font-medium text-white disabled:opacity-40" style={{background:'#3D4A18'}}>
+                {rescheduleModal.loading?"Guardando...":"Confirmar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal de confirmación custom */}
       {modal&&(
