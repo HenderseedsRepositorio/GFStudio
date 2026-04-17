@@ -542,6 +542,7 @@ const BookingModal=({open,onClose,svcs,blocks,initialServiceId})=>{
           })()}
           {step==="datos"&&(()=>{
             const dateDisplay=selDate?new Date(selDate+"T12:00:00").toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"}):"";
+            if(!selTime)return <p style={{color:'var(--muted)'}}>Elegí un horario</p>;
             const dur=selSvc?.duration_minutes||60;
             const[sh,sm]=selTime.split(":").map(Number);
             const eMin=sh*60+sm+dur;
