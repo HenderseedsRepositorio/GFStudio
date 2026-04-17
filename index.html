@@ -419,6 +419,12 @@ const BookingModal=({open,onClose,svcs,blocks,initialServiceId})=>{
     setWeekOffset(0);setTakenSlots([]);
   };
 
+  useEffect(()=>{
+    if(!open||!initialServiceId||!svcs.length)return;
+    const s=svcs.find(x=>x.id===initialServiceId);
+    if(s){setSelSvc(s);setStep("fecha");setWeekOffset(0);setSelDate("");}
+  },[open,initialServiceId,svcs]);
+
   const handleSubmit=async(e)=>{
     e.preventDefault();setSubmitError("");
     const{n,em,ph,country}=fm;
@@ -700,7 +706,8 @@ const BookingModal=({open,onClose,svcs,blocks,initialServiceId})=>{
 /* ═══ APP ═══ */
 const App=()=>{
   const[bk,setBk]=useState(false);
-  const handleBkClose=useCallback(()=>setBk(false),[]);
+  const[initialSvcId,setInitialSvcId]=useState(null);
+  const handleBkClose=useCallback(()=>{setBk(false);setInitialSvcId(null);history.replaceState(null,"","/");},[]);
   const[fm,setFm]=useState({n:"",em:"",ph:"",sv:"",dt:"",tm:""});
   const[sent,setSent]=useState(false);
   const[sentData,setSentData]=useState(null);
@@ -743,6 +750,15 @@ const App=()=>{
       setBlocks(b||[]);
       setLoadingSvcs(false);
     }).catch(()=>setLoadingSvcs(false));
+  },[]);
+
+  useEffect(()=>{
+    const p=new URLSearchParams(window.location.search);
+    if(p.get("book")==="1"){
+      setBk(true);
+      const svcParam=p.get("svc");
+      if(svcParam)setInitialSvcId(parseInt(svcParam,10));
+    }
   },[]);
 
   const fetchSlots=useCallback(async(date)=>{
@@ -1200,7 +1216,7 @@ const App=()=>{
         onClose={handleBkClose}
         svcs={svcs}
         blocks={blocks}
-        initialServiceId={null}
+        initialServiceId={initialSvcId}
       />
     </div>
   );
