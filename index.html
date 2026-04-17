@@ -215,6 +215,8 @@ body{font-family:'Figtree',sans-serif;background:var(--sand)!important;color:var
   transition:all .2s;flex-shrink:0;
 }
 .bk-sum-mod:hover{background:rgba(94,107,46,.15)}
+.bk-step-body{animation:bkSlide .22s cubic-bezier(.22,1,.36,1) both}
+@keyframes bkSlide{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
 
 /* ── Grain overlay ── */
 .grain::before{
@@ -535,6 +537,7 @@ const BookingModal=({open,onClose,svcs,blocks,initialServiceId})=>{
           );
         })()}
         <div className="flex-1 overflow-y-auto p-6">
+          <div className="bk-step-body" key={step}>
           {step==="servicio"&&(
             <div className="space-y-3">
               {svcs.length===0?(
@@ -712,6 +715,7 @@ const BookingModal=({open,onClose,svcs,blocks,initialServiceId})=>{
               <button type="button" onClick={resetWizard} className="btn-ghost text-xs px-6 py-2.5 rounded-full">Reservar otro turno</button>
             </div>
           )}
+          </div>
         </div>
       </div>
     </>
