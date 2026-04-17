@@ -11,7 +11,9 @@
 <meta property="og:description" content="Tratamientos profesionales de belleza y cuidado de la piel en Henderson, Buenos Aires.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://gf-studio.vercel.app">
-<meta property="og:image" content="https://gf-studio.vercel.app/og-image.jpg">
+<meta property="og:image" content="https://gf-studio.vercel.app/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%233D4A18'/%3E%3Ctext x='16' y='23' text-anchor='middle' font-family='Georgia%2Cserif' font-size='15' font-weight='700' fill='white'%3EGF%3C/text%3E%3C/svg%3E">
 <script type="application/ld+json">
@@ -595,11 +597,14 @@ const App=()=>{
                       {slots.map(t=>{
                         const avail=slotAvailable(t,dur,takenSlots,svcs,blocks,fm.dt);
                         const sel=fm.tm===t;
+                        const [bh,bm]=t.split(":").map(Number);
+                        const endMin=bh*60+bm+dur;
+                        const endStr=`${String(Math.floor(endMin/60)).padStart(2,'0')}:${String(endMin%60).padStart(2,'0')}`;
                         return <button key={t} type="button" disabled={!avail}
                           onClick={()=>avail&&setFm(p=>({...p,tm:t}))}
-                          className="slot-btn rounded-xl text-sm font-medium"
+                          className="slot-btn rounded-xl font-medium"
                           style={{
-                            padding:'13px 0',minHeight:'48px',
+                            padding:'10px 0',minHeight:'52px',
                             background:!avail?'rgba(0,0,0,.02)':sel?'var(--olive-dk)':'rgba(255,255,255,.6)',
                             color:!avail?'rgba(0,0,0,.18)':sel?'#fff':'var(--olive-dk)',
                             borderColor:!avail?'rgba(0,0,0,.03)':sel?'var(--olive-dk)':'rgba(94,107,46,.12)',
@@ -607,7 +612,8 @@ const App=()=>{
                             cursor:!avail?'not-allowed':'pointer',
                             opacity:!avail?0.4:1,
                           }}>
-                          {t}
+                          <span className="block text-sm leading-tight">{t}</span>
+                          <span className="block text-[10px] font-light mt-0.5" style={{opacity:.65}}>→ {endStr}</span>
                         </button>
                       })}
                     </div>
@@ -634,9 +640,10 @@ const App=()=>{
                   style={{background:'var(--olive-dk)'}}>
                   {submitting?<span>Reservando...</span>:<span>Confirmar Reserva</span>}
                 </button>
-                <p className="text-center text-[11px] font-light leading-relaxed" style={{color:'var(--muted)',opacity:.5}}>
-                  Política de cancelación: avisanos por WhatsApp con al menos 4 hs de anticipación.
-                </p>
+                <div className="flex items-start gap-2.5 px-3.5 py-3 rounded-xl text-[11px] leading-relaxed" style={{background:'rgba(94,107,46,.06)',border:'1px solid rgba(94,107,46,.1)',color:'var(--muted)'}}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--olive)" strokeWidth="1.8" strokeLinecap="round" className="flex-shrink-0 mt-px"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                  <span><strong style={{color:'var(--olive-dk)'}}>Cancelación:</strong> avisanos por WhatsApp con al menos 4 hs de anticipación.</span>
+                </div>
               </form>
             </div>
           )}
