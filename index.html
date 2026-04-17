@@ -344,7 +344,8 @@ const COUNTRIES=[
 const normPhoneByCountry=(raw,countryCode)=>{
   const c=COUNTRIES.find(x=>x.code===countryCode);
   if(!c)return raw;
-  const digits=(raw||"").replace(/\D/g,'');
+  let digits=(raw||"").replace(/\D/g,'');
+  if(countryCode==="AR"&&digits.startsWith("9"))digits=digits.slice(1);
   return `${c.prefix} ${digits}`;
 };
 
@@ -412,8 +413,6 @@ const BookingModal=({open,onClose,svcs,blocks,initialServiceId})=>{
     };
   },[open,onClose]);
 
-  if(!open)return null;
-
   const resetWizard=()=>{
     setStep("servicio");setSelSvc(null);setSelDate("");setSelTime("");
     setFm({n:"",em:"",ph:"",country:"AR"});setSentData(null);setSubmitError("");setEmailSuggestion("");
@@ -431,7 +430,15 @@ const BookingModal=({open,onClose,svcs,blocks,initialServiceId})=>{
     setSubmitting(true);
     try{
       const{data:freshSlots}=await sb.from("gf_appointments").select("time_slot,service_id,status").eq("appointment_date",selDate);
-      if(freshSlots&&freshSlots.some(r=>r.time_slot===selTime&&r.status!=="cancelled")){
+      const dur=selSvc.duration_minutes||60;
+      const sMin=toMin(selTime),eMin=sMin+dur;
+      const hasCollision=freshSlots&&freshSlots.some(r=>{
+        if(r.status==="cancelled")return false;
+        const aMin=toMin(r.time_slot);
+        const aDur=(svcs.find(s=>s.id===r.service_id)?.duration_minutes)||60;
+        return aMin<eMin&&(aMin+aDur)>sMin;
+      });
+      if(hasCollision){
         setTakenSlots(freshSlots);setSelTime("");setSubmitError("Ese horario acaba de ser reservado. Elegí otro.");
         setSubmitting(false);setStep("fecha");return;
       }
@@ -458,6 +465,8 @@ const BookingModal=({open,onClose,svcs,blocks,initialServiceId})=>{
       setSubmitError("Error de conexión. Intentá de nuevo.");setSubmitting(false);
     }
   };
+
+  if(!open)return null;
 
   return(
     <>
