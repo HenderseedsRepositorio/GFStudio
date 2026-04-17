@@ -402,6 +402,12 @@ const BookingModal=({open,onClose,svcs,blocks,initialServiceId})=>{
     return()=>{cancelled=true};
   },[selDate]);
 
+  const resetWizard=()=>{
+    setStep("servicio");setSelSvc(null);setSelDate("");setSelTime("");
+    setFm({n:"",em:"",ph:"",country:"AR"});setSentData(null);setSubmitError("");setEmailSuggestion("");
+    setWeekOffset(0);setTakenSlots([]);
+  };
+
   const isDirty=()=>{
     if(step==="exito")return false;
     return !!(selSvc||selDate||selTime||fm.n||fm.em||fm.ph);
@@ -429,12 +435,6 @@ const BookingModal=({open,onClose,svcs,blocks,initialServiceId})=>{
       document.body.style.overflow=prev;
     };
   },[open]);
-
-  const resetWizard=()=>{
-    setStep("servicio");setSelSvc(null);setSelDate("");setSelTime("");
-    setFm({n:"",em:"",ph:"",country:"AR"});setSentData(null);setSubmitError("");setEmailSuggestion("");
-    setWeekOffset(0);setTakenSlots([]);
-  };
 
   useEffect(()=>{
     if(!open||!initialServiceId||!svcs.length)return;
