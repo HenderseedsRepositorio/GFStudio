@@ -179,11 +179,10 @@ const App=()=>{
       duration:`${svcForm.duration_minutes} min`,
       description:svcForm.description.trim()||null,
     };
-    if(editingSvc){
-      await sb.from("gf_services").update(payload).eq("id",editingSvc);
-    }else{
-      await sb.from("gf_services").insert(payload);
-    }
+    const{error}=editingSvc
+      ?await sb.from("gf_services").update(payload).eq("id",editingSvc)
+      :await sb.from("gf_services").insert(payload);
+    if(error){alert("Error al guardar: "+error.message);setSvcLoading(false);return;}
     await fetchSvcs();
     setSvcForm({name:"",price:"",duration_minutes:60,description:""});
     setEditingSvc(null);
