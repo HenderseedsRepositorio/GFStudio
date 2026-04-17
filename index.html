@@ -231,6 +231,13 @@ const App=()=>{
     document.querySelectorAll(".reveal").forEach(el=>o.observe(el));
     return()=>{window.removeEventListener("scroll",onScroll);o.disconnect()};
   },[]);
+  // Re-observe reveal elements after dynamic content (services) loads
+  useEffect(()=>{
+    if(!svcs.length)return;
+    const o=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add("vis")})},{threshold:.05,rootMargin:"0px 0px -60px 0px"});
+    document.querySelectorAll(".reveal:not(.vis)").forEach(el=>o.observe(el));
+    return()=>o.disconnect();
+  },[svcs]);
 
   useEffect(()=>{
     if(!sb){setLoadingSvcs(false);return;}
@@ -456,7 +463,7 @@ const App=()=>{
                       </div>
                       <div className="flex items-center gap-3 mt-1">
                         <span className="text-[11px] font-light" style={{color:'var(--muted)',opacity:.6}}>{"\u23F1"} {s.duration || (s.duration_minutes ? s.duration_minutes + " min" : "")}</span>
-                        {s.description&&<p className="text-xs sm:text-[13px] font-light truncate hidden sm:block" style={{color:'var(--muted)'}}>{s.description}</p>}
+                        {s.description&&<p className="text-xs sm:text-[13px] font-light mt-0.5" style={{color:'var(--muted)'}}>{s.description}</p>}
                       </div>
                     </div>
                     <div className="arrow flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center" style={{background:'var(--olive-dk)',color:'#fff'}}>
