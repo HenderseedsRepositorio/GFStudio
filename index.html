@@ -569,6 +569,7 @@ const App=()=>{
                     <option value="">{loadingSvcs?"Cargando servicios...":"Seleccioná un servicio"}</option>
                     {svcs.map(s=><option key={s.id} value={s.id}>{s.name} — {fP(s.price)}</option>)}
                   </select>
+                  {fm.sv&&(()=>{const s=svcs.find(x=>x.id===+fm.sv);return s?.description?<p className="mt-2 text-xs leading-relaxed px-1" style={{color:'var(--muted)'}}>{s.description}</p>:null;})()}
                 </div>
                 {/* Date */}
                 <div>
