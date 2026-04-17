@@ -404,7 +404,7 @@ const BookingModal=({open,onClose,svcs,blocks,initialServiceId})=>{
                   {svcs.map(s=>{
                     const sel=selSvc?.id===s.id;
                     return(
-                      <button key={s.id} type="button" className={"bk-svc"+(sel?" sel":"")} onClick={()=>{setSelSvc(s);setStep("fecha")}}>
+                      <button key={s.id} type="button" className={"bk-svc"+(sel?" sel":"")} onClick={()=>{setSelSvc(s);setStep("fecha");setWeekOffset(0);setSelDate("")}}>
                         <div className="flex items-start justify-between gap-2 mb-1">
                           <span className="text-sm font-semibold" style={{color:'var(--ink)'}}>{s.name}</span>
                           <span className="text-xs flex-shrink-0 px-2 py-0.5 rounded-full" style={{background:'rgba(94,107,46,.08)',color:'var(--olive-dk)'}}>{s.duration_minutes||60} min</span>
@@ -428,7 +428,7 @@ const BookingModal=({open,onClose,svcs,blocks,initialServiceId})=>{
                 {/* Carrusel de días */}
                 <div className="mb-6">
                   <div className="flex items-center gap-2">
-                    <button className="bk-weekarrow" onClick={()=>setWeekOffset(o=>Math.max(0,o-1))} disabled={weekOffset<=0} aria-label="Semana anterior">
+                    <button type="button" className="bk-weekarrow" onClick={()=>{setWeekOffset(o=>Math.max(0,o-1));setSelDate("")}} disabled={weekOffset<=0} aria-label="Semana anterior">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--olive-dk)" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
                     </button>
                     <div className="flex gap-1.5 flex-1 min-w-0">
@@ -444,7 +444,7 @@ const BookingModal=({open,onClose,svcs,blocks,initialServiceId})=>{
                         );
                       })}
                     </div>
-                    <button className="bk-weekarrow" onClick={()=>setWeekOffset(o=>Math.min(8,o+1))} disabled={weekOffset>=8} aria-label="Semana siguiente">
+                    <button type="button" className="bk-weekarrow" onClick={()=>{setWeekOffset(o=>Math.min(8,o+1));setSelDate("")}} disabled={weekOffset>=8} aria-label="Semana siguiente">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--olive-dk)" strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>
                     </button>
                   </div>
