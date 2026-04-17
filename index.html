@@ -708,21 +708,11 @@ const App=()=>{
   const[bk,setBk]=useState(false);
   const[initialSvcId,setInitialSvcId]=useState(null);
   const handleBkClose=useCallback(()=>{setBk(false);setInitialSvcId(null);history.replaceState(null,"","/");},[]);
-  const[fm,setFm]=useState({n:"",em:"",ph:"",sv:"",dt:"",tm:""});
-  const[sent,setSent]=useState(false);
-  const[sentData,setSentData]=useState(null);
   const[mn,setMn]=useState(false);
-  const[takenSlots,setTakenSlots]=useState([]);
-  const[loadingSlots,setLoadingSlots]=useState(false);
-  const[submitting,setSubmitting]=useState(false);
-  const[submitError,setSubmitError]=useState("");
-  const[dateError,setDateError]=useState("");
-  const[expandedSvc,setExpandedSvc]=useState(null);
   const[scrolled,setScrolled]=useState(false);
   const[svcs,setSvcs]=useState([]);
   const[blocks,setBlocks]=useState([]);
   const[loadingSvcs,setLoadingSvcs]=useState(true);
-  const[emailSuggestion,setEmailSuggestion]=useState("");
 
   // Scroll observer for nav + reveal
   useEffect(()=>{
@@ -761,96 +751,6 @@ const App=()=>{
     }
   },[]);
 
-  const fetchSlots=useCallback(async(date)=>{
-    if(!date||!sb)return;
-    setLoadingSlots(true);
-    try{
-      const{data}=await sb.from("gf_appointments")
-        .select("time_slot,service_id,status")
-        .eq("appointment_date",date);
-      setTakenSlots(data||[]);
-    }catch(e){
-      console.warn("Slots fetch failed",e);
-      setTakenSlots([]);
-    }finally{setLoadingSlots(false);}
-  },[]);
-
-  useEffect(()=>{
-    fetchSlots(fm.dt);
-    if(!fm.dt)return;
-    const iv=setInterval(()=>fetchSlots(fm.dt),60000);
-    return()=>clearInterval(iv);
-  },[fm.dt,fetchSlots]);
-
-  const minD=()=>{
-    const now=new Date();
-    const ar=new Date(now.toLocaleString("en-US",{timeZone:"America/Argentina/Buenos_Aires"}));
-    ar.setDate(ar.getDate()+1);
-    return ar.getFullYear()+'-'+String(ar.getMonth()+1).padStart(2,'0')+'-'+String(ar.getDate()).padStart(2,'0');
-  };
-  const isWeekday=v=>{if(!v)return true;const d=new Date(v+"T12:00:00").getDay();return d>=1&&d<=5};
-  const validPhone=p=>/^\d[\d\s\-]{6,}$/.test(p.trim());
-  // Normaliza a "+549..." aceptando que el usuario pegue con o sin 54/549 adelante
-  const normPhone=p=>{let t=(p||"").replace(/\D/g,'');if(t.startsWith("549"))return "+"+t;if(t.startsWith("54"))return "+549"+t.slice(2);return "+549"+t};
-
-  const sub=async(e)=>{
-    e.preventDefault();setSubmitError("");
-    const{n,em,ph,sv,dt,tm}=fm;
-    if(!n||!em||!ph||!sv||!dt||!tm){setSubmitError("Completá todos los campos.");return}
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.trim())){setSubmitError("Ingresá un email válido.");return}
-    if(!validPhone(ph)){setSubmitError("Ingresá un número de teléfono válido.");return}
-    if(!sb){setSubmitError("Error de conexión. Intentá de nuevo.");return}
-    setSubmitting(true);
-
-    try{
-      // Refresh slots before inserting
-      const{data:freshSlots}=await sb.from("gf_appointments")
-        .select("time_slot,service_id,status").eq("appointment_date",dt);
-      if(freshSlots&&freshSlots.some(r=>r.time_slot===tm&&r.status!=="cancelled")){
-        setTakenSlots(freshSlots);
-        setFm(p=>({...p,tm:""}));
-        setSubmitError("Ese horario acaba de ser reservado. Elegí otro.");
-        setSubmitting(false);return;
-      }
-
-      const{error}=await sb.from("gf_appointments").insert({
-        client_name:n.trim(),
-        client_email:em.trim(),
-        client_phone:normPhone(ph),
-        service_id:parseInt(sv),
-        appointment_date:dt,
-        time_slot:tm,
-        status:"pending"
-      });
-
-      if(error){
-        if(error.code==="23505"){setSubmitError("Ese horario acaba de ser reservado. Elegí otro.");setTakenSlots(p=>[...p,{time_slot:tm,service_id:parseInt(sv),status:"pending"}]);setFm(p=>({...p,tm:""}));}
-        else{setSubmitError("Error al reservar. Intentá de nuevo.");}
-        setSubmitting(false);return;
-      }
-
-      const selSvc=svcs.find(s=>s.id===+sv);
-      const sn=selSvc?.name||sv;
-      const pr=selSvc?.price||0;
-      const dur_min=selSvc?.duration_minutes||60;
-      const df=new Date(dt+"T12:00:00").toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"});
-
-      try{
-        await fetch(`${SB_URL}/functions/v1/notify-booking`,{
-          method:"POST",
-          headers:{"Content-Type":"application/json","apikey":SB_KEY},
-          body:JSON.stringify({nombre:n.trim(),email:em.trim(),telefono:normPhone(ph),servicio:sn,fecha:df,horario:tm,precio:fP(pr)})
-        });
-      }catch(e){console.warn("notify-booking failed",e)}
-
-      setSentData({nombre:n.trim(),servicio:sn,fecha:df,horario:tm,precio:fP(pr),fecha_raw:dt,dur_min});
-      setSubmitting(false);setSent(true);
-    }catch(err){
-      setSubmitError("Error de conexión. Intentá de nuevo.");
-      setSubmitting(false);
-    }
-  };
-
   const go=id=>{document.getElementById(id)?.scrollIntoView({behavior:"smooth"});setMn(false)};
 
   return(
@@ -866,20 +766,20 @@ const App=()=>{
         <div className="max-w-6xl mx-auto px-5 sm:px-8 flex items-center justify-between h-16 sm:h-20">
           <div className="cursor-pointer transition-transform hover:scale-105" onClick={()=>go("hero")}><Logo c="var(--olive-dk)" s={44}/></div>
           <div className="hidden md:flex items-center gap-10">
-            {[{id:"servicios",l:"Servicios"},{id:"reservar",l:"Turnos"},{id:"contacto",l:"Contacto"}].map(x=>
+            {[{id:"servicios",l:"Servicios"},{id:"contacto",l:"Contacto"}].map(x=>
               <button key={x.id} onClick={()=>go(x.id)} className="text-[13px] font-light tracking-wide transition-colors hover:text-[var(--olive-dk)]" style={{color:'var(--muted)'}}>{x.l}</button>
             )}
-            <button onClick={()=>{setBk(true);setTimeout(()=>go("reservar"),100)}} className="btn-primary text-[13px] font-medium px-7 py-2.5 rounded-full">Reservar turno</button>
+            <button onClick={()=>setBk(true)} className="btn-primary text-[13px] font-medium px-7 py-2.5 rounded-full">Reservar turno</button>
           </div>
           <button className="md:hidden w-10 h-10 flex items-center justify-center rounded-xl transition-colors" style={{background:mn?'rgba(61,74,24,.08)':'transparent'}} onClick={()=>setMn(!mn)}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d={mn?"M6 6L18 18M6 18L18 6":"M4 7H20M4 12H16M4 17H20"} stroke="var(--olive-dk)" strokeWidth="1.5" strokeLinecap="round"/></svg>
           </button>
         </div>
         {mn&&<div className="md:hidden px-5 pb-5 space-y-1 fade" style={{background:'rgba(232,226,212,.95)',backdropFilter:'blur(20px)'}}>
-          {[{id:"servicios",l:"Servicios"},{id:"reservar",l:"Turnos"},{id:"contacto",l:"Contacto"}].map(x=>
+          {[{id:"servicios",l:"Servicios"},{id:"contacto",l:"Contacto"}].map(x=>
             <button key={x.id} onClick={()=>go(x.id)} className="block w-full text-left text-sm py-3 px-3 rounded-xl transition-colors hover:bg-[rgba(94,107,46,.05)] capitalize font-light" style={{color:'var(--muted)'}}>{x.l}</button>
           )}
-          <button onClick={()=>{setBk(true);setMn(false);setTimeout(()=>go("reservar"),100)}} className="btn-primary w-full text-sm font-medium py-3.5 rounded-full mt-2">Reservar Turno</button>
+          <button onClick={()=>{setBk(true);setMn(false)}} className="btn-primary w-full text-sm font-medium py-3.5 rounded-full mt-2">Reservar Turno</button>
         </div>}
       </nav>
 
@@ -917,7 +817,7 @@ const App=()=>{
             </p>
 
             <div className="rise d4 mt-8 sm:mt-12 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
-              <button onClick={()=>{setBk(true);setTimeout(()=>go("reservar"),100)}} className="btn-primary text-sm font-medium px-10 py-4 rounded-full w-full sm:w-auto">
+              <button onClick={()=>setBk(true)} className="btn-primary text-sm font-medium px-10 py-4 rounded-full w-full sm:w-auto">
                 Reservá tu turno
               </button>
               <button onClick={()=>go("servicios")} className="btn-ghost text-sm font-light px-10 py-4 rounded-full w-full sm:w-auto">
@@ -960,7 +860,7 @@ const App=()=>{
             {(loadingSvcs?[]:svcs).map((s,i)=>(
               <div key={s.id} className="reveal svc glass rounded-2xl sm:rounded-[20px] overflow-hidden cursor-pointer group"
                 style={{transitionDelay:`${i*.05}s`}}
-                onClick={()=>{setFm(p=>({...p,sv:String(s.id),tm:""}));setBk(true);setTimeout(()=>go("reservar"),100)}}>
+                onClick={()=>{setInitialSvcId(s.id);setBk(true)}}>
                 <div className="p-5 sm:p-7">
                   <div className="flex items-center gap-4 sm:gap-5">
                     <div className="num w-11 h-11 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center text-xs sm:text-sm font-semibold flex-shrink-0 transition-all duration-500" style={{background:'rgba(94,107,46,.06)',color:'var(--olive)'}}>
@@ -984,177 +884,6 @@ const App=()=>{
               </div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* ══════ BOOKING ══════ */}
-      <section id="reservar" className="py-20 sm:py-28 relative">
-        {/* Subtle bg */}
-        <div className="absolute inset-0 -z-10" style={{background:'linear-gradient(180deg, transparent, rgba(200,196,168,.1), transparent)'}}/>
-
-        <div className="max-w-lg mx-auto px-5 sm:px-8">
-          {!bk?(
-            <div className="reveal text-center">
-              <span className="inline-block text-[10px] uppercase tracking-[.4em] font-medium px-4 py-1.5 rounded-full mb-5" style={{background:'rgba(94,107,46,.06)',color:'var(--olive)'}}>Turnos online</span>
-              <h2 className="mb-4" style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(2rem,5vw,3rem)',color:'var(--ink)',lineHeight:1.1}}>
-                Reservá tu <em style={{color:'var(--olive)'}}>momento</em>
-              </h2>
-              <p className="text-sm font-light mb-10 max-w-sm mx-auto" style={{color:'var(--muted)'}}>Elegí servicio, día y horario. Te confirmamos por WhatsApp al instante.</p>
-              <button onClick={()=>setBk(true)} className="btn-primary text-sm font-medium px-12 py-4 rounded-full">Reservar turno</button>
-            </div>
-          ):sent?(
-            <div className="grow glass rounded-[24px] p-8 sm:p-10 text-center">
-              <div className="w-16 h-16 rounded-full mx-auto mb-5 flex items-center justify-center" style={{background:'rgba(37,211,102,.08)'}}>
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="#25D366"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-              </div>
-              <h3 className="mb-2" style={{fontFamily:'Playfair Display,serif',fontSize:'1.6rem',color:'var(--ink)'}}>¡Turno reservado!</h3>
-              {sentData&&(
-                <div className="text-left rounded-2xl p-5 mb-5 space-y-2" style={{background:'var(--sand)',border:'1px solid rgba(94,107,46,.08)'}}>
-                  {[["Servicio",sentData.servicio],["Fecha",sentData.fecha],["Horario",sentData.horario+" hs"],["Precio",sentData.precio]].map(([k,v])=>
-                    <div key={k} className="flex justify-between items-center">
-                      <span className="text-xs font-light" style={{color:'var(--muted)'}}>{k}</span>
-                      <span className="text-xs font-medium" style={{color:'var(--ink)'}}>{v}</span>
-                    </div>
-                  )}
-                </div>
-              )}
-              <p className="text-xs font-light mb-5" style={{color:'var(--muted)'}}>Recibimos tu reserva. Te confirmamos por WhatsApp a la brevedad.</p>
-              {sentData&&(
-                <div className="flex flex-col gap-2 mb-5">
-                  <button onClick={()=>downloadICS(sentData)}
-                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium transition-all hover:opacity-80"
-                    style={{background:'var(--olive-dk)',color:'#fff'}}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                    Agregar al calendario
-                  </button>
-                  <a href="https://maps.google.com/?q=Hip%C3%B3lito+Yrigoyen+229+Henderson+Buenos+Aires" target="_blank" rel="noopener"
-                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium transition-all hover:opacity-80"
-                    style={{background:'rgba(94,107,46,.08)',color:'var(--olive-dk)'}}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                    Cómo llegar
-                  </a>
-                  <a href={`https://api.whatsapp.com/send?phone=${WA_GUADA}&text=${encodeURIComponent("Hola! Quiero reagendar mi turno en GF Studio.")}`} target="_blank" rel="noopener"
-                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium transition-all hover:opacity-80"
-                    style={{background:'#25D366',color:'#fff'}}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                    Reagendar por WhatsApp
-                  </a>
-                </div>
-              )}
-              <button onClick={()=>{setSent(false);setSentData(null);setFm({n:"",em:"",ph:"",sv:"",dt:"",tm:""})}} className="btn-ghost text-xs px-6 py-2.5 rounded-full">Reservar otro turno</button>
-            </div>
-          ):(
-            <div className="grow">
-              <div className="text-center mb-7">
-                <span className="inline-block text-[10px] uppercase tracking-[.4em] font-medium px-4 py-1.5 rounded-full mb-3" style={{background:'rgba(94,107,46,.06)',color:'var(--olive)'}}>Turnos</span>
-                <h2 style={{fontFamily:'Playfair Display,serif',fontSize:'1.8rem',color:'var(--ink)'}}>Reservá tu <em style={{color:'var(--olive)'}}>turno</em></h2>
-              </div>
-              <form onSubmit={sub} className="glass rounded-[24px] p-6 sm:p-8 space-y-5">
-                {/* Name */}
-                <div>
-                  <label className="text-[10px] uppercase tracking-[.2em] block mb-2 font-medium" style={{color:'var(--muted)',opacity:.5}}>Nombre completo</label>
-                  <input type="text" autoComplete="name" value={fm.n} onChange={e=>setFm(p=>({...p,n:e.target.value}))} className="field w-full px-4 py-3.5 rounded-xl text-sm" placeholder="María García" required maxLength={80}/>
-                </div>
-                {/* Email */}
-                <div>
-                  <label className="text-[10px] uppercase tracking-[.2em] block mb-2 font-medium" style={{color:'var(--muted)',opacity:.5}}>Email</label>
-                  <input type="email" autoComplete="email" value={fm.em} onChange={e=>{setFm(p=>({...p,em:e.target.value}));setEmailSuggestion(suggestEmail(e.target.value)||"");}} className="field w-full px-4 py-3.5 rounded-xl text-sm" placeholder="maria@email.com" required maxLength={120}/>
-                  {emailSuggestion&&<p className="text-xs mt-1.5" style={{color:'#92400E'}}>¿Quisiste decir <button type="button" onClick={()=>{setFm(p=>({...p,em:emailSuggestion}));setEmailSuggestion("");}} className="font-semibold underline">{emailSuggestion}</button>?</p>}
-                </div>
-                {/* Phone */}
-                <div>
-                  <label className="text-[10px] uppercase tracking-[.2em] block mb-2 font-medium" style={{color:'var(--muted)',opacity:.5}}>WhatsApp</label>
-                  <div className="flex gap-2">
-                    <span className="flex items-center px-3.5 py-3.5 rounded-xl text-xs font-medium" style={{background:'rgba(0,0,0,.03)',color:'var(--muted)'}}>+54</span>
-                    <input type="tel" inputMode="numeric" autoComplete="tel" value={fm.ph} onChange={e=>setFm(p=>({...p,ph:e.target.value.replace(/[^\d\s\-]/g,'')}))} className="field flex-1 px-4 py-3.5 rounded-xl text-sm" placeholder="2317 40-1234" required maxLength={20}/>
-                  </div>
-                </div>
-                {/* Service */}
-                <div>
-                  <label className="text-[10px] uppercase tracking-[.2em] block mb-2 font-medium" style={{color:'var(--muted)',opacity:.5}}>Servicio</label>
-                  <select value={fm.sv} onChange={e=>setFm(p=>({...p,sv:e.target.value,tm:""}))}
-                    className="field w-full px-4 py-3.5 rounded-xl text-sm appearance-none cursor-pointer"
-                    style={{color:fm.sv?'var(--ink)':'var(--muted)'}} required
-                    disabled={loadingSvcs}>
-                    <option value="">{loadingSvcs?"Cargando servicios...":"Seleccioná un servicio"}</option>
-                    {svcs.map(s=><option key={s.id} value={s.id}>{s.name} — {fP(s.price)}</option>)}
-                  </select>
-                  {fm.sv&&(()=>{const s=svcs.find(x=>x.id===+fm.sv);return s?.description?<p className="mt-2 text-xs leading-relaxed px-1" style={{color:'var(--muted)'}}>{s.description}</p>:null;})()}
-                </div>
-                {/* Date */}
-                <div>
-                  <label className="text-[10px] uppercase tracking-[.2em] block mb-2 font-medium" style={{color:'var(--muted)',opacity:.5}}>Fecha (Lun a Vie)</label>
-                  <input type="date" value={fm.dt} min={minD()} onChange={e=>{
-                    setDateError("");
-                    if(!isWeekday(e.target.value)){setDateError("Solo atendemos de lunes a viernes.");return}
-                    setFm(p=>({...p,dt:e.target.value,tm:""}));
-                  }} className="field w-full px-4 py-3.5 rounded-xl text-sm" required/>
-                  {dateError&&<p className="text-[11px] mt-2 font-medium" style={{color:'#B91C1C'}}>{dateError}</p>}
-                </div>
-                {/* Time slots */}
-                {fm.dt&&fm.sv&&(()=>{
-                  const selSvc=svcs.find(s=>s.id===+fm.sv);
-                  const dur=selSvc?.duration_minutes||60;
-                  const slots=genSlots(dur);
-                  return(
-                  <div className="fade">
-                    <label className="text-[10px] uppercase tracking-[.2em] block mb-3 font-medium" style={{color:'var(--muted)',opacity:.5}}>
-                      Horario {loadingSlots&&<span className="opacity-50 normal-case tracking-normal">· cargando...</span>}
-                    </label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {slots.map(t=>{
-                        const avail=slotAvailable(t,dur,takenSlots,svcs,blocks,fm.dt);
-                        const sel=fm.tm===t;
-                        const [bh,bm]=t.split(":").map(Number);
-                        const endMin=bh*60+bm+dur;
-                        const endStr=`${String(Math.floor(endMin/60)).padStart(2,'0')}:${String(endMin%60).padStart(2,'0')}`;
-                        return <button key={t} type="button" disabled={!avail}
-                          onClick={()=>avail&&setFm(p=>({...p,tm:t}))}
-                          className="slot-btn rounded-xl font-medium"
-                          style={{
-                            padding:'10px 0',minHeight:'52px',
-                            background:!avail?'rgba(0,0,0,.02)':sel?'var(--olive-dk)':'rgba(255,255,255,.6)',
-                            color:!avail?'rgba(0,0,0,.18)':sel?'#fff':'var(--olive-dk)',
-                            borderColor:!avail?'rgba(0,0,0,.03)':sel?'var(--olive-dk)':'rgba(94,107,46,.12)',
-                            boxShadow:sel?'0 6px 24px rgba(61,74,24,.2)':'none',
-                            cursor:!avail?'not-allowed':'pointer',
-                            opacity:!avail?0.4:1,
-                          }}>
-                          <span className="block text-sm leading-tight">{t}</span>
-                          <span className="block text-[10px] font-light mt-0.5" style={{opacity:.65}}>→ {endStr}</span>
-                        </button>
-                      })}
-                    </div>
-                    {fm.tm&&(()=>{
-                      const[h,m]=fm.tm.split(":").map(Number);
-                      const endMin=h*60+m+dur;
-                      const eh=Math.floor(endMin/60),em=endMin%60;
-                      const endStr=`${String(eh).padStart(2,'0')}:${String(em).padStart(2,'0')}`;
-                      return <p className="text-xs font-medium mt-2 text-center" style={{color:'var(--olive-dk)'}}>
-                        {fm.tm} → {endStr} hs
-                      </p>;
-                    })()}
-                  </div>
-                  );
-                })()}
-                {fm.dt&&!fm.sv&&(
-                  <p className="text-xs text-center py-3" style={{color:'var(--muted)',opacity:.6}}>Elegí un servicio para ver los horarios disponibles</p>
-                )}
-                {/* Error */}
-                {submitError&&<p className="text-xs text-center py-2.5 px-4 rounded-xl" style={{background:'#fef2f2',color:'#991b1b',border:'1px solid #fecaca'}}>{submitError}</p>}
-                {/* Submit */}
-                <button type="submit" disabled={submitting}
-                  className="w-full text-sm font-medium py-4 rounded-xl text-white flex items-center justify-center gap-2.5 transition-all hover:shadow-lg hover:brightness-110 disabled:opacity-50"
-                  style={{background:'var(--olive-dk)'}}>
-                  {submitting?<span>Reservando...</span>:<span>Confirmar Reserva</span>}
-                </button>
-                <div className="flex items-start gap-2.5 px-3.5 py-3 rounded-xl text-[11px] leading-relaxed" style={{background:'rgba(94,107,46,.06)',border:'1px solid rgba(94,107,46,.1)',color:'var(--muted)'}}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--olive)" strokeWidth="1.8" strokeLinecap="round" className="flex-shrink-0 mt-px"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
-                  <span><strong style={{color:'var(--olive-dk)'}}>Cancelación:</strong> avisanos por WhatsApp con al menos 4 hs de anticipación.</span>
-                </div>
-              </form>
-            </div>
-          )}
         </div>
       </section>
 
