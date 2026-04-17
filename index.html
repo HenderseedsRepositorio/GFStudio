@@ -198,6 +198,23 @@ body{font-family:'Figtree',sans-serif;background:var(--sand)!important;color:var
 .bk-slot.sel{background:var(--olive-dk);color:#fff;border-color:var(--olive-dk);box-shadow:0 6px 16px rgba(61,74,24,.2)}
 .bk-slot:disabled{opacity:.35;cursor:not-allowed;background:rgba(0,0,0,.02);border-color:transparent}
 .bk-slot-group{font-size:11px;font-weight:500;text-transform:lowercase;letter-spacing:.05em;color:var(--muted);display:flex;align-items:center;gap:6px;margin-bottom:10px;margin-top:4px}
+.bk-sum{
+  background:rgba(94,107,46,.04);
+  border:1px solid rgba(94,107,46,.1);
+  border-radius:14px;padding:12px 14px;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;
+}
+.bk-sum-body{flex:1;min-width:0}
+.bk-sum-label{font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:var(--muted);font-weight:500;margin-bottom:2px}
+.bk-sum-val{font-size:13px;color:var(--ink);font-weight:500;line-height:1.3}
+.bk-sum-mod{
+  font-size:11px;color:var(--olive-dk);font-weight:500;
+  padding:4px 10px;border-radius:999px;
+  background:rgba(94,107,46,.08);border:none;cursor:pointer;
+  transition:all .2s;flex-shrink:0;
+}
+.bk-sum-mod:hover{background:rgba(94,107,46,.15)}
 
 /* ── Grain overlay ── */
 .grain::before{
@@ -509,7 +526,36 @@ const BookingModal=({open,onClose,svcs,blocks,initialServiceId})=>{
               </div>
             );
           })()}
-          {step==="datos"&&<p style={{color:'var(--muted)'}}>→ Datos (próxima tarea)</p>}
+          {step==="datos"&&(()=>{
+            const dateDisplay=selDate?new Date(selDate+"T12:00:00").toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"}):"";
+            const dur=selSvc?.duration_minutes||60;
+            const[sh,sm]=selTime.split(":").map(Number);
+            const eMin=sh*60+sm+dur;
+            const endStr=`${String(Math.floor(eMin/60)).padStart(2,'0')}:${String(eMin%60).padStart(2,'0')}`;
+            return(
+              <div className="space-y-3">
+                {/* Cards resumen */}
+                <div className="space-y-2">
+                  <div className="bk-sum">
+                    <div className="bk-sum-body">
+                      <div className="bk-sum-label">Servicio</div>
+                      <div className="bk-sum-val">{selSvc?.name} · {selSvc?.duration_minutes||60} min · {fP(selSvc?.price||0)}</div>
+                    </div>
+                    <button type="button" className="bk-sum-mod" onClick={()=>setStep("servicio")}>Modificar</button>
+                  </div>
+                  <div className="bk-sum">
+                    <div className="bk-sum-body">
+                      <div className="bk-sum-label">Fecha y horario</div>
+                      <div className="bk-sum-val">{dateDisplay} · {shortHM(selTime)} → {shortHM(endStr)} hs</div>
+                    </div>
+                    <button type="button" className="bk-sum-mod" onClick={()=>setStep("fecha")}>Modificar</button>
+                  </div>
+                </div>
+                {/* Form placeholder (Task 7 fills this) */}
+                <p className="text-xs text-center py-4" style={{color:'var(--muted)'}}>→ Form de datos (próxima tarea)</p>
+              </div>
+            );
+          })()}
           {step==="exito"&&<p style={{color:'var(--muted)'}}>→ Éxito (próxima tarea)</p>}
         </div>
       </div>
