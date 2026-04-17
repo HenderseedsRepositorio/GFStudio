@@ -105,8 +105,9 @@ body{font-family:'Figtree',sans-serif;background:var(--sand)!important;color:var
   position:fixed;inset:0;z-index:100;
   background:rgba(0,0,0,.5);
   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-  animation:fadeIn .25s ease both;
+  animation:bkFadeIn .25s ease both;
 }
+@keyframes bkFadeIn{from{opacity:0}to{opacity:1}}
 .bk-modal{
   position:fixed;z-index:101;
   background:var(--cream);
@@ -280,6 +281,7 @@ const BookingModal=({open,onClose,svcs,blocks,initialServiceId})=>{
 /* ═══ APP ═══ */
 const App=()=>{
   const[bk,setBk]=useState(false);
+  const handleBkClose=useCallback(()=>setBk(false),[]);
   const[fm,setFm]=useState({n:"",em:"",ph:"",sv:"",dt:"",tm:""});
   const[sent,setSent]=useState(false);
   const[sentData,setSentData]=useState(null);
@@ -776,7 +778,7 @@ const App=()=>{
 
       <BookingModal
         open={bk}
-        onClose={()=>setBk(false)}
+        onClose={handleBkClose}
         svcs={svcs}
         blocks={blocks}
         initialServiceId={null}
