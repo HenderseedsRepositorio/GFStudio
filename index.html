@@ -331,6 +331,16 @@ const fP=n=>"$"+n.toLocaleString("es-AR");
 const EMAIL_TYPOS={"gmial.com":"gmail.com","gamil.com":"gmail.com","gmaol.com":"gmail.com","gmal.com":"gmail.com","gnail.com":"gmail.com","hotmial.com":"hotmail.com","hotamail.com":"hotmail.com","hotnail.com":"hotmail.com","yaho.com":"yahoo.com","yahooo.com":"yahoo.com","outlok.com":"outlook.com","outlookk.com":"outlook.com"};
 const suggestEmail=em=>{const at=em.lastIndexOf("@");if(at<0)return null;const dom=em.slice(at+1).toLowerCase();return EMAIL_TYPOS[dom]?em.slice(0,at+1)+EMAIL_TYPOS[dom]:null};
 
+const COUNTRIES=[
+  {code:"AR",prefix:"+549",flag:"🇦🇷",digits:10,placeholder:"2317 40-1234"},
+  {code:"UY",prefix:"+598",flag:"🇺🇾",digits:8,placeholder:"9 123 4567"},
+  {code:"CL",prefix:"+56", flag:"🇨🇱",digits:9,placeholder:"9 1234 5678"},
+  {code:"BR",prefix:"+55", flag:"🇧🇷",digits:11,placeholder:"11 91234 5678"},
+  {code:"ES",prefix:"+34", flag:"🇪🇸",digits:9,placeholder:"612 345 678"},
+  {code:"US",prefix:"+1",  flag:"🇺🇸",digits:10,placeholder:"212 555 1234"},
+  {code:"MX",prefix:"+52", flag:"🇲🇽",digits:10,placeholder:"55 1234 5678"},
+];
+
 const downloadICS=({nombre,servicio,fecha_raw,horario,dur_min})=>{
   const[h,m]=horario.split(":").map(Number);
   const eMin=h*60+m+dur_min;
@@ -365,6 +375,10 @@ const BookingModal=({open,onClose,svcs,blocks,initialServiceId})=>{
   const[takenSlots,setTakenSlots]=useState([]);
   const[loadingSlots,setLoadingSlots]=useState(false);
   const[selTime,setSelTime]=useState(""); // "HH:MM"
+  const[fm,setFm]=useState({n:"",em:"",ph:"",country:"AR"});
+  const[emailSuggestion,setEmailSuggestion]=useState("");
+  const[submitting,setSubmitting]=useState(false);
+  const[submitError,setSubmitError]=useState("");
 
   useEffect(()=>{
     if(!selDate||!sb){setTakenSlots([]);setLoadingSlots(false);return}
@@ -551,8 +565,34 @@ const BookingModal=({open,onClose,svcs,blocks,initialServiceId})=>{
                     <button type="button" className="bk-sum-mod" onClick={()=>setStep("fecha")}>Modificar</button>
                   </div>
                 </div>
-                {/* Form placeholder (Task 7 fills this) */}
-                <p className="text-xs text-center py-4" style={{color:'var(--muted)'}}>→ Form de datos (próxima tarea)</p>
+                <form onSubmit={e=>{e.preventDefault()}} className="space-y-4">
+                  <div>
+                    <label className="text-[10px] uppercase tracking-[.2em] block mb-2 font-medium" style={{color:'var(--muted)',opacity:.5}}>Nombre completo</label>
+                    <input type="text" autoComplete="name" value={fm.n} onChange={e=>setFm(p=>({...p,n:e.target.value}))} className="field w-full px-4 py-3 rounded-xl text-sm" placeholder="María García" required maxLength={80}/>
+                  </div>
+                  <div>
+                    <label className="text-[10px] uppercase tracking-[.2em] block mb-2 font-medium" style={{color:'var(--muted)',opacity:.5}}>Email</label>
+                    <input type="email" autoComplete="email" value={fm.em} onChange={e=>{setFm(p=>({...p,em:e.target.value}));setEmailSuggestion(suggestEmail(e.target.value)||"")}} className="field w-full px-4 py-3 rounded-xl text-sm" placeholder="maria@email.com" required maxLength={120}/>
+                    {emailSuggestion&&<p className="text-xs mt-1.5" style={{color:'#92400E'}}>¿Quisiste decir <button type="button" onClick={()=>{setFm(p=>({...p,em:emailSuggestion}));setEmailSuggestion("")}} className="font-semibold underline">{emailSuggestion}</button>?</p>}
+                  </div>
+                  <div>
+                    <label className="text-[10px] uppercase tracking-[.2em] block mb-2 font-medium" style={{color:'var(--muted)',opacity:.5}}>WhatsApp</label>
+                    <div className="flex gap-2">
+                      <select value={fm.country} onChange={e=>setFm(p=>({...p,country:e.target.value}))} className="field px-3 py-3 rounded-xl text-sm cursor-pointer" style={{flex:'0 0 auto'}}>
+                        {COUNTRIES.map(c=><option key={c.code} value={c.code}>{c.flag} {c.prefix}</option>)}
+                      </select>
+                      <input type="tel" inputMode="numeric" autoComplete="tel-national" value={fm.ph} onChange={e=>setFm(p=>({...p,ph:e.target.value.replace(/[^\d\s\-]/g,'')}))} className="field flex-1 px-4 py-3 rounded-xl text-sm" placeholder={COUNTRIES.find(c=>c.code===fm.country)?.placeholder||""} required maxLength={20}/>
+                    </div>
+                  </div>
+                  {submitError&&<p className="text-xs text-center py-2 px-4 rounded-xl" style={{background:'#fef2f2',color:'#991b1b',border:'1px solid #fecaca'}}>{submitError}</p>}
+                  <button type="submit" disabled={submitting} className="w-full text-sm font-medium py-3.5 rounded-xl text-white flex items-center justify-center gap-2 transition-all hover:brightness-110 disabled:opacity-50" style={{background:'var(--olive-dk)'}}>
+                    {submitting?"Reservando...":"Confirmar reserva"}
+                  </button>
+                  <div className="flex items-start gap-2.5 px-3.5 py-3 rounded-xl text-[11px] leading-relaxed" style={{background:'rgba(94,107,46,.06)',border:'1px solid rgba(94,107,46,.1)',color:'var(--muted)'}}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--olive)" strokeWidth="1.8" strokeLinecap="round" className="flex-shrink-0 mt-px"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                    <span><strong style={{color:'var(--olive-dk)'}}>Cancelación:</strong> avisanos por WhatsApp con al menos 4 hs de anticipación.</span>
+                  </div>
+                </form>
               </div>
             );
           })()}
