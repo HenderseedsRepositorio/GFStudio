@@ -350,7 +350,7 @@ const BookingModal=({open,onClose,svcs,blocks,initialServiceId})=>{
   const[selTime,setSelTime]=useState(""); // "HH:MM"
 
   useEffect(()=>{
-    if(!selDate||!sb){setTakenSlots([]);return}
+    if(!selDate||!sb){setTakenSlots([]);setLoadingSlots(false);return}
     setSelTime(""); // clear slot when date changes
     let cancelled=false;
     setLoadingSlots(true);
