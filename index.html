@@ -187,6 +187,17 @@ body{font-family:'Figtree',sans-serif;background:var(--sand)!important;color:var
 }
 .bk-weekarrow:hover:not(:disabled){background:rgba(94,107,46,.15)}
 .bk-weekarrow:disabled{opacity:.3;cursor:not-allowed}
+.bk-slot{
+  padding:10px 0;border-radius:12px;
+  border:1.5px solid rgba(94,107,46,.12);
+  background:rgba(255,255,255,.7);
+  font-size:13px;font-weight:500;color:var(--olive-dk);
+  cursor:pointer;transition:all .2s;
+}
+.bk-slot:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 4px 12px rgba(94,107,46,.12)}
+.bk-slot.sel{background:var(--olive-dk);color:#fff;border-color:var(--olive-dk);box-shadow:0 6px 16px rgba(61,74,24,.2)}
+.bk-slot:disabled{opacity:.35;cursor:not-allowed;background:rgba(0,0,0,.02);border-color:transparent}
+.bk-slot-group{font-size:11px;font-weight:500;text-transform:lowercase;letter-spacing:.05em;color:var(--muted);display:flex;align-items:center;gap:6px;margin-bottom:10px;margin-top:4px}
 
 /* ── Grain overlay ── */
 .grain::before{
@@ -217,6 +228,7 @@ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); }catch(e){ sb=null; }
 
 const SLOT_START=9*60, SLOT_END=18*60, SLOT_STEP=30;
 const toMin=t=>{const[h,m]=t.split(":").map(Number);return h*60+m};
+const shortHM=hhmm=>{const[h,m]=hhmm.split(":");return `${parseInt(h,10)}:${m}`};
 const toHHMM=m=>`${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;
 
 const genSlots=dur=>{
@@ -333,6 +345,20 @@ const BookingModal=({open,onClose,svcs,blocks,initialServiceId})=>{
   const[selSvc,setSelSvc]=useState(null); // objeto de gf_services
   const[selDate,setSelDate]=useState(""); // "YYYY-MM-DD"
   const[weekOffset,setWeekOffset]=useState(0); // 0 = semana actual
+  const[takenSlots,setTakenSlots]=useState([]);
+  const[loadingSlots,setLoadingSlots]=useState(false);
+  const[selTime,setSelTime]=useState(""); // "HH:MM"
+
+  useEffect(()=>{
+    if(!selDate||!sb){setTakenSlots([]);return}
+    setSelTime(""); // clear slot when date changes
+    let cancelled=false;
+    setLoadingSlots(true);
+    sb.from("gf_appointments").select("time_slot,service_id,status").eq("appointment_date",selDate)
+      .then(({data})=>{if(!cancelled){setTakenSlots(data||[]);setLoadingSlots(false)}})
+      .catch(()=>{if(!cancelled){setTakenSlots([]);setLoadingSlots(false)}});
+    return()=>{cancelled=true};
+  },[selDate]);
 
   // ESC key + body scroll lock
   useEffect(()=>{
@@ -449,8 +475,37 @@ const BookingModal=({open,onClose,svcs,blocks,initialServiceId})=>{
                     </button>
                   </div>
                 </div>
-                {/* Slots (siguiente tarea) */}
-                {selDate?<p className="text-xs text-center" style={{color:'var(--muted)'}}>→ Slots (próxima tarea) — {selDate}</p>:<p className="text-xs text-center" style={{color:'var(--muted)'}}>Elegí un día</p>}
+                {/* Slots agrupados Mañana/Tarde */}
+                {selDate&&(()=>{
+                  if(loadingSlots)return <p className="text-xs text-center py-4" style={{color:'var(--muted)'}}>Cargando horarios...</p>;
+                  const allSlots=genSlots(dur);
+                  const available=allSlots.map(t=>({t,ok:slotAvailable(t,dur,takenSlots,svcs,blocks,selDate)}));
+                  const morning=available.filter(s=>toMin(s.t)<13*60);
+                  const afternoon=available.filter(s=>toMin(s.t)>=13*60);
+                  const renderGroup=(label,items)=>items.length===0?null:(
+                    <div>
+                      <div className="bk-slot-group">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                        <span>{label}</span>
+                      </div>
+                      <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-5">
+                        {items.map(({t,ok})=>{
+                          const sel=selTime===t;
+                          return <button key={t} type="button" className={"bk-slot"+(sel?" sel":"")} disabled={!ok} onClick={()=>{if(ok){setSelTime(t);setStep("datos")}}}>{shortHM(t)} hs</button>;
+                        })}
+                      </div>
+                    </div>
+                  );
+                  const anyAvailable=available.some(s=>s.ok);
+                  if(!anyAvailable)return <p className="text-xs text-center py-4" style={{color:'var(--muted)'}}>Este día no tiene horarios disponibles.</p>;
+                  return(
+                    <div>
+                      {renderGroup("Por la mañana",morning)}
+                      {renderGroup("Por la tarde",afternoon)}
+                    </div>
+                  );
+                })()}
+                {!selDate&&<p className="text-xs text-center" style={{color:'var(--muted)'}}>Elegí un día</p>}
               </div>
             );
           })()}
