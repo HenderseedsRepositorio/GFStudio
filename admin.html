@@ -1399,8 +1399,23 @@ const ServiciosTab = ({services, refetch}) => {
     toast(data.id?"Servicio actualizado":"Servicio creado");
   };
   const del = async (id) => {
-    if(!confirm("¿Eliminar este servicio? Los turnos existentes seguirán refiriéndolo.")) return;
-    await sb.from("gf_services").delete().eq("id", id);
+    if(!confirm("¿Eliminar este servicio?")) return;
+    const { error } = await sb.from("gf_services").delete().eq("id", id);
+    if(error){
+      // FK violation: turnos o packs apuntan a este servicio
+      if(error.code==="23503" || /foreign key|referenc/i.test(error.message||"")){
+        if(confirm("No se puede eliminar porque hay turnos o packs que lo referencian. ¿Querés ocultarlo (no aparece en la landing, pero se mantienen los registros históricos)?")){
+          const { error: uErr } = await sb.from("gf_services").update({ active:false }).eq("id", id);
+          if(uErr){ toast("Error: "+uErr.message); return; }
+          setEditing(null);
+          refetch();
+          toast("Servicio ocultado");
+        }
+        return;
+      }
+      toast("Error: "+error.message);
+      return;
+    }
     setEditing(null);
     refetch();
     toast("Servicio eliminado");
