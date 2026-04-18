@@ -283,9 +283,13 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xm
 @media(max-width:900px){
   .topbar h1{font-size:20px}
   .topbar{padding:12px 16px}
-  .strip{padding:18px;grid-template-columns:1fr;gap:14px}
-  .strip h2{font-size:22px}
-  .strip .kpi .v{font-size:22px}
+  .strip{padding:16px 18px;grid-template-columns:1fr;gap:10px;margin-bottom:18px}
+  .strip h2{font-size:18px;line-height:1.15}
+  .strip .sec-label{font-size:9px;letter-spacing:.15em}
+  .strip p{display:none}
+  .strip .kpis{gap:20px;justify-content:flex-start;margin-top:2px}
+  .strip .kpi .lb{font-size:9px;margin-bottom:2px}
+  .strip .kpi .v{font-size:18px}
   .stat{padding:14px 16px}
   .stat .val{font-size:24px}
   .card-bd{padding:16px}
@@ -295,15 +299,21 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xm
   .card:has(.tbl){overflow-x:auto}
   .tbl{min-width:560px}
   .tbl th,.tbl td{padding:10px 12px;font-size:12.5px}
-  .wkg-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .wkg{min-width:720px}
+  .wkg-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;position:relative}
+  .wkg-wrap::after{content:'';position:absolute;top:0;right:0;bottom:0;width:28px;background:linear-gradient(90deg,transparent,rgba(242,237,224,.95));pointer-events:none}
+  .wkg{min-width:560px}
   .wg-scroll{overflow-x:auto}
-  .wg-inner{min-width:640px}
+  .wg-inner{min-width:520px}
   .drawer{width:100vw}
   .drawer-hd,.drawer-bd,.drawer-ft{padding-left:18px;padding-right:18px}
   .drawer-hd h2{font-size:20px}
   .tabs{overflow-x:auto;max-width:100%}
   .tabs button{white-space:nowrap}
+}
+@media(max-width:640px){
+  .topbar-date{display:none}
+  .topbar h1{font-size:18px;line-height:1.2}
+  .topbar{gap:8px;padding:10px 14px}
 }
 
 /* Login screen */
@@ -2508,7 +2518,7 @@ const App = () => {
       <Sidebar current={tab} onNav={handleNav} appts={appts} onLogout={logout} isMobile={isMobile} drawerOpen={drawerOpen}/>
       <main className="main">
         <Topbar crumb={meta.c} title={meta.t} onMenuClick={isMobile ? (()=>setDrawerOpen(true)) : null}
-          actions={<span className="mono" style={{fontSize:11,color:"var(--muted)",letterSpacing:".15em",textTransform:"uppercase"}}>
+          actions={<span className="mono topbar-date" style={{fontSize:11,color:"var(--muted)",letterSpacing:".15em",textTransform:"uppercase"}}>
             {fDateLong(toISO(TODAY))}
           </span>}/>
         <div className="content">
