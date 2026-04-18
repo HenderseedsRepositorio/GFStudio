@@ -372,6 +372,43 @@ const waTel = p => { let t=(p||"").replace(/\D/g,''); if(!t) return ""; if(t.sta
 const waMsgConfirm = (a, svc) => `Hola ${a.client_name}! 🌿\n\nTu turno en *GF Studio* fue confirmado:\n\n📅 ${fDateLong(a.appointment_date)}\n🕐 ${a.time_slot} hs\n💆 ${svc?.name||"Servicio"}\n\nNos vemos! Cualquier consulta, escribime por acá.\n\n— Guada`;
 const waMsgCancel = (a, svc, reason) => `Hola ${a.client_name},\n\nLamento informarte que tuve que cancelar tu turno del *${fDateLong(a.appointment_date)}* a las *${a.time_slot} hs* (${svc?.name||"Servicio"}).\n${reason?`\nMotivo: ${reason}\n`:""}\nReservá un nuevo horario en gfstudio.com.ar — o respondeme acá y lo coordinamos juntas.\n\nDisculpá las molestias 🌿\n— Guada`;
 
+const blockCoversSlot = (block, date, sMin, eMin) => {
+  const dow = new Date(date+"T12:00:00").getDay();
+  const mb = dow===0 ? 6 : dow-1;
+  switch(block.type){
+    case "full_day": return block.block_date===date;
+    case "datetime_range": {
+      if(block.block_date!==date) return false;
+      const bs = toMin(block.start_time), be = toMin(block.end_time);
+      return bs<eMin && be>sMin;
+    }
+    case "date_range": return date>=block.date_from && date<=block.date_to;
+    case "weekly": {
+      if(block.day_of_week!==mb) return false;
+      if(block.recurring_from && date<block.recurring_from) return false;
+      if(block.recurring_to && date>block.recurring_to) return false;
+      if(block.start_time && block.end_time){
+        const bs = toMin(block.start_time), be = toMin(block.end_time);
+        return bs<eMin && be>sMin;
+      }
+      return true;
+    }
+    default: return false;
+  }
+};
+const slotAvailable = (slot, dur, appts, svcs, blocks, date) => {
+  const sMin = toMin(slot), eMin = sMin+dur;
+  for(const a of appts){
+    if(a.status==="cancelled") continue;
+    if(a.appointment_date!==date) continue;
+    const aMin = toMin(a.time_slot);
+    const aDur = (svcs.find(s=>s.id===a.service_id)?.duration_minutes)||60;
+    if(aMin<eMin && (aMin+aDur)>sMin) return false;
+  }
+  for(const b of blocks){ if(blockCoversSlot(b,date,sMin,eMin)) return false; }
+  return true;
+};
+
 const STATUS_LABELS = { pending:"Pendiente", confirmed:"Confirmado", cancelled:"Cancelado", completed:"Realizado", no_show:"No vino" };
 const STATUS_TONES = { pending:"wait", confirmed:"ok", cancelled:"err", completed:"dk", no_show:"err" };
 const PAY_LABELS = { efectivo:"Efectivo", transferencia:"Transferencia", tarjeta_debito:"Débito", tarjeta_credito:"Crédito" };
@@ -693,11 +730,12 @@ const Topbar = ({crumb, title, actions, onMenuClick}) => (
 );
 
 /* ============ TURNOS TAB ============ */
-const TurnosTab = ({appts, services, refetch}) => {
+const TurnosTab = ({appts, services, blocks, settings, refetch}) => {
   const [filter, setFilter] = useState("upcoming");
   const [statusFilter, setStatusFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
+  const [creating, setCreating] = useState(false);
 
   const svcMap = useMemo(()=>Object.fromEntries(services.map(s=>[s.id,s])), [services]);
   const todayISO = toISO(TODAY);
@@ -771,6 +809,7 @@ const TurnosTab = ({appts, services, refetch}) => {
           <input className="inp" style={{paddingLeft:36}} placeholder="Buscar por cliente, teléfono o servicio…" value={search} onChange={e=>setSearch(e.target.value)}/>
           <div style={{position:"absolute",left:12,top:"50%",transform:"translateY(-50%)",color:"var(--muted)"}}><Icon name="search" size={14}/></div>
         </div>
+        <button className="btn btn-pr" onClick={()=>setCreating(true)}><Icon name="plus" size={13}/> Nuevo turno</button>
       </div>
 
       <div className="card">
@@ -832,7 +871,137 @@ const TurnosTab = ({appts, services, refetch}) => {
         )}>
         {selected && <ApptDetail a={selected} svc={svcMap[selected.service_id]} onUpdate={p=>updateAppt(selected.id,p)}/>}
       </Drawer>
+
+      <NewApptDrawer open={creating} onClose={()=>setCreating(false)} services={services} appts={appts} blocks={blocks} settings={settings} onCreated={()=>{ setCreating(false); refetch(); toast("Turno creado"); }}/>
     </>
+  );
+};
+
+const NewApptDrawer = ({open, onClose, services, appts, blocks, settings, onCreated}) => {
+  const [form, setForm] = useState(null);
+  useEffect(()=>{
+    if(open){
+      setForm({
+        service_id: services[0]?.id || null,
+        appointment_date: toISO(TODAY),
+        time_slot: "",
+        client_name: "",
+        client_phone: "",
+        client_email: "",
+        notes: "",
+        status: "confirmed",
+      });
+    }
+  }, [open]);
+
+  const u = (k,v) => setForm(f=>({...f,[k]:v}));
+  const svc = useMemo(()=> services.find(s=>s.id===form?.service_id) || null, [services, form?.service_id]);
+
+  const timeOptions = useMemo(()=>{
+    if(!form || !svc) return [];
+    const dur = svc.duration_minutes||60;
+    const out = [];
+    for(let m=settings.open_min; m+dur<=settings.close_min; m+=settings.slot_step){
+      const t = toHHMM(m);
+      const ok = slotAvailable(t, dur, appts, services, blocks, form.appointment_date);
+      out.push({ t, ok });
+    }
+    return out;
+  }, [form?.appointment_date, form?.service_id, svc, appts, services, blocks, settings]);
+
+  // Auto-clear selected time if it becomes invalid
+  useEffect(()=>{
+    if(!form || !form.time_slot) return;
+    const match = timeOptions.find(o=>o.t===form.time_slot);
+    if(!match || !match.ok) setForm(f=>({...f, time_slot:""}));
+  }, [timeOptions]);
+
+  const canSave = form && form.service_id && form.appointment_date && form.time_slot && form.client_name.trim() && form.client_phone.trim();
+
+  const save = async () => {
+    if(!canSave) return;
+    const payload = {
+      service_id: form.service_id,
+      appointment_date: form.appointment_date,
+      time_slot: form.time_slot,
+      client_name: form.client_name.trim(),
+      client_phone: form.client_phone.trim(),
+      client_email: form.client_email.trim() || null,
+      notes: form.notes.trim() || null,
+      status: form.status,
+    };
+    // Re-check collision with fresh DB read (defensive)
+    const { data:fresh } = await sb.from("gf_appointments").select("time_slot,service_id,status").eq("appointment_date", form.appointment_date);
+    const dur = svc.duration_minutes||60;
+    const sMin = toMin(form.time_slot), eMin = sMin+dur;
+    const collision = (fresh||[]).some(r=>{
+      if(r.status==="cancelled") return false;
+      const aMin = toMin(r.time_slot);
+      const aDur = (services.find(s=>s.id===r.service_id)?.duration_minutes)||60;
+      return aMin<eMin && (aMin+aDur)>sMin;
+    });
+    if(collision){ toast("Ese horario ya se reservó. Elegí otro."); return; }
+    const { error } = await sb.from("gf_appointments").insert(payload);
+    if(error){ toast("Error: "+error.message); return; }
+    // Best-effort: upsert to gf_clients (table may not exist)
+    try { await sb.from("gf_clients").upsert({ name:payload.client_name, phone:payload.client_phone, email:payload.client_email },{ onConflict:"phone" }); } catch(_){}
+    onCreated();
+  };
+
+  return (
+    <Drawer open={open} onClose={onClose} subtitle="Turno manual" title="Nuevo <em>turno</em>"
+      footer={form && (
+        <>
+          <div/>
+          <div className="flex gap-2">
+            <button className="btn btn-sc" onClick={onClose}>Cancelar</button>
+            <button className="btn btn-pr" disabled={!canSave} onClick={save}><Icon name="check" size={13}/> Guardar</button>
+          </div>
+        </>
+      )}>
+      {form && (
+        <div className="flex flex-col gap-5">
+          <Field label="Servicio">
+            <select className="inp" value={form.service_id||""} onChange={e=>u("service_id", Number(e.target.value))}>
+              {services.map(s=><option key={s.id} value={s.id}>{s.name} · {s.duration_minutes||60} min · {fP(s.price)}</option>)}
+            </select>
+          </Field>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Field label="Fecha" grow>
+              <input className="inp" type="date" min={toISO(TODAY)} value={form.appointment_date} onChange={e=>u("appointment_date", e.target.value)}/>
+            </Field>
+            <Field label="Horario" grow>
+              <select className="inp" value={form.time_slot} onChange={e=>u("time_slot", e.target.value)}>
+                <option value="">Elegí un horario…</option>
+                {timeOptions.map(o=>(
+                  <option key={o.t} value={o.t} disabled={!o.ok}>{o.t}{o.ok?"":" — ocupado"}</option>
+                ))}
+              </select>
+            </Field>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Field label="Nombre del cliente" grow>
+              <input className="inp" type="text" value={form.client_name} onChange={e=>u("client_name", e.target.value)} placeholder="Nombre y apellido"/>
+            </Field>
+            <Field label="Teléfono" grow>
+              <input className="inp" type="tel" value={form.client_phone} onChange={e=>u("client_phone", e.target.value)} placeholder="+54 9 2314…"/>
+            </Field>
+          </div>
+          <Field label="Email (opcional)">
+            <input className="inp" type="email" value={form.client_email} onChange={e=>u("client_email", e.target.value)} placeholder="cliente@ejemplo.com"/>
+          </Field>
+          <Field label="Notas internas (opcional)">
+            <textarea className="inp" rows={3} value={form.notes} onChange={e=>u("notes", e.target.value)} placeholder="Ej: prefiere turno mañana, trae bono, etc."/>
+          </Field>
+          <Field label="Estado inicial">
+            <select className="inp" value={form.status} onChange={e=>u("status", e.target.value)}>
+              <option value="confirmed">Confirmado (agendado por WhatsApp)</option>
+              <option value="pending">Pendiente (aún no confirmó)</option>
+            </select>
+          </Field>
+        </div>
+      )}
+    </Drawer>
   );
 };
 
@@ -2557,7 +2726,7 @@ const App = () => {
           </span>}/>
         <div className="content">
           {loading && appts.length===0 && <div className="card"><div className="card-empty">Cargando…</div></div>}
-          {tab==="turnos"     && <TurnosTab appts={appts} services={services} refetch={fetchAll}/>}
+          {tab==="turnos"     && <TurnosTab appts={appts} services={services} blocks={blocks} settings={settings} refetch={fetchAll}/>}
           {tab==="clientes"   && <ClientesTab appts={appts} services={services}/>}
           {tab==="servicios"  && <ServiciosTab services={services} refetch={fetchAll}/>}
           {tab==="packs"      && <PacksTab packs={packs} services={services} refetch={fetchAll}/>}
