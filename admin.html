@@ -378,7 +378,7 @@ const PAY_LABELS = { efectivo:"Efectivo", transferencia:"Transferencia", tarjeta
 const DOW_LABELS = ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
 const DOW_FULL = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
 
-const DEFAULT_SETTINGS = { open_min:9*60, close_min:18*60, slot_step:30, open_days:[0,1,2,3,4,5] };
+const DEFAULT_SETTINGS = { open_min:9*60, close_min:20*60, slot_step:30, open_days:[0,1,2,3,4,5] };
 const DEFAULT_CONTENT = {
   hero:{ tag:"Reservando turnos", title_a:"El arte", title_b:"de cuidarte", quote:"Técnica profesional, espacio relajado y resultados que se sostienen en el tiempo.", quote_attr:"Desde 2026 en Henderson", sticker:"Primer\nturno\n10% off", stat_a_v:"+400", stat_a_l:"Clientas", stat_b_v:"4.9★", stat_b_l:"Google" },
   about:{ title_a:"Un espacio pensado", title_b:"desde el detalle", body_main:"Soy Guada. GF Studio nació en Henderson para ofrecer tratamientos de belleza que respeten tu tiempo y tu piel — sin atajos, con técnica profesional.", body_sec:"Me especializo en cejas, faciales y terapias combinadas. Cada sesión arranca con una consulta breve.", stat_a_v:"3+", stat_a_l:"Años de experiencia", stat_b_v:"12", stat_b_l:"Tratamientos en carta", stat_c_v:"1:1", stat_c_l:"Atención personalizada" },
@@ -2117,11 +2117,13 @@ const BloqueosTab = ({blocks, setBlocks, appts, services, settings, setSettings,
         <div className="flex-1"/>
         {view==="calendar" && <>
           <button className="btn btn-gh btn-sm" onClick={()=>setWeekStart(mondayOf(TODAY))}>Hoy</button>
-          <button className="btn btn-sc btn-sm" onClick={()=>navWeek(-1)}>←</button>
-          <span className="mono" style={{fontSize:11,color:"var(--muted)",letterSpacing:".15em",textTransform:"uppercase",padding:"0 8px"}}>
-            Sem. {fDate(toISO(weekStart))} – {fDate(toISO(addDays(weekStart,5)))}
-          </span>
-          <button className="btn btn-sc btn-sm" onClick={()=>navWeek(1)}>→</button>
+          <div className="flex items-center gap-2" style={{whiteSpace:"nowrap"}}>
+            <button className="btn btn-sc btn-sm" onClick={()=>navWeek(-1)}>←</button>
+            <span className="mono" style={{fontSize:11,color:"var(--muted)",letterSpacing:".15em",textTransform:"uppercase",padding:"0 4px"}}>
+              Sem. {fDate(toISO(weekStart))} – {fDate(toISO(addDays(weekStart,5)))}
+            </span>
+            <button className="btn btn-sc btn-sm" onClick={()=>navWeek(1)}>→</button>
+          </div>
         </>}
         {view!=="settings" && <button className="btn btn-pr" onClick={()=>setEditing({ id:null, type:"full_day", block_date:toISO(TODAY), start_time:"09:00", end_time:"18:00", day_of_week:0, reason:"" })}><Icon name="plus"/> Nuevo bloqueo</button>}
       </div>
@@ -2303,15 +2305,10 @@ const AjustesHorario = ({settings, setSettings, persist}) => {
       <div className="card">
         <div className="card-hd"><h3>Horario de atención</h3><button className="btn btn-pr btn-sm" onClick={persist}>Guardar</button></div>
         <div className="card-bd flex flex-col gap-5">
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <Field label="Apertura" grow><input className="inp" type="time" value={toHHMM(settings.open_min)} onChange={e=>u("open_min",toMin(e.target.value))}/></Field>
             <Field label="Cierre" grow><input className="inp" type="time" value={toHHMM(settings.close_min)} onChange={e=>u("close_min",toMin(e.target.value))}/></Field>
           </div>
-          <Field label="Duración mínima de turno (min)">
-            <select className="inp" value={settings.slot_step} onChange={e=>u("slot_step",Number(e.target.value))}>
-              <option value={15}>15 minutos</option><option value={30}>30 minutos</option><option value={60}>60 minutos</option>
-            </select>
-          </Field>
           <Field label="Días de atención">
             <div className="flex gap-2 flex-wrap">
               {DOW_FULL.map((d,i)=>(
