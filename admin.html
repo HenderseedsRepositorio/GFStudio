@@ -2117,10 +2117,13 @@ const BloqueosTab = ({blocks, setBlocks, appts, services, settings, setSettings,
         <div className="flex-1"/>
         {view==="calendar" && <>
           <button className="btn btn-gh btn-sm" onClick={()=>setWeekStart(mondayOf(TODAY))}>Hoy</button>
-          <div className="flex items-center gap-2" style={{whiteSpace:"nowrap"}}>
+          <div className="flex items-center gap-1 sm:gap-2" style={{whiteSpace:"nowrap"}}>
             <button className="btn btn-sc btn-sm" onClick={()=>navWeek(-1)}>←</button>
-            <span className="mono" style={{fontSize:11,color:"var(--muted)",letterSpacing:".15em",textTransform:"uppercase",padding:"0 4px"}}>
+            <span className="mono hidden sm:inline" style={{fontSize:11,color:"var(--muted)",letterSpacing:".15em",textTransform:"uppercase",padding:"0 4px"}}>
               Sem. {fDate(toISO(weekStart))} – {fDate(toISO(addDays(weekStart,5)))}
+            </span>
+            <span className="mono sm:hidden" style={{fontSize:10.5,color:"var(--muted)",letterSpacing:".08em",textTransform:"uppercase",padding:"0 4px"}}>
+              {weekStart.getDate()}–{addDays(weekStart,5).getDate()} {new Date(addDays(weekStart,5)).toLocaleDateString('es-AR',{month:'short'}).toUpperCase().replace('.','')}
             </span>
             <button className="btn btn-sc btn-sm" onClick={()=>navWeek(1)}>→</button>
           </div>
@@ -2413,7 +2416,12 @@ const App = () => {
   const [blocks, setBlocks] = useState([]);
   const [content, setContent] = useState(DEFAULT_CONTENT);
   const [settings, setSettings] = useState(()=>{
-    try { return JSON.parse(localStorage.getItem("gf_admin_settings")) || DEFAULT_SETTINGS; }
+    try {
+      const s = JSON.parse(localStorage.getItem("gf_admin_settings"));
+      if(!s) return DEFAULT_SETTINGS;
+      if(!s._v2){ s.close_min = Math.max(s.close_min||0, 20*60); s._v2 = true; }
+      return s;
+    }
     catch { return DEFAULT_SETTINGS; }
   });
   const [loading, setLoading] = useState(false);
