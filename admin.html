@@ -280,6 +280,14 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xm
 .cell-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;pointer-events:none}
 .cell-free:hover .cell-hint,.cell-blk:hover .cell-hint{opacity:1}
 
+/* Service card order rail */
+.svc-ord{width:32px}
+.svc-ord-btn{border:none;background:transparent;padding:8px 0;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}
+.svc-ord-btn:hover:not(:disabled){background:rgba(94,107,46,.1);color:var(--olive-dk)}
+.svc-ord-btn:disabled{opacity:.25;cursor:not-allowed}
+.svc-ord-btn:first-child{border-bottom:1px solid var(--border)}
+.svc-ord-btn:last-child{border-top:1px solid var(--border)}
+
 /* Week grid */
 .wg-row{display:grid;grid-template-columns:64px repeat(var(--wg-days,6), 1fr);border-bottom:1px solid var(--border)}
 .wg-head{position:sticky;top:0;z-index:3;background:var(--cream);box-shadow:0 1px 0 var(--border)}
@@ -1405,11 +1413,23 @@ const ServiciosTab = ({services, refetch}) => {
     await sb.from("gf_services").update({ active:v }).eq("id", s.id);
     refetch();
   };
+  const moveSvc = async (i, dir) => {
+    const target = filtered[i+dir];
+    if(!target) return;
+    const curr = filtered[i];
+    const [ord1, ord2] = [curr.order||99, target.order||99];
+    await Promise.all([
+      sb.from("gf_services").update({ display_order: ord2 }).eq("id", curr.id),
+      sb.from("gf_services").update({ display_order: ord1 }).eq("id", target.id),
+    ]);
+    refetch();
+  };
 
   const stats = {
     total: services.length,
     active: services.filter(s=>s.active).length,
     avgPrice: Math.round(services.reduce((s,x)=>s+x.price,0)/Math.max(1,services.length)),
+    avgDuration: Math.round(services.reduce((s,x)=>s+(x.duration_minutes||0),0)/Math.max(1,services.length)),
   };
 
   return (
@@ -1423,6 +1443,7 @@ const ServiciosTab = ({services, refetch}) => {
         <div className="kpis">
           <div className="kpi"><div className="lb">Activos</div><div className="v">{stats.active}/{stats.total}</div></div>
           <div className="kpi"><div className="lb">Precio prom.</div><div className="v">{fP(stats.avgPrice)}</div></div>
+          <div className="kpi"><div className="lb">Tiempo prom.</div><div className="v">{stats.avgDuration} min</div></div>
         </div>
       </div>
 
@@ -1438,9 +1459,9 @@ const ServiciosTab = ({services, refetch}) => {
       {filtered.length===0 ? (
         <EmptyState icon="sparkle" title="Sin servicios" desc="Creá el primer servicio para que aparezca en la carta." action={<button className="btn btn-pr" onClick={()=>setEditing({...EMPTY_SVC})}><Icon name="plus"/> Nuevo servicio</button>}/>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {filtered.map((s,i)=>(
-            <ServiceCard key={s.id} svc={s} index={i} onEdit={()=>setEditing(s)} onDuplicate={()=>duplicate(s)} onToggle={v=>toggleActive(s,v)}/>
+            <ServiceCard key={s.id} svc={s} index={i} count={filtered.length} onEdit={()=>setEditing(s)} onDuplicate={()=>duplicate(s)} onToggle={v=>toggleActive(s,v)} onMove={dir=>moveSvc(i,dir)}/>
           ))}
         </div>
       )}
@@ -1463,28 +1484,24 @@ const ServiciosTab = ({services, refetch}) => {
   );
 };
 
-const ServiceCard = ({svc, index, onEdit, onDuplicate, onToggle}) => (
-  <div className="card group" style={{opacity:svc.active?1:.55,cursor:"pointer",transition:"all .2s"}} onClick={onEdit}>
-    <div className="card-bd">
-      <div className="flex items-start justify-between gap-4 mb-3">
-        <div className="flex items-baseline gap-3 min-w-0">
-          <span className="mono" style={{fontSize:10,letterSpacing:".15em",color:"var(--muted)"}}>N.º {String(svc.order||index+1).padStart(2,'0')}</span>
-          <h3 className="serif" style={{fontSize:22,fontWeight:400,lineHeight:1.1,flexShrink:1,minWidth:0}}>{svc.name}</h3>
-        </div>
-        <span onClick={e=>{e.stopPropagation();onToggle(!svc.active);}}>
+const ServiceCard = ({svc, index, count, onEdit, onDuplicate, onToggle, onMove}) => (
+  <div className="card group" style={{opacity:svc.active?1:.55,transition:"all .2s",display:"flex",alignItems:"stretch"}}>
+    <div className="svc-ord" style={{display:"flex",flexDirection:"column",borderRight:"1px solid var(--border)",background:"rgba(26,24,16,.02)"}}>
+      <button className="svc-ord-btn" disabled={index===0} onClick={e=>{e.stopPropagation();onMove(-1);}} title="Subir" aria-label="Subir"><Icon name="chevron" size={12} style={{transform:"rotate(90deg)"}}/></button>
+      <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",padding:"2px 0",fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:".12em",color:"var(--muted)"}}>{String(index+1).padStart(2,'0')}</div>
+      <button className="svc-ord-btn" disabled={index===count-1} onClick={e=>{e.stopPropagation();onMove(1);}} title="Bajar" aria-label="Bajar"><Icon name="chevron" size={12} style={{transform:"rotate(-90deg)"}}/></button>
+    </div>
+    <div className="card-bd" style={{flex:1,cursor:"pointer",padding:14}} onClick={onEdit}>
+      <div className="flex items-start justify-between gap-3 mb-2">
+        <h3 className="serif" style={{fontSize:17,fontWeight:400,lineHeight:1.15,flex:1,minWidth:0}}>{svc.name}</h3>
+        <span onClick={e=>{e.stopPropagation();onToggle(!svc.active);}} style={{flexShrink:0}}>
           <Toggle checked={svc.active} onChange={()=>{}}/>
         </span>
       </div>
-      {svc.description && <p style={{fontSize:13,color:"var(--muted)",lineHeight:1.5,marginBottom:14}}>{svc.description}</p>}
-      <div className="flex items-end justify-between pt-3" style={{borderTop:"1px solid var(--border)"}}>
-        <div>
-          <div className="mono" style={{fontSize:10,letterSpacing:".15em",color:"var(--muted)",textTransform:"uppercase"}}>{svc.category||"general"} · {svc.duration_minutes} min</div>
-          <div className="serif num" style={{fontSize:28,color:"var(--olive-dk)",marginTop:4}}>{fP(svc.price)}</div>
-        </div>
-        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button className="btn btn-gh btn-sm" onClick={e=>{e.stopPropagation();onDuplicate();}} title="Duplicar"><Icon name="copy" size={13}/></button>
-          <button className="btn btn-gh btn-sm" onClick={e=>{e.stopPropagation();onEdit();}} title="Editar"><Icon name="edit" size={13}/></button>
-        </div>
+      {svc.description && <p style={{fontSize:12,color:"var(--muted)",lineHeight:1.4,marginBottom:8}}>{svc.description}</p>}
+      <div className="flex items-center justify-between gap-2">
+        <div className="mono" style={{fontSize:10,letterSpacing:".12em",color:"var(--muted)",textTransform:"uppercase"}}>{svc.category||"general"} · {svc.duration_minutes} min</div>
+        <div className="serif num" style={{fontSize:20,color:"var(--olive-dk)",fontWeight:500}}>{fP(svc.price)}</div>
       </div>
     </div>
   </div>
@@ -1509,17 +1526,12 @@ const ServiceEditor = ({svc, onChange}) => {
         <Field label="Precio (ARS)" grow><input className="inp num" type="number" value={svc.price} onChange={e=>u("price",Number(e.target.value)||0)}/></Field>
         <Field label="Duración (min)" grow><input className="inp num" type="number" step="15" value={svc.duration_minutes} onChange={e=>u("duration_minutes",Number(e.target.value)||60)}/></Field>
       </div>
-      <div className="flex gap-3">
-        <Field label="Categoría" grow hint="Para agrupar en la carta (opcional)">
-          <input className="inp" list="cat-list" value={svc.category||""} onChange={e=>u("category",e.target.value)} placeholder="cejas / facial / pestañas…"/>
-          <datalist id="cat-list">
-            <option value="cejas"/><option value="pestañas"/><option value="facial"/><option value="depilación"/><option value="maquillaje"/>
-          </datalist>
-        </Field>
-        <Field label="Orden" grow hint="Más bajo aparece primero">
-          <input className="inp num" type="number" value={svc.order||99} onChange={e=>u("order",Number(e.target.value)||99)}/>
-        </Field>
-      </div>
+      <Field label="Categoría" hint="Para agrupar en la carta (opcional)">
+        <input className="inp" list="cat-list" value={svc.category||""} onChange={e=>u("category",e.target.value)} placeholder="cejas / facial / pestañas…"/>
+        <datalist id="cat-list">
+          <option value="cejas"/><option value="pestañas"/><option value="facial"/><option value="depilación"/><option value="maquillaje"/>
+        </datalist>
+      </Field>
     </div>
   );
 };
