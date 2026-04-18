@@ -886,7 +886,7 @@ const NewApptDrawer = ({open, onClose, services, appts, blocks, settings, onCrea
         appointment_date: toISO(TODAY),
         time_slot: "",
         client_name: "",
-        client_phone: "",
+        client_phone: "+549 ",
         client_email: "",
         notes: "",
         status: "confirmed",
@@ -916,7 +916,8 @@ const NewApptDrawer = ({open, onClose, services, appts, blocks, settings, onCrea
     if(!match || !match.ok) setForm(f=>({...f, time_slot:""}));
   }, [timeOptions]);
 
-  const canSave = form && form.service_id && form.appointment_date && form.time_slot && form.client_name.trim() && form.client_phone.trim();
+  const phoneDigits = (form?.client_phone||"").replace(/\D/g,"").replace(/^549/,"");
+  const canSave = form && form.service_id && form.appointment_date && form.time_slot && form.client_name.trim() && phoneDigits.length>=8;
 
   const save = async () => {
     if(!canSave) return;
@@ -984,7 +985,12 @@ const NewApptDrawer = ({open, onClose, services, appts, blocks, settings, onCrea
               <input className="inp" type="text" value={form.client_name} onChange={e=>u("client_name", e.target.value)} placeholder="Nombre y apellido"/>
             </Field>
             <Field label="Teléfono" grow>
-              <input className="inp" type="tel" value={form.client_phone} onChange={e=>u("client_phone", e.target.value)} placeholder="+54 9 2314…"/>
+              <input className="inp" type="tel" value={form.client_phone} onChange={e=>{
+                // Keep +549 prefix — si lo borra lo re-insertamos
+                let v = e.target.value;
+                if(!v.startsWith("+549")) v = "+549 "+v.replace(/^\+?5?4?9?\s*/,"");
+                u("client_phone", v);
+              }} placeholder="+549 2314 57-3218"/>
             </Field>
           </div>
           <Field label="Email (opcional)">
