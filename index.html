@@ -981,7 +981,8 @@ const Nav=({scrolled,mobileNav,setMobileNav,onBook})=>(
           <a key={href} href={href} className="link-u text-[12px] tracking-[.05em]" style={{color:"var(--ink)"}}>{l}</a>
         ))}
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
+        <button onClick={onBook} className="sm:hidden inline-flex btn btn-dk" style={{padding:"8px 14px",fontSize:11,letterSpacing:".03em"}}>Reservar</button>
         <button onClick={onBook} className="hidden sm:inline-flex btn btn-dk" style={{padding:"10px 22px",fontSize:12}}>Reservar turno</button>
         <button className="md:hidden w-10 h-10 flex items-center justify-center rounded-full transition-colors hover:bg-black/5" onClick={()=>setMobileNav(!mobileNav)}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d={mobileNav?"M18 6L6 18M6 6l12 12":"M4 7h16M4 12h16M4 17h16"}/></svg>
