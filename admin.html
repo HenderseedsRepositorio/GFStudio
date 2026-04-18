@@ -282,16 +282,18 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xm
 
 /* Week grid */
 .wg-row{display:grid;grid-template-columns:64px repeat(var(--wg-days,6), 1fr);border-bottom:1px solid var(--border)}
+.wg-head{position:sticky;top:0;z-index:3;background:var(--cream);box-shadow:0 1px 0 var(--border)}
 .wg-head .wg-dayhd{padding:12px 8px;text-align:center;border-left:1px solid var(--border)}
 .wg-dow{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase}
 .wg-dnum{font-family:'Fraunces',serif;font-size:20px;margin-top:2px}
-.wg-time{padding:4px 8px 0;font-size:10px;color:var(--muted);letter-spacing:.05em;text-align:right;min-height:44px;background:rgba(26,24,16,.02)}
+.wg-time{padding:2px 8px 0;font-size:10px;color:var(--muted);letter-spacing:.05em;text-align:right;min-height:44px;background:rgba(26,24,16,.02);opacity:.5;font-variant-numeric:tabular-nums}
+.wg-time-full{opacity:1;font-weight:500;color:var(--ink)}
 @media(max-width:640px){
   .wg-row{grid-template-columns:40px repeat(var(--wg-days,6), 1fr)}
   .wg-head .wg-dayhd{padding:8px 2px}
   .wg-dow{font-size:8.5px;letter-spacing:.08em}
   .wg-dnum{font-size:15px;margin-top:1px}
-  .wg-time{padding:4px 4px 0;font-size:9px;letter-spacing:0}
+  .wg-time{padding:2px 4px 0;font-size:9px;letter-spacing:0}
 }
 
 @media(max-width:900px){
@@ -2003,7 +2005,7 @@ const ContactEditor = ({data, onUpdate}) => {
 };
 
 /* ============ BLOQUEOS TAB ============ */
-const BloqueosTab = ({blocks, appts, services, settings, setSettings, persistSettings, refetch}) => {
+const BloqueosTab = ({blocks, setBlocks, appts, services, settings, setSettings, persistSettings, refetch}) => {
   const [view, setView] = useState("calendar");
   const [weekStart, setWeekStart] = useState(()=>mondayOf(TODAY));
   const [editing, setEditing] = useState(null);
@@ -2045,9 +2047,23 @@ const BloqueosTab = ({blocks, appts, services, settings, setSettings, persistSet
 
   const navWeek = dir => { const d=new Date(weekStart); d.setDate(d.getDate()+7*dir); setWeekStart(d); };
 
-  const insertBlock = async (b) => { const { error } = await sb.from("gf_blocked_slots").insert(denormBlock(b)); if(error) toast("Error: "+error.message); refetch(); };
-  const updateBlock = async (id, b) => { const { error } = await sb.from("gf_blocked_slots").update(denormBlock(b)).eq("id", id); if(error) toast("Error: "+error.message); refetch(); };
-  const deleteBlock = async (id) => { await sb.from("gf_blocked_slots").delete().eq("id", id); refetch(); };
+  const insertBlock = async (b) => {
+    const tmpId = "tmp_"+Date.now();
+    setBlocks(prev => [...prev, {...b, id: tmpId}]);
+    const { data, error } = await sb.from("gf_blocked_slots").insert(denormBlock(b)).select().single();
+    if(error){ toast("Error: "+error.message); setBlocks(prev => prev.filter(x => x.id !== tmpId)); return; }
+    setBlocks(prev => prev.map(x => x.id === tmpId ? normBlock(data) : x));
+  };
+  const updateBlock = async (id, b) => {
+    setBlocks(prev => prev.map(x => x.id === id ? {...b, id} : x));
+    const { error } = await sb.from("gf_blocked_slots").update(denormBlock(b)).eq("id", id);
+    if(error){ toast("Error: "+error.message); refetch(); }
+  };
+  const deleteBlock = async (id) => {
+    setBlocks(prev => prev.filter(x => x.id !== id));
+    const { error } = await sb.from("gf_blocked_slots").delete().eq("id", id);
+    if(error){ toast("Error: "+error.message); refetch(); }
+  };
 
   const toggleSlot = async (iso, min, dow) => {
     const st = slotState(iso, min, dow);
@@ -2164,7 +2180,7 @@ const WeekGrid = ({days, slots, settings, slotState, svcMap, onToggle}) => {
   const todayISO = toISO(TODAY);
   return (
     <div className="card" style={{overflow:"hidden"}}>
-      <div className="wg-scroll">
+      <div className="wg-scroll" style={{maxHeight:"70vh",overflowY:"auto"}}>
         <div className="wg-inner" style={{"--wg-days":days.length}}>
           <div className="wg-row wg-head">
             <div/>
@@ -2178,11 +2194,11 @@ const WeekGrid = ({days, slots, settings, slotState, svcMap, onToggle}) => {
               );
             })}
           </div>
-          <div style={{position:"relative",maxHeight:"70vh",overflowY:"auto"}}>
+          <div style={{position:"relative"}}>
             {slots.map((min)=>(
               <div key={min} className="wg-row">
-                <div className="mono wg-time">
-                  {min%60===0 ? toHHMM(min) : ""}
+                <div className={"mono wg-time"+(min%60===0?" wg-time-full":"")}>
+                  {toHHMM(min)}
                 </div>
                 {days.map(d=>{
                   const st = slotState(d.iso, min, d.dow);
@@ -2542,7 +2558,7 @@ const App = () => {
           {tab==="packs"      && <PacksTab packs={packs} services={services} refetch={fetchAll}/>}
           {tab==="cupones"    && <CuponesTab coupons={coupons} services={services} packs={packs} refetch={fetchAll}/>}
           {tab==="contenido"  && <ContenidoTab content={content} setContent={setContent} persist={persistContent}/>}
-          {tab==="bloqueos"   && <BloqueosTab blocks={blocks} appts={appts} services={services} settings={settings} setSettings={setSettings} persistSettings={persistSettings} refetch={fetchAll}/>}
+          {tab==="bloqueos"   && <BloqueosTab blocks={blocks} setBlocks={setBlocks} appts={appts} services={services} settings={settings} setSettings={setSettings} persistSettings={persistSettings} refetch={fetchAll}/>}
           {tab==="resultados" && <ResultadosTab appts={appts} services={services} coupons={coupons}/>}
         </div>
       </main>
