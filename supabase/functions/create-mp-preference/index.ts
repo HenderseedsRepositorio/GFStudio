@@ -46,6 +46,8 @@ serve(async (req) => {
   const mpToken = Deno.env.get("MP_ACCESS_TOKEN");
   // @ts-ignore - Deno global
   const publicSiteUrl = Deno.env.get("PUBLIC_SITE_URL") || "https://gf-studio.vercel.app";
+  // @ts-ignore - Deno global
+  const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
 
   // Fallback explícito cuando MercadoPago aún no está configurado.
   // El frontend interpreta { configured:false } y oculta el flujo de seña.
@@ -76,7 +78,7 @@ serve(async (req) => {
       email: data.client_email,
     } : undefined,
     external_reference: data.appointment_id,
-    notification_url: `${publicSiteUrl}/functions/v1/mp-webhook`,
+    notification_url: supabaseUrl ? `${supabaseUrl}/functions/v1/mp-webhook` : undefined,
     back_urls: {
       success: `${back}?mp=ok&apt=${data.appointment_id}`,
       failure: `${back}?mp=fail&apt=${data.appointment_id}`,

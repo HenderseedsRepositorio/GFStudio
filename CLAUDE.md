@@ -13,20 +13,20 @@ Sistema de turnos online para **GF Studio** — estudio de belleza de Guada en H
 git push origin main
 
 # Edge Function (solo si se modificó supabase/functions/)
-SUPABASE_ACCESS_TOKEN=sbp_0bb0d54178992657636f7afbab1ec20ad9797939 \
+SUPABASE_ACCESS_TOKEN=sbp_7f697f57ea6701a35b4527e1a0cdef0c33182543 \
   npx supabase functions deploy notify-booking --no-verify-jwt \
   --project-ref ibikdnjuctopdkmtmgdd
 
 # Migraciones DB
-SUPABASE_ACCESS_TOKEN=sbp_0bb0d54178992657636f7afbab1ec20ad9797939 \
+SUPABASE_ACCESS_TOKEN=sbp_7f697f57ea6701a35b4527e1a0cdef0c33182543 \
   npx supabase db push --linked --yes
 
 # Query directa a la DB (diagnóstico / fixes urgentes sin migration)
-SUPABASE_ACCESS_TOKEN=sbp_0bb0d54178992657636f7afbab1ec20ad9797939 \
+SUPABASE_ACCESS_TOKEN=sbp_7f697f57ea6701a35b4527e1a0cdef0c33182543 \
   npx supabase db query --linked "SQL aquí;"
 ```
 
-> Token CLI expira **15 May 2026** — rotar en Supabase Dashboard antes.
+> Token CLI rotado el **18 Abr 2026** (`gf-studio-cli-abril26`) — rotar en Supabase Dashboard cuando expire. Generar nuevo en: https://supabase.com/dashboard/account/tokens
 
 URLs: `https://gf-studio.vercel.app` (landing) · `https://gf-studio.vercel.app/admin.html` (admin, pass: `guada`)
 
