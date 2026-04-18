@@ -2207,7 +2207,7 @@ const WeekGrid = ({days, slots, settings, slotState, svcMap, onToggle}) => {
                 </div>
                 {days.map(d=>{
                   const st = slotState(d.iso, min, d.dow);
-                  const cellStyle = { minHeight:44, borderLeft:"1px solid var(--border)", position:"relative", cursor:"pointer", transition:"background .15s" };
+                  const cellStyle = { minHeight:44, borderLeft:"1px solid var(--border)", position:"relative", cursor:"pointer", transition:"background .15s", minWidth:0, overflow:"hidden" };
                   if(st.type==="free"){
                     return (
                       <div key={d.iso+min} className="group cell-free" style={{...cellStyle,background:"var(--cream)"}} onClick={()=>onToggle(d.iso,min,d.dow)}>
