@@ -369,6 +369,7 @@ const WA_TEST = "5492314573218";
 
 /* ============ HELPERS ============ */
 const fP = n => "$" + (Number(n)||0).toLocaleString("es-AR");
+const fDur = m => { const n=Number(m)||0; if(n<60) return n+" min"; const h=Math.floor(n/60), r=n%60; return r===0 ? h+" hs" : h+":"+String(r).padStart(2,'0')+" hs"; };
 const fDate = iso => { if(!iso) return ""; const d=new Date(iso+"T12:00:00"); return d.toLocaleDateString("es-AR",{weekday:"short",day:"numeric",month:"short"}); };
 const fDateLong = iso => { if(!iso) return ""; const d=new Date(iso+"T12:00:00"); return d.toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long",year:"numeric"}); };
 const toISO = d => d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0');
@@ -852,7 +853,7 @@ const TurnosTab = ({appts, services, blocks, settings, refetch}) => {
                     </td>
                     <td>
                       <div className="t-name">{svc?.name||"—"}</div>
-                      <div className="t-sub">{svc?.duration_minutes||"—"} min</div>
+                      <div className="t-sub">{svc?.duration_minutes ? fDur(svc.duration_minutes) : "—"}</div>
                     </td>
                     <td>
                       <Chip tone={STATUS_TONES[a.status]||"neutral"}>{STATUS_LABELS[a.status]||a.status}</Chip>
@@ -974,7 +975,7 @@ const NewApptDrawer = ({open, onClose, services, appts, blocks, settings, onCrea
         <div className="flex flex-col gap-5">
           <Field label="Servicio">
             <select className="inp" value={form.service_id||""} onChange={e=>u("service_id", Number(e.target.value))}>
-              {services.map(s=><option key={s.id} value={s.id}>{s.name} · {s.duration_minutes||60} min · {fP(s.price)}</option>)}
+              {services.map(s=><option key={s.id} value={s.id}>{s.name} · {fDur(s.duration_minutes||60)} · {fP(s.price)}</option>)}
             </select>
           </Field>
           <div className="flex flex-col sm:flex-row gap-3">
@@ -1085,7 +1086,7 @@ const ApptDetail = ({a, svc, onUpdate}) => {
             <div>
               <div className="mono" style={{fontSize:10,letterSpacing:".18em",textTransform:"uppercase",color:"var(--muted)"}}>Servicio</div>
               <div className="serif" style={{fontSize:18,marginTop:4}}>{svc?.name||"—"}</div>
-              <div className="mono" style={{fontSize:11,color:"var(--muted)",marginTop:4}}>{svc?.duration_minutes||"—"} min</div>
+              <div className="mono" style={{fontSize:11,color:"var(--muted)",marginTop:4}}>{svc?.duration_minutes ? fDur(svc.duration_minutes) : "—"}</div>
             </div>
             <div>
               <div className="mono" style={{fontSize:10,letterSpacing:".18em",textTransform:"uppercase",color:"var(--muted)"}}>Cuándo</div>
@@ -1509,7 +1510,7 @@ const ServiciosTab = ({services, refetch}) => {
         <div className="kpis">
           <div className="kpi"><div className="lb">Activos</div><div className="v">{stats.active}/{stats.total}</div></div>
           <div className="kpi"><div className="lb">Precio prom.</div><div className="v">{fP(stats.avgPrice)}</div></div>
-          <div className="kpi"><div className="lb">Tiempo prom.</div><div className="v">{stats.avgDuration} min</div></div>
+          <div className="kpi"><div className="lb">Tiempo prom.</div><div className="v">{fDur(stats.avgDuration)}</div></div>
         </div>
       </div>
 
@@ -1566,7 +1567,7 @@ const ServiceCard = ({svc, index, count, onEdit, onDuplicate, onToggle, onMove})
       </div>
       {svc.description && <p style={{fontSize:12,color:"var(--muted)",lineHeight:1.4,marginBottom:8}}>{svc.description}</p>}
       <div className="flex items-center justify-between gap-2">
-        <div className="mono" style={{fontSize:10,letterSpacing:".12em",color:"var(--muted)",textTransform:"uppercase"}}>{svc.category||"general"} · {svc.duration_minutes} min</div>
+        <div className="mono" style={{fontSize:10,letterSpacing:".12em",color:"var(--muted)",textTransform:"uppercase"}}>{svc.category||"general"} · {fDur(svc.duration_minutes)}</div>
         <div className="serif num" style={{fontSize:20,color:"var(--olive-dk)",fontWeight:500}}>{fP(svc.price)}</div>
       </div>
     </div>
@@ -1774,7 +1775,7 @@ const PackEditor = ({pack, onChange, services, svcMap}) => {
                 <div key={i} className="flex items-center gap-3 p-3" style={{background:"var(--cream)",border:"1px solid var(--border)",borderRadius:2}}>
                   <div className="flex-1 min-w-0">
                     <div style={{fontSize:13.5,fontWeight:500}}>{svc?.name||"—"}</div>
-                    <div className="mono" style={{fontSize:11,color:"var(--muted)",marginTop:2}}>{fP(svc?.price||0)} · {svc?.duration_minutes||"—"} min</div>
+                    <div className="mono" style={{fontSize:11,color:"var(--muted)",marginTop:2}}>{fP(svc?.price||0)} · {svc?.duration_minutes ? fDur(svc.duration_minutes) : "—"}</div>
                   </div>
                   <div className="flex items-center gap-1">
                     <button className="btn btn-gh btn-sm" style={{padding:"4px 8px"}} onClick={()=>updLine(i,{qty:Math.max(1,(ln.qty||1)-1)})}>−</button>

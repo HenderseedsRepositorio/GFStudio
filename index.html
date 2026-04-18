@@ -203,6 +203,7 @@ const SLOT_START=9*60, SLOT_END=18*60, SLOT_STEP=30;
 const{useState,useEffect,useCallback,useRef,useMemo}=React;
 
 const fP=n=>"$"+(Number(n)||0).toLocaleString("es-AR");
+const fDur=m=>{const n=Number(m)||0; if(n<60) return n+" min"; const h=Math.floor(n/60), r=n%60; return r===0 ? h+" hs" : h+":"+String(r).padStart(2,'0')+" hs";};
 const toMin=t=>{const[h,m]=t.split(":").map(Number);return h*60+m};
 const toHHMM=m=>`${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;
 const shortHM=hhmm=>{const[h,m]=hhmm.split(":");return `${parseInt(h,10)}:${m}`};
@@ -606,7 +607,7 @@ const StepService=({svcs,onSelect,selected})=>{
               <div className="flex items-start justify-between gap-2 mb-2">
                 <span className="text-[14px] font-medium" style={{color:"var(--ink)"}}>{s.name}</span>
                 <span className="mono text-[11px] px-2 py-0.5 rounded-full flex-shrink-0"
-                      style={{background:"rgba(94,107,46,.08)",color:"var(--olive-dk)"}}>{s.duration_minutes||60}′</span>
+                      style={{background:"rgba(94,107,46,.08)",color:"var(--olive-dk)"}}>{fDur(s.duration_minutes||60)}</span>
               </div>
               {s.description&&<p className="text-[12px] leading-relaxed mb-3" style={{color:"var(--muted)"}}>{s.description}</p>}
               <div className="flex items-center justify-between mt-auto">
@@ -656,7 +657,7 @@ const StepDate=({selSvc,viewMode,setViewMode,cursorDate,setCursorDate,selDate,se
         <div className="flex items-start justify-between gap-4 mb-5">
           <div>
             <h2 className="serif text-[1.5rem] leading-tight" style={{color:"var(--ink)"}}>Elegí fecha</h2>
-            <p className="text-[13px] mt-1" style={{color:"var(--muted)"}}>{selSvc?.name} · {dur} min · {fP(selSvc?.price||0)}</p>
+            <p className="text-[13px] mt-1" style={{color:"var(--muted)"}}>{selSvc?.name} · {fDur(dur)} · {fP(selSvc?.price||0)}</p>
           </div>
           <div className="flex rounded-full p-0.5" style={{background:"rgba(0,0,0,.04)"}}>
             {[["week","Semana"],["month","Mes"]].map(([k,l])=>(
@@ -817,7 +818,7 @@ const StepData=({selSvc,selDate,selTime,fm,setFm,emailSugg,setEmailSugg,couponIn
       <div className="flex-1 overflow-y-auto p-6 sm:p-8">
         <h2 className="serif text-[1.5rem] leading-tight mb-4" style={{color:"var(--ink)"}}>Confirmá tu turno</h2>
         <div className="space-y-2 mb-6">
-          <SumRow label="Servicio" value={`${selSvc.name} · ${selSvc.duration_minutes||60} min · ${fP(selSvc.price)}`} onEdit={onEditSvc}/>
+          <SumRow label="Servicio" value={`${selSvc.name} · ${fDur(selSvc.duration_minutes||60)} · ${fP(selSvc.price)}`} onEdit={onEditSvc}/>
           <SumRow label="Fecha" value={dateDisplay} onEdit={onEditDate}/>
           <SumRow label="Horario" value={`${shortHM(selTime)} → ${shortHM(endStr)} hs`} onEdit={onEditDate}/>
           {couponApplied&&(
@@ -1149,7 +1150,7 @@ const Services=({svcs,onPick})=>(
             <div>
               <h3 className="serif text-[clamp(1.25rem,2.5vw,1.65rem)] leading-tight" style={{color:"var(--ink)"}}>{s.name}</h3>
               {s.description&&<p className="text-[13px] mt-1.5 max-w-lg" style={{color:"var(--muted)"}}>{s.description}</p>}
-              <span className="mono text-[11px] mt-1.5 inline-block" style={{color:"var(--olive)"}}>{s.duration_minutes||60} minutos</span>
+              <span className="mono text-[11px] mt-1.5 inline-block" style={{color:"var(--olive)"}}>{fDur(s.duration_minutes||60)}</span>
             </div>
             <div className="serif text-[clamp(1.25rem,2.5vw,1.75rem)]" style={{color:"var(--olive-dk)"}}>{fP(s.price)}</div>
             <svg className="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
