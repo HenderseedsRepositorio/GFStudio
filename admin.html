@@ -205,6 +205,7 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xm
 }
 .chip.ok{background:rgba(74,107,46,.12);color:var(--success)}
 .chip.wait{background:rgba(184,196,129,.3);color:var(--olive-dk)}
+.chip.warn{background:rgba(196,130,46,.14);color:#8B5A1F}
 .chip.err{background:rgba(163,59,42,.12);color:var(--danger)}
 .chip.dk{background:var(--ink);color:var(--cream)}
 .chip.live::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;animation:blink 2s infinite}
@@ -467,6 +468,7 @@ const Icon = ({name, size=16}) => {
     mail: <><rect x="2" y="4" width="20" height="16" rx="1"/><path d="M2 7l10 6 10-6"/></>,
     tag: <><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1.5"/></>,
     menu: <><path d="M3 6h18M3 12h18M3 18h18"/></>,
+    bell: <><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></>,
   };
   return (
     <svg className="ic" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -477,7 +479,7 @@ const Icon = ({name, size=16}) => {
 
 /* ============ COMMON COMPONENTS ============ */
 const Chip = ({children, tone="neutral"}) => {
-  const map = { neutral:"", ok:"ok", wait:"wait", err:"err", dk:"dk", live:"ok live" };
+  const map = { neutral:"", ok:"ok", wait:"wait", warn:"warn", err:"err", dk:"dk", live:"ok live" };
   return <span className={"chip "+(map[tone]||"")}>{children}</span>;
 };
 
@@ -1183,11 +1185,20 @@ const buildClientes = (appts, services) => {
 };
 const daysAgo = iso => Math.floor((TODAY - new Date(iso+"T12:00:00"))/86400000);
 const clientTag = c => {
-  if(c.appts.length===1) return {tone:"wait",label:"Nueva"};
   const d = daysAgo(c.lastDate);
   if(d>90) return {tone:"err",label:"Inactiva"};
+  if(c.appts.length===1 && d<=30) return {tone:"wait",label:"Nueva"};
+  if(d>30) return {tone:"warn",label:"Dormida"};
   if(c.appts.length>=5) return {tone:"ok",label:"Recurrente"};
   return {tone:"neutral",label:"Regular"};
+};
+const waMessageFor = (c) => {
+  const firstName = ((c.name||"").trim().split(" ")[0]||"").replace(/[^\wáéíóúñÁÉÍÓÚÑ]/g,"");
+  const hi = firstName ? `Hola ${firstName}!` : "Hola!";
+  const d = daysAgo(c.lastDate);
+  if(d>90) return `${hi} Soy Guada de GF Studio 🌿 Hace un tiempo que no nos vemos, te queríamos recordar que seguimos acá. ¿Te armo un turno?`;
+  if(d>30) return `${hi} ¿Cómo estás? Soy Guada de GF Studio. ¿Querés que te reserve un turno esta semana?`;
+  return `${hi} Soy Guada de GF Studio. `;
 };
 
 const ClientesTab = ({appts, services}) => {
@@ -1203,19 +1214,33 @@ const ClientesTab = ({appts, services}) => {
       const tag = clientTag(c).label;
       if(filter==="new" && tag!=="Nueva") return false;
       if(filter==="recurrent" && tag!=="Recurrente") return false;
+      if(filter==="dormant" && tag!=="Dormida") return false;
       if(filter==="inactive" && tag!=="Inactiva") return false;
       if(search){
         const q = search.toLowerCase();
         if(!(c.name||"").toLowerCase().includes(q) && !(c.phone||"").includes(q) && !(c.email||"").toLowerCase().includes(q)) return false;
       }
       return true;
+    }).sort((a,b)=>{
+      // Priorizar dormidas + inactivas con teléfono en tope cuando el filtro correspondiente esté activo
+      if(filter==="dormant" || filter==="inactive"){
+        return (b.phone?1:0)-(a.phone?1:0) || (a.lastDate||"").localeCompare(b.lastDate||"");
+      }
+      return 0;
     });
   }, [clientes, filter, search]);
 
   const stats = useMemo(()=>{
-    const recurr = clientes.filter(c=>clientTag(c).label==="Recurrente").length;
+    const tags = clientes.map(c=>clientTag(c).label);
+    const recurr = tags.filter(t=>t==="Recurrente").length;
+    const dormant = tags.filter(t=>t==="Dormida").length;
+    const inactive = tags.filter(t=>t==="Inactiva").length;
+    const reactivable = clientes.filter(c=>{
+      const t = clientTag(c).label;
+      return (t==="Dormida" || t==="Inactiva") && c.phone;
+    }).length;
     const ltv = Math.round(clientes.reduce((s,c)=>s+c.total,0)/Math.max(1,clientes.length));
-    return { total:clientes.length, recurr, ltv };
+    return { total:clientes.length, recurr, dormant, inactive, reactivable, ltv };
   }, [clientes]);
 
   return (
@@ -1233,9 +1258,35 @@ const ClientesTab = ({appts, services}) => {
         </div>
       </div>
 
+      {(stats.dormant>0 || stats.inactive>0) && (
+        <div className="card mb-5" style={{background:"linear-gradient(135deg,rgba(196,130,46,.06),rgba(163,59,42,.04))",borderColor:"rgba(196,130,46,.18)"}}>
+          <div className="card-bd" style={{padding:"18px 22px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:14,flexWrap:"wrap"}}>
+            <div style={{display:"flex",alignItems:"center",gap:14,flex:"1 1 260px",minWidth:0}}>
+              <div style={{width:38,height:38,flex:"0 0 38px",borderRadius:"50%",background:"rgba(196,130,46,.14)",color:"#8B5A1F",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                <Icon name="bell" size={18}/>
+              </div>
+              <div style={{minWidth:0}}>
+                <div style={{fontFamily:"'Fraunces',serif",fontSize:17,lineHeight:1.2,color:"var(--ink)"}}>
+                  {stats.dormant>0 && <>{stats.dormant} <em style={{fontStyle:"italic",color:"#8B5A1F"}}>dormida{stats.dormant!==1?"s":""}</em></>}
+                  {stats.dormant>0 && stats.inactive>0 && " · "}
+                  {stats.inactive>0 && <>{stats.inactive} <em style={{fontStyle:"italic",color:"var(--danger)"}}>inactiva{stats.inactive!==1?"s":""}</em></>}
+                </div>
+                <div style={{fontSize:12,color:"var(--muted)",marginTop:3}}>
+                  {stats.reactivable} con teléfono — mandales un WhatsApp para volver a vincularlas.
+                </div>
+              </div>
+            </div>
+            <div style={{display:"flex",gap:8}}>
+              {stats.dormant>0 && <button className="btn btn-sm btn-sc" onClick={()=>setFilter("dormant")}>Ver dormidas</button>}
+              {stats.inactive>0 && <button className="btn btn-sm btn-sc" onClick={()=>setFilter("inactive")}>Ver inactivas</button>}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-wrap gap-3 items-center mb-5">
         <Tabs value={filter} onChange={setFilter} options={[
-          {v:"all",l:"Todas"},{v:"recurrent",l:"Recurrentes"},{v:"new",l:"Nuevas"},{v:"inactive",l:"Inactivas"}
+          {v:"all",l:"Todas"},{v:"recurrent",l:"Recurrentes"},{v:"new",l:"Nuevas"},{v:"dormant",l:"Dormidas"},{v:"inactive",l:"Inactivas"}
         ]}/>
         <div className="relative flex-1 min-w-[240px]">
           <input className="inp" style={{paddingLeft:36}} placeholder="Buscar por nombre, teléfono o email…" value={search} onChange={e=>setSearch(e.target.value)}/>
@@ -1289,8 +1340,8 @@ const ClientesTab = ({appts, services}) => {
         title={selected ? selected.name : ""}
         footer={selected && (
           <>
-            <div className="flex gap-2">
-              {selected.phone && <a className="btn btn-wa" href={`https://wa.me/${waTel(selected.phone)}`} target="_blank"><Icon name="phone" size={13}/> WhatsApp</a>}
+            <div className="flex gap-2 flex-wrap">
+              {selected.phone && <a className="btn btn-wa" href={`https://wa.me/${waTel(selected.phone)}?text=${encodeURIComponent(waMessageFor(selected))}`} target="_blank" rel="noopener"><Icon name="phone" size={13}/> WhatsApp</a>}
               {selected.email && <a className="btn btn-sc" href={`mailto:${selected.email}`}><Icon name="mail" size={13}/> Email</a>}
             </div>
             <button className="btn btn-pr" onClick={()=>setSelected(null)}>Cerrar</button>
@@ -2545,47 +2596,123 @@ const AjustesHorario = ({settings, setSettings, persist}) => {
 const ResultadosTab = ({appts, services, coupons}) => {
   const [period, setPeriod] = useState("month");
   const svcMap = useMemo(()=>Object.fromEntries(services.map(s=>[s.id,s])), [services]);
-  const filtered = useMemo(()=>{
-    const from = period==="week"?addDays(TODAY,-7):period==="month"?addDays(TODAY,-30):addDays(TODAY,-90);
-    return appts.filter(a=>(a.status==="completed"||a.status==="confirmed")).filter(a=>new Date(a.appointment_date+"T12:00:00") >= from);
-  }, [appts, period]);
-  const total = filtered.reduce((s,a)=>s+(a.charged_price||svcMap[a.service_id]?.price||0),0);
-  const byPay = filtered.reduce((m,a)=>{ const k=a.payment_method||"—"; m[k]=(m[k]||0)+(a.charged_price||svcMap[a.service_id]?.price||0); return m; }, {});
-  const bySvc = filtered.reduce((m,a)=>{ const k=svcMap[a.service_id]?.name||"—"; m[k]={count:(m[k]?.count||0)+1, total:(m[k]?.total||0)+(a.charged_price||svcMap[a.service_id]?.price||0)}; return m; }, {});
-  const withCoupon = filtered.filter(a=>a.coupon_code).length;
+  const periodDays = period==="week"?7:period==="month"?30:90;
+
+  const { filtered, prev, noShows, cancelled, byPay, bySvc, withCoupon, total, prevTotal, byDow, occupancy } = useMemo(()=>{
+    const from     = addDays(TODAY, -periodDays);
+    const prevFrom = addDays(TODAY, -periodDays*2);
+    const prevTo   = addDays(TODAY, -periodDays);
+    const priceOf = a => a.charged_price || svcMap[a.service_id]?.price || 0;
+    const inRange = (a, f, t=null) => {
+      const d = new Date(a.appointment_date+"T12:00:00");
+      return d >= f && (t===null || d < t);
+    };
+    const kept = s => (s==="completed"||s==="confirmed");
+    const filtered = appts.filter(a=>kept(a.status) && inRange(a, from));
+    const prev = appts.filter(a=>kept(a.status) && inRange(a, prevFrom, prevTo));
+    const noShows = appts.filter(a=>a.status==="no_show" && inRange(a, from)).length;
+    const cancelled = appts.filter(a=>a.status==="cancelled" && inRange(a, from)).length;
+    const byPay = filtered.reduce((m,a)=>{ const k=a.payment_method||"—"; m[k]=(m[k]||0)+priceOf(a); return m; }, {});
+    const bySvc = filtered.reduce((m,a)=>{ const k=svcMap[a.service_id]?.name||"—"; m[k]={count:(m[k]?.count||0)+1, total:(m[k]?.total||0)+priceOf(a)}; return m; }, {});
+    const withCoupon = filtered.filter(a=>a.coupon_code).length;
+    const total = filtered.reduce((s,a)=>s+priceOf(a),0);
+    const prevTotal = prev.reduce((s,a)=>s+priceOf(a),0);
+    // Day of week: 1=Lun .. 0=Dom (JS getDay). Mostramos Lun→Sáb, oculto Dom si no hay datos.
+    const dowLabels = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+    const byDow = Array(7).fill(0).map((_,i)=>({label:dowLabels[i], count:0, revenue:0}));
+    filtered.forEach(a=>{
+      const dow = new Date(a.appointment_date+"T12:00:00").getDay();
+      byDow[dow].count += 1;
+      byDow[dow].revenue += priceOf(a);
+    });
+    // Occupancy: horas trabajadas / horas disponibles. Asumimos 9h/día * días laborables en período.
+    const workedMinutes = filtered.reduce((s,a)=>s+(svcMap[a.service_id]?.duration_minutes||60),0);
+    // Días laborables (Lun-Sáb) dentro del período
+    let workdays = 0;
+    for(let i=0;i<periodDays;i++){
+      const d = addDays(TODAY, -i);
+      if(d.getDay()!==0) workdays++; // Dom cerrado (aproximación)
+    }
+    const availableMinutes = workdays * 9 * 60; // 9h/día
+    const occupancy = availableMinutes ? Math.round(workedMinutes/availableMinutes*100) : 0;
+    return { filtered, prev, noShows, cancelled, byPay, bySvc, withCoupon, total, prevTotal, byDow, occupancy };
+  }, [appts, svcMap, periodDays]);
+
+  const deltaPct = prevTotal>0 ? Math.round((total-prevTotal)/prevTotal*100) : null;
+  const deltaApp = prev.length>0 ? Math.round((filtered.length-prev.length)/prev.length*100) : null;
+  const noShowRate = (filtered.length+noShows+cancelled)>0 ? Math.round((noShows+cancelled)/(filtered.length+noShows+cancelled)*100) : 0;
+  const maxDow = Math.max(1, ...byDow.map(d=>d.count));
+
+  const deltaFmt = (v) => {
+    if(v===null) return { text:"vs. período anterior: sin datos", tone:"" };
+    const arrow = v>0?"↑":v<0?"↓":"·";
+    const tone = v>0?"up":v<0?"dn":"";
+    return { arrow, tone, text:`${arrow} ${Math.abs(v)}% vs. período anterior` };
+  };
+  const dTotal = deltaFmt(deltaPct);
+  const dAppts = deltaFmt(deltaApp);
+
   return (
     <>
       <div className="strip">
         <div>
           <div className="sec-label" style={{color:"rgba(250,247,239,.6)"}}>Resultados · {period==="week"?"7 días":period==="month"?"30 días":"90 días"}</div>
           <h2 className="mt-2">Facturación <em>del período.</em></h2>
-          <p>Números sobre turnos cobrados. Excluye cancelados y no-shows.</p>
+          <p>Comparado contra los {periodDays} días anteriores. No-shows y cancelaciones se cuentan aparte.</p>
         </div>
-        <div className="kpis"><div className="kpi"><div className="lb">Total</div><div className="v">{fP(total)}</div></div></div>
+        <div className="kpis">
+          <div className="kpi"><div className="lb">Total</div><div className="v">{fP(total)}</div></div>
+          {deltaPct!==null && <div className="kpi"><div className="lb">vs. anterior</div><div className="v" style={{color:deltaPct>0?"var(--success)":deltaPct<0?"var(--danger)":"var(--muted)"}}>{dTotal.arrow} {Math.abs(deltaPct)}%</div></div>}
+        </div>
       </div>
       <div className="flex gap-3 mb-5">
         <Tabs value={period} onChange={setPeriod} options={[{v:"week",l:"7 días"},{v:"month",l:"30 días"},{v:"90",l:"90 días"}]}/>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <Stat label="Ingresos" value={fP(total)}/>
-        <Stat label="Turnos" value={filtered.length}/>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
+        <Stat label="Ingresos" value={fP(total)} delta={dTotal.text} tone={dTotal.tone}/>
+        <Stat label="Turnos" value={filtered.length} delta={dAppts.text} tone={dAppts.tone}/>
         <Stat label="Ticket prom." value={fP(Math.round(total/Math.max(1,filtered.length)))}/>
-        <Stat label="Con cupón" value={withCoupon} delta={filtered.length?`${Math.round(withCoupon/filtered.length*100)}% del total`:""}/>
+        <Stat label="Ocupación" value={occupancy+"%"} delta={`${Math.round((filtered.reduce((s,a)=>s+(svcMap[a.service_id]?.duration_minutes||60),0))/60)}h trabajadas`}/>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <div className="card"><div className="card-hd"><h3>Por medio de pago</h3></div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <Stat label="No-shows" value={noShows} delta={noShowRate>0?`${noShowRate}% del total (incl. cancel.)`:"—"} tone={noShows>0?"dn":""}/>
+        <Stat label="Cancelados" value={cancelled}/>
+        <Stat label="Con cupón" value={withCoupon} delta={filtered.length?`${Math.round(withCoupon/filtered.length*100)}% del total`:""}/>
+        <Stat label="Clientas únicas" value={new Set(filtered.map(a=>(a.client_phone||a.client_email||a.client_name||"").toLowerCase())).size}/>
+      </div>
+
+      {noShows+cancelled>=3 && noShowRate>=10 && (
+        <div className="card mb-5" style={{background:"rgba(163,59,42,.04)",borderColor:"rgba(163,59,42,.15)"}}>
+          <div className="card-bd" style={{padding:"14px 20px",display:"flex",gap:14,alignItems:"center"}}>
+            <div style={{width:34,height:34,flex:"0 0 34px",borderRadius:"50%",background:"rgba(163,59,42,.1)",color:"var(--danger)",display:"flex",alignItems:"center",justifyContent:"center"}}><Icon name="bell" size={15}/></div>
+            <div style={{minWidth:0,flex:1}}>
+              <div style={{fontSize:13.5,fontWeight:500,color:"var(--ink)"}}>Tasa de no-show {noShowRate}% — considerá activar seña por MercadoPago.</div>
+              <div style={{fontSize:11.5,color:"var(--muted)",marginTop:2}}>Cuando supera el 10% mensual, una seña del 30% suele bajarla al 2-4%.</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+        <div className="card"><div className="card-hd"><h3>Día más fuerte</h3><span className="mono" style={{fontSize:10,letterSpacing:".18em",textTransform:"uppercase",color:"var(--muted)"}}>Turnos por día</span></div>
           <div className="card-bd">
-            {Object.entries(byPay).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{
-              const pct = total ? Math.round(v/total*100) : 0;
-              const label = PAY_LABELS[k]||(k==="—"?"Sin definir":k);
-              return (
-                <div key={k} className="mb-4 last:mb-0">
-                  <div className="flex items-baseline justify-between mb-2"><span style={{fontSize:13}}>{label}</span><span className="num" style={{fontSize:13.5}}>{fP(v)} <span style={{color:"var(--muted)",fontSize:11}}>({pct}%)</span></span></div>
-                  <div style={{height:6,background:"rgba(26,24,16,.06)",borderRadius:2,overflow:"hidden"}}><div style={{width:pct+"%",height:"100%",background:"var(--olive)"}}/></div>
-                </div>
-              );
-            })}
-            {Object.keys(byPay).length===0 && <div style={{color:"var(--muted)",fontSize:13}}>Sin datos en el período.</div>}
+            <div style={{display:"flex",alignItems:"flex-end",gap:8,height:120,marginBottom:10}}>
+              {byDow.slice(1).concat(byDow[0]).map((d,i)=>{
+                const h = maxDow ? (d.count/maxDow*100) : 0;
+                const isTop = d.count===maxDow && maxDow>0;
+                return (
+                  <div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:6,minWidth:0}}>
+                    <div className="num" style={{fontSize:11,color:isTop?"var(--olive-dk)":"var(--muted)",fontWeight:isTop?500:400}}>{d.count||""}</div>
+                    <div style={{width:"100%",height:`${h}%`,minHeight:d.count?4:0,background:isTop?"var(--olive)":"var(--olive-lt)",opacity:d.count?(isTop?1:.5):.15,borderRadius:"2px 2px 0 0",transition:"height .4s"}}/>
+                  </div>
+                );
+              })}
+            </div>
+            <div style={{display:"flex",gap:8}}>
+              {["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"].map((l,i)=>(
+                <div key={i} className="mono" style={{flex:1,textAlign:"center",fontSize:10,letterSpacing:".1em",color:"var(--muted)"}}>{l}</div>
+              ))}
+            </div>
           </div>
         </div>
         <div className="card"><div className="card-hd"><h3>Top servicios</h3></div>
@@ -2598,6 +2725,22 @@ const ResultadosTab = ({appts, services, coupons}) => {
             ))}
             {Object.keys(bySvc).length===0 && <div style={{color:"var(--muted)",fontSize:13}}>Sin datos en el período.</div>}
           </div>
+        </div>
+      </div>
+
+      <div className="card"><div className="card-hd"><h3>Por medio de pago</h3></div>
+        <div className="card-bd">
+          {Object.entries(byPay).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{
+            const pct = total ? Math.round(v/total*100) : 0;
+            const label = PAY_LABELS[k]||(k==="—"?"Sin definir":k);
+            return (
+              <div key={k} className="mb-4 last:mb-0">
+                <div className="flex items-baseline justify-between mb-2"><span style={{fontSize:13}}>{label}</span><span className="num" style={{fontSize:13.5}}>{fP(v)} <span style={{color:"var(--muted)",fontSize:11}}>({pct}%)</span></span></div>
+                <div style={{height:6,background:"rgba(26,24,16,.06)",borderRadius:2,overflow:"hidden"}}><div style={{width:pct+"%",height:"100%",background:"var(--olive)"}}/></div>
+              </div>
+            );
+          })}
+          {Object.keys(byPay).length===0 && <div style={{color:"var(--muted)",fontSize:13}}>Sin datos en el período.</div>}
         </div>
       </div>
     </>
