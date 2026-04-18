@@ -2,12 +2,11 @@
 <html lang="es-AR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light only">
-<meta name="supported-color-schemes" content="light only">
-<title>GF Studio — Tu espacio de belleza y cuidado personal</title>
+<title>GF Studio — El arte de cuidarte · Henderson, Buenos Aires</title>
 <meta name="description" content="GF Studio — Tratamientos profesionales de belleza y cuidado de la piel en Henderson, Buenos Aires. Reservá tu turno online.">
-<meta property="og:title" content="GF Studio — Tu espacio de belleza y cuidado personal">
+<meta property="og:title" content="GF Studio — El arte de cuidarte">
 <meta property="og:description" content="Tratamientos profesionales de belleza y cuidado de la piel en Henderson, Buenos Aires.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://gf-studio.vercel.app">
@@ -17,7 +16,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%233D4A18'/%3E%3Ctext x='16' y='23' text-anchor='middle' font-family='Georgia%2Cserif' font-size='15' font-weight='700' fill='white'%3EGF%3C/text%3E%3C/svg%3E">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BeautySalon","name":"GF Studio","url":"https://gf-studio.vercel.app","telephone":"+5492314555856","address":{"@type":"PostalAddress","streetAddress":"Hipólito Yrigoyen 229","addressLocality":"Henderson","addressRegion":"Buenos Aires","addressCountry":"AR"},"openingHoursSpecification":{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday"],"opens":"09:00","closes":"18:00"}}
+{"@context":"https://schema.org","@type":"BeautySalon","name":"GF Studio","url":"https://gf-studio.vercel.app","telephone":"+5492314555856","address":{"@type":"PostalAddress","streetAddress":"Hipólito Yrigoyen 229","addressLocality":"Henderson","addressRegion":"Buenos Aires","addressCountry":"AR"},"openingHoursSpecification":{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],"opens":"09:00","closes":"18:00"}}
 </script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -26,235 +25,181 @@
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600&family=Figtree:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Inter+Tight:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  color-scheme:light only;
-  --olive:#5E6B2E;--olive-dk:#3D4A18;--sand:#D9D1BF;--sand-dk:#CFC7B3;
-  --sage:#C8C4A8;--ink:#1C1A14;--muted:#5C5840;--cream:#FEFDF8;
+  --olive-dk:#3D4A18;
+  --olive:#5E6B2E;
+  --olive-lt:#8A9456;
+  --sand:#E8E2D4;
+  --bone:#F2EDE0;
+  --cream:#FAF7EF;
+  --ink:#1A1810;
+  --muted:#6B6650;
+  --border:rgba(26,24,16,.08);
 }
-*,*::before,*::after{box-sizing:border-box;margin:0}
-html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;color-scheme:light}
-body{font-family:'Figtree',sans-serif;background:var(--sand)!important;color:var(--ink)!important;overflow-x:hidden}
-@media(prefers-color-scheme:dark){html,body{background:var(--sand)!important;color:var(--ink)!important}img,svg{filter:none!important}}
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(0,0,0,.1);border-radius:9px}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;color-scheme:light only}
+body{
+  font-family:'Inter Tight',system-ui,sans-serif;
+  background:var(--bone);
+  color:var(--ink);
+  font-weight:400;
+  letter-spacing:-.005em;
+}
+@media(prefers-color-scheme:dark){html,body{background:var(--bone)!important;color:var(--ink)!important}img,svg{filter:none!important}}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(0,0,0,.12);border-radius:9px}
 
-/* ── Animations ── */
-@keyframes rise{from{opacity:0;transform:translateY(48px)}to{opacity:1;transform:none}}
-@keyframes grow{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-@keyframes float{0%,100%{transform:translateY(0) rotate(0deg)}33%{transform:translateY(-12px) rotate(1deg)}66%{transform:translateY(-6px) rotate(-0.5deg)}}
-@keyframes blob{0%,100%{border-radius:60% 40% 30% 70%/60% 30% 70% 40%}25%{border-radius:30% 60% 70% 40%/50% 60% 30% 60%}50%{border-radius:50% 30% 50% 60%/40% 50% 60% 50%}75%{border-radius:40% 60% 40% 50%/60% 40% 50% 40%}}
-@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
-@keyframes pulse-soft{0%,100%{opacity:.4}50%{opacity:.7}}
-@keyframes line-draw{from{stroke-dashoffset:200}to{stroke-dashoffset:0}}
+.serif{font-family:'Fraunces',serif;font-optical-sizing:auto}
+.mono{font-variant-numeric:tabular-nums;font-feature-settings:"ss01","tnum"}
 
-.rise{animation:rise .9s cubic-bezier(.22,1,.36,1) both}
-.grow{animation:grow .7s cubic-bezier(.22,1,.36,1) both}
-.fade{animation:fadeIn .6s ease both}
-.d1{animation-delay:.1s}.d2{animation-delay:.2s}.d3{animation-delay:.3s}.d4{animation-delay:.4s}
+/* grain */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.04;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
 
-/* ── Reveal on scroll ── */
-.reveal{opacity:0;transform:translateY(32px);transition:all 1s cubic-bezier(.22,1,.36,1)}
+/* reveal */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity 1.2s cubic-bezier(.2,.8,.2,1),transform 1.2s cubic-bezier(.2,.8,.2,1)}
 .reveal.vis{opacity:1;transform:none}
 
-/* ── Buttons ── */
-.btn-primary{
-  position:relative;overflow:hidden;
-  background:var(--olive-dk);color:#fff;
-  transition:all .4s cubic-bezier(.22,1,.36,1);
-}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(61,74,24,.25)}
-.btn-primary::after{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);
-  transform:translateX(-100%);transition:transform .6s;
-}
-.btn-primary:hover::after{transform:translateX(100%)}
+.rule{height:1px;background:currentColor;opacity:.12}
 
-.btn-ghost{
-  background:rgba(94,107,46,.08);color:var(--olive-dk);
-  transition:all .4s cubic-bezier(.22,1,.36,1);
-  border:1px solid rgba(94,107,46,.12);
+/* service rows */
+.svc-row{
+  border-top:1px solid var(--border);
+  padding:28px 0;
+  display:grid;
+  grid-template-columns:48px 1fr auto auto;
+  gap:24px;
+  align-items:baseline;
+  cursor:pointer;
+  transition:padding .4s cubic-bezier(.2,.8,.2,1);
 }
-.btn-ghost:hover{background:rgba(94,107,46,.15);transform:translateY(-2px)}
-
-/* ── Cards ── */
-.glass{
-  background:rgba(254,253,248,.7);
-  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-  border:1px solid rgba(0,0,0,.04);
+.svc-row:last-child{border-bottom:1px solid var(--border)}
+.svc-row:hover{padding-left:16px}
+.svc-row .arrow{opacity:0;transform:translateX(-12px);transition:all .4s cubic-bezier(.2,.8,.2,1);color:var(--olive-dk)}
+.svc-row:hover .arrow{opacity:1;transform:translateX(0)}
+.svc-row .num{font-variant-numeric:tabular-nums;color:var(--muted);font-size:12px;letter-spacing:.1em}
+@media(max-width:640px){
+  .svc-row{grid-template-columns:36px 1fr auto;gap:14px;padding:20px 0}
+  .svc-row .arrow{display:none}
 }
 
-/* ── Form ── */
+/* gallery bento */
+.gallery-grid{display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:120px;gap:8px}
+@media(max-width:640px){.gallery-grid{grid-template-columns:repeat(4,1fr);grid-auto-rows:90px}}
+.g-item{position:relative;overflow:hidden;border-radius:4px;background:var(--sand);transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.g-item:hover{transform:scale(1.01)}
+.g-item img{width:100%;height:100%;object-fit:cover;display:block}
+.g-ph{
+  width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  background:repeating-linear-gradient(135deg,transparent 0,transparent 6px,rgba(94,107,46,.08) 6px,rgba(94,107,46,.08) 7px),var(--sand);
+  color:var(--olive);font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+}
+
+/* promo card */
+.promo{background:var(--olive-dk);color:var(--cream);border-radius:2px;padding:48px 40px;position:relative;overflow:hidden}
+.promo::after{content:'';position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.06),transparent 60%)}
+
+/* ticker */
+.ticker{display:flex;width:max-content;animation:tick 60s linear infinite}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* nav blur */
+.nav-scrolled{background:rgba(242,237,224,.75);backdrop-filter:blur(14px) saturate(1.1);-webkit-backdrop-filter:blur(14px) saturate(1.1);border-bottom:1px solid var(--border)}
+
+/* link underline */
+.link-u{position:relative}
+.link-u::after{content:'';position:absolute;left:0;bottom:-2px;width:100%;height:1px;background:currentColor;transform:scaleX(0);transform-origin:right;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.link-u:hover::after{transform:scaleX(1);transform-origin:left}
+
+/* form */
 .field{
-  border:1.5px solid rgba(0,0,0,.06);background:rgba(255,255,255,.85);
-  transition:all .3s cubic-bezier(.22,1,.36,1);color:var(--ink);
+  background:rgba(255,255,255,.6);border:1px solid var(--border);border-radius:2px;
+  padding:12px 14px;font-family:inherit;font-size:14px;color:var(--ink);width:100%;
+  transition:border-color .2s, background .2s;
 }
-.field:focus{outline:none;border-color:var(--olive);box-shadow:0 0 0 4px rgba(94,107,46,.08)}
+.field:focus{outline:none;border-color:var(--olive);background:#fff}
 
-.slot-btn{
-  transition:all .25s cubic-bezier(.22,1,.36,1);
-  border:1.5px solid rgba(94,107,46,.12);
+/* buttons */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  padding:16px 32px;border-radius:999px;
+  font-size:13px;font-weight:500;letter-spacing:.02em;
+  transition:all .35s cubic-bezier(.2,.8,.2,1);border:1px solid transparent;cursor:pointer;
 }
-.slot-btn:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(94,107,46,.15)}
+.btn-dk{background:var(--ink);color:var(--cream)}
+.btn-dk:hover{background:var(--olive-dk);transform:translateY(-2px);box-shadow:0 10px 30px rgba(61,74,24,.25)}
+.btn-ghost{background:transparent;color:var(--ink);border-color:var(--border)}
+.btn-ghost:hover{border-color:var(--ink);background:var(--cream)}
 
-/* ── Booking modal ── */
-.bk-backdrop{
-  position:fixed;inset:0;z-index:100;
-  background:rgba(0,0,0,.5);
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-  animation:bkFadeIn .25s ease both;
+/* hero type */
+.hero-type{
+  font-family:'Fraunces',serif;font-weight:400;
+  font-size:clamp(3.5rem,11vw,10rem);line-height:.92;letter-spacing:-.035em;
+  font-variation-settings:"opsz" 72,"SOFT" 100,"WONK" 0;
 }
+.hero-type em{font-style:italic;font-weight:400;color:var(--olive);font-variation-settings:"opsz" 72,"SOFT" 100,"WONK" 0}
+
+/* section label */
+.sec-label{font-size:10px;text-transform:uppercase;letter-spacing:.3em;color:var(--olive);font-weight:500;display:inline-flex;align-items:center;gap:10px}
+.sec-label::before{content:'';width:24px;height:1px;background:currentColor}
+
+/* tag */
+.tag{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;background:rgba(94,107,46,.06);font-size:11px;color:var(--olive-dk);font-weight:500;letter-spacing:.02em}
+.dot-live{width:6px;height:6px;border-radius:50%;background:#5E6B2E;position:relative}
+.dot-live::after{content:'';position:absolute;inset:-4px;border-radius:50%;background:rgba(94,107,46,.25);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.6);opacity:0}}
+
+/* booking modal */
+.bk-overlay{position:fixed;inset:0;z-index:100;background:rgba(26,24,16,.4);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);animation:bkFadeIn .25s ease both}
 @keyframes bkFadeIn{from{opacity:0}to{opacity:1}}
 .bk-modal{
-  position:fixed;z-index:101;
-  background:var(--cream);
-  display:flex;flex-direction:column;
-  animation:bkIn .28s cubic-bezier(.22,1,.36,1) both;
-  overflow:hidden;
-}
-@media(max-width:639px){
-  .bk-modal{inset:0;width:100dvw;height:100dvh;border-radius:0}
+  position:relative;width:100%;background:var(--cream);
+  display:flex;flex-direction:column;overflow:hidden;
+  height:100dvh;max-height:100dvh;
+  animation:bkSlideUp .3s cubic-bezier(.22,1,.36,1) both;
 }
 @media(min-width:640px){
-  .bk-modal{
-    top:50%;left:50%;transform:translate(-50%,-50%);
-    width:min(520px,calc(100vw - 32px));
-    max-height:min(780px,calc(100vh - 48px));
-    border-radius:24px;
-    box-shadow:0 32px 80px rgba(0,0,0,.2);
-  }
+  .bk-modal{max-width:640px;border-radius:8px;height:auto;max-height:calc(100dvh - 48px);box-shadow:0 40px 100px rgba(0,0,0,.3)}
 }
-@keyframes bkIn{
-  from{opacity:0;transform:translate(-50%,-50%) scale(.96)}
-  to{opacity:1;transform:translate(-50%,-50%) scale(1)}
-}
-@media(max-width:639px){
-  @keyframes bkIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-}
-.bk-step{
-  display:flex;align-items:center;gap:6px;
-  font-size:11px;font-weight:500;letter-spacing:.05em;
-  padding:6px 10px;border-radius:999px;
-  transition:all .25s;
-}
-.bk-step-num{
-  width:18px;height:18px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-size:10px;font-weight:600;
-  transition:all .25s;
-}
-.bk-step.active{background:rgba(94,107,46,.12);color:var(--olive-dk)}
-.bk-step.active .bk-step-num{background:var(--olive-dk);color:#fff}
-.bk-step.done{color:var(--olive);cursor:pointer}
-.bk-step.done:hover{background:rgba(94,107,46,.06)}
-.bk-step.done .bk-step-num{background:var(--olive);color:#fff}
-.bk-step.future{color:rgba(0,0,0,.25)}
-.bk-step.future .bk-step-num{background:transparent;border:1.5px solid rgba(0,0,0,.15);color:rgba(0,0,0,.35)}
-.bk-sep{width:20px;height:1px;background:rgba(0,0,0,.1)}
-.bk-svc{
-  background:rgba(255,255,255,.7);
-  border:1.5px solid rgba(0,0,0,.05);
-  border-radius:16px;padding:18px;
-  cursor:pointer;text-align:left;
-  transition:all .25s cubic-bezier(.22,1,.36,1);
-}
-.bk-svc:hover{transform:translateY(-2px);border-color:rgba(94,107,46,.3);box-shadow:0 8px 24px rgba(94,107,46,.08)}
-.bk-svc.sel{border-color:var(--olive-dk);background:rgba(94,107,46,.04)}
-.bk-daypill{
-  flex:1;min-width:0;
-  display:flex;flex-direction:column;align-items:center;gap:2px;
-  padding:10px 4px;border-radius:14px;
-  background:rgba(94,107,46,.06);
-  border:1.5px solid transparent;
-  cursor:pointer;transition:all .2s;
-  font-size:11px;
-}
-.bk-daypill:hover:not(.dis){background:rgba(94,107,46,.12)}
-.bk-daypill.sel{background:var(--olive-dk);color:#fff}
-.bk-daypill.sel .bk-day-num{color:#fff}
-.bk-daypill.dis{background:rgba(0,0,0,.03);color:rgba(0,0,0,.25);cursor:not-allowed}
-.bk-daypill.dis .bk-day-num{color:rgba(0,0,0,.25)}
-.bk-day-month{text-transform:lowercase;opacity:.6;font-size:10px}
-.bk-day-dow{text-transform:lowercase;font-weight:500}
-.bk-day-num{font-size:18px;font-weight:600;color:var(--olive-dk);line-height:1}
-.bk-weekarrow{
-  width:32px;height:32px;border-radius:10px;
-  display:flex;align-items:center;justify-content:center;
-  background:rgba(94,107,46,.08);border:none;cursor:pointer;transition:all .2s;
-}
-.bk-weekarrow:hover:not(:disabled){background:rgba(94,107,46,.15)}
-.bk-weekarrow:disabled{opacity:.3;cursor:not-allowed}
-.bk-slot{
-  padding:10px 0;border-radius:12px;
-  border:1.5px solid rgba(94,107,46,.12);
-  background:rgba(255,255,255,.7);
-  font-size:13px;font-weight:500;color:var(--olive-dk);
-  cursor:pointer;transition:all .2s;
-}
-.bk-slot:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 4px 12px rgba(94,107,46,.12)}
-.bk-slot.sel{background:var(--olive-dk);color:#fff;border-color:var(--olive-dk);box-shadow:0 6px 16px rgba(61,74,24,.2)}
-.bk-slot:disabled{opacity:.35;cursor:not-allowed;background:rgba(0,0,0,.02);border-color:transparent}
-.bk-slot-group{font-size:11px;font-weight:500;text-transform:lowercase;letter-spacing:.05em;color:var(--muted);display:flex;align-items:center;gap:6px;margin-bottom:10px;margin-top:4px}
-.bk-sum{
-  background:rgba(94,107,46,.04);
-  border:1px solid rgba(94,107,46,.1);
-  border-radius:14px;padding:12px 14px;
-  display:flex;align-items:center;justify-content:space-between;
-  gap:10px;
-}
-.bk-sum-body{flex:1;min-width:0}
-.bk-sum-label{font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:var(--muted);font-weight:500;margin-bottom:2px}
-.bk-sum-val{font-size:13px;color:var(--ink);font-weight:500;line-height:1.3}
-.bk-sum-mod{
-  font-size:11px;color:var(--olive-dk);font-weight:500;
-  padding:4px 10px;border-radius:999px;
-  background:rgba(94,107,46,.08);border:none;cursor:pointer;
-  transition:all .2s;flex-shrink:0;
-}
-.bk-sum-mod:hover{background:rgba(94,107,46,.15)}
-.bk-step-body{animation:bkSlide .22s cubic-bezier(.22,1,.36,1) both}
-@keyframes bkSlide{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
-
-/* ── Grain overlay ── */
-.grain::before{
-  content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.025;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-repeat:repeat;background-size:128px;
-}
-
-/* ── Service hover ── */
-.svc{transition:all .5s cubic-bezier(.22,1,.36,1)}
-.svc:hover{transform:translateY(-6px);box-shadow:0 20px 60px rgba(0,0,0,.06)}
-.svc .arrow{transition:all .4s cubic-bezier(.22,1,.36,1);opacity:0;transform:translateX(-8px)}
-.svc:hover .arrow{opacity:1;transform:none}
-.svc .num{transition:all .4s ease}
-.svc:hover .num{background:var(--olive-dk);color:#fff}
+@keyframes bkSlideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.bk-step-body{animation:bkSlide .25s cubic-bezier(.22,1,.36,1) both}
+@keyframes bkSlide{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:none}}
 </style>
 </head>
-<body class="grain">
+<body>
 <div id="root"></div>
 <script type="text/babel">
 /* ═══════════ CONFIG ═══════════ */
-const WA="5492314573218";
-const WA_GUADA="5492314555856";
 const SB_URL="https://ibikdnjuctopdkmtmgdd.supabase.co";
 const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImliaWtkbmp1Y3RvcGRrbXRtZ2RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1MjEwOTMsImV4cCI6MjA5MTA5NzA5M30.Tzsi0ZbcdohuJLFTut4z8h2vf5yi1dv_KfA_6m6COBI";
+const WA_GUADA="5492314555856";
 let sb;
 try{ sb=window.supabase.createClient(SB_URL,SB_KEY); }catch(e){ sb=null; }
 
 const SLOT_START=9*60, SLOT_END=18*60, SLOT_STEP=30;
-const toMin=t=>{const[h,m]=t.split(":").map(Number);return h*60+m};
-const shortHM=hhmm=>{const[h,m]=hhmm.split(":");return `${parseInt(h,10)}:${m}`};
-const toHHMM=m=>`${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;
 
-const genSlots=dur=>{
-  const s=[];
-  for(let t=SLOT_START;t+dur<=SLOT_END;t+=SLOT_STEP) s.push(toHHMM(t));
-  return s;
-};
+/* ═══════════ HELPERS ═══════════ */
+const{useState,useEffect,useCallback,useRef,useMemo}=React;
+
+const fP=n=>"$"+(Number(n)||0).toLocaleString("es-AR");
+const toMin=t=>{const[h,m]=t.split(":").map(Number);return h*60+m};
+const toHHMM=m=>`${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;
+const shortHM=hhmm=>{const[h,m]=hhmm.split(":");return `${parseInt(h,10)}:${m}`};
+
+const MONTH_FULL=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+const MONTH_ABBR=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+const DAY_ABBR=["dom","lun","mar","mié","jue","vie","sáb"];
+
+const toISO=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0');
+const fromISO=s=>new Date(s+"T12:00:00");
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const mondayOf=d=>{const x=new Date(d);const dow=x.getDay();const diff=dow===0?-6:1-dow;x.setDate(x.getDate()+diff);x.setHours(12,0,0,0);return x};
+const weekDaysFrom=monday=>Array.from({length:6},(_,i)=>addDays(monday,i));
+
+const genSlots=dur=>{const s=[];for(let t=SLOT_START;t+dur<=SLOT_END;t+=SLOT_STEP)s.push(toHHMM(t));return s};
 
 const blockCoversSlot=(block,date,sMin,eMin)=>{
   const dow=new Date(date+"T12:00:00").getDay();
@@ -281,34 +226,13 @@ const blockCoversSlot=(block,date,sMin,eMin)=>{
   }
 };
 
-const MONTH_ABBR=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
-const DAY_ABBR=["dom","lun","mar","mié","jue","vie","sáb"];
-
-// Lunes a Viernes de la semana que contiene baseDate, offset en semanas
-const weekDays=(baseDate,offset)=>{
-  const d=new Date(baseDate+"T12:00:00");
-  const dow=d.getDay(); // 0=dom, 1=lun, ...
-  const mondayDiff=dow===0?-6:1-dow;
-  d.setDate(d.getDate()+mondayDiff+offset*7);
-  const days=[];
-  for(let i=0;i<5;i++){
-    const day=new Date(d);day.setDate(d.getDate()+i);
-    const iso=day.getFullYear()+'-'+String(day.getMonth()+1).padStart(2,'0')+'-'+String(day.getDate()).padStart(2,'0');
-    days.push({iso,dow:day.getDay(),day:day.getDate(),month:day.getMonth()});
-  }
-  return days;
-};
-
-// Devuelve true si el día tiene al menos un slot disponible dado duración y bloqueos
-const dayHasSlots=(iso,dur,blocks,minDate)=>{
-  if(iso<minDate)return false;
+const dayHasSlots=(iso,dur,blocks,minISO)=>{
+  if(iso<minISO)return false;
   const slots=genSlots(dur);
   for(const t of slots){
     const sMin=toMin(t),eMin=sMin+dur;
     let blocked=false;
-    for(const b of blocks){
-      if(blockCoversSlot(b,iso,sMin,eMin)){blocked=true;break}
-    }
+    for(const b of blocks){if(blockCoversSlot(b,iso,sMin,eMin)){blocked=true;break}}
     if(!blocked)return true;
   }
   return false;
@@ -322,33 +246,27 @@ const slotAvailable=(slot,dur,appts,svcs,blocks,date)=>{
     const aDur=(svcs.find(s=>s.id===a.service_id)?.duration_minutes)||60;
     if(aMin<eMin&&(aMin+aDur)>sMin)return false;
   }
-  for(const b of blocks){
-    if(blockCoversSlot(b,date,sMin,eMin))return false;
-  }
+  for(const b of blocks){if(blockCoversSlot(b,date,sMin,eMin))return false}
   return true;
 };
-
-const fP=n=>"$"+n.toLocaleString("es-AR");
 
 const EMAIL_TYPOS={"gmial.com":"gmail.com","gamil.com":"gmail.com","gmaol.com":"gmail.com","gmal.com":"gmail.com","gnail.com":"gmail.com","hotmial.com":"hotmail.com","hotamail.com":"hotmail.com","hotnail.com":"hotmail.com","yaho.com":"yahoo.com","yahooo.com":"yahoo.com","outlok.com":"outlook.com","outlookk.com":"outlook.com"};
 const suggestEmail=em=>{const at=em.lastIndexOf("@");if(at<0)return null;const dom=em.slice(at+1).toLowerCase();return EMAIL_TYPOS[dom]?em.slice(0,at+1)+EMAIL_TYPOS[dom]:null};
 
 const COUNTRIES=[
-  {code:"AR",prefix:"+549",flag:"🇦🇷",digits:10,placeholder:"2317 40-1234"},
-  {code:"UY",prefix:"+598",flag:"🇺🇾",digits:8,placeholder:"9 123 4567"},
-  {code:"CL",prefix:"+56", flag:"🇨🇱",digits:9,placeholder:"9 1234 5678"},
-  {code:"BR",prefix:"+55", flag:"🇧🇷",digits:11,placeholder:"11 91234 5678"},
-  {code:"ES",prefix:"+34", flag:"🇪🇸",digits:9,placeholder:"612 345 678"},
-  {code:"US",prefix:"+1",  flag:"🇺🇸",digits:10,placeholder:"212 555 1234"},
-  {code:"MX",prefix:"+52", flag:"🇲🇽",digits:10,placeholder:"55 1234 5678"},
+  {code:"AR",prefix:"+549",flag:"AR",digits:10,placeholder:"2317 40-1234"},
+  {code:"UY",prefix:"+598",flag:"UY",digits:8, placeholder:"9 123 4567"},
+  {code:"CL",prefix:"+56", flag:"CL",digits:9, placeholder:"9 1234 5678"},
+  {code:"BR",prefix:"+55", flag:"BR",digits:11,placeholder:"11 91234 5678"},
+  {code:"ES",prefix:"+34", flag:"ES",digits:9, placeholder:"612 345 678"},
+  {code:"US",prefix:"+1",  flag:"US",digits:10,placeholder:"212 555 1234"},
+  {code:"MX",prefix:"+52", flag:"MX",digits:10,placeholder:"55 1234 5678"},
 ];
-
-const normPhoneByCountry=(raw,countryCode)=>{
-  const c=COUNTRIES.find(x=>x.code===countryCode);
-  if(!c)return raw;
-  let digits=(raw||"").replace(/\D/g,'');
-  if(countryCode==="AR"&&digits.startsWith("9"))digits=digits.slice(1);
-  return `${c.prefix} ${digits}`;
+const normPhoneByCountry=(raw,cc)=>{
+  const c=COUNTRIES.find(x=>x.code===cc);if(!c)return raw;
+  let d=(raw||"").replace(/\D/g,'');
+  if(cc==="AR"&&d.startsWith("9"))d=d.slice(1);
+  return `${c.prefix} ${d}`;
 };
 
 const downloadICS=({nombre,servicio,fecha_raw,horario,dur_min})=>{
@@ -365,82 +283,128 @@ const downloadICS=({nombre,servicio,fecha_raw,horario,dur_min})=>{
   setTimeout(()=>URL.revokeObjectURL(url),1000);
 };
 
-const{useState,useEffect,useCallback,useRef}=React;
+/* ═══════════ DEFAULT CONTENT (fallback si gf_content vacío) ═══════════ */
+const DEFAULT_CONTENT={
+  hero:{tag:"Reservando turnos para mayo",title_a:"El arte",title_b:"de cuidarte",
+    quote:"Técnica profesional, espacio relajado y resultados que se sostienen en el tiempo.",
+    quote_attr:"Desde 2026 en Henderson",sticker:"Abril\n—\n10% off\n1º turno",
+    stat_a_v:"+400",stat_a_l:"Clientas",stat_b_v:"4.9★",stat_b_l:"Google"},
+  about:{title_a:"Un espacio pensado",title_b:"desde el detalle",
+    body_main:"Soy Guada. GF Studio nació en Henderson para ofrecer tratamientos de belleza que respeten tu tiempo y tu piel — sin atajos, con técnica profesional y productos que elijo uno por uno.",
+    body_sec:"Me especializo en cejas, faciales y terapias combinadas. Cada sesión arranca con una consulta breve: no todas las pieles son iguales, ni todas las cejas quieren lo mismo.",
+    stat_a_v:"3+",stat_a_l:"Años de experiencia",stat_b_v:"12",stat_b_l:"Tratamientos en carta",stat_c_v:"1:1",stat_c_l:"Atención personalizada"},
+  contact:{phone:"+54 9 2314 55-5856",whatsapp:"5492314555856",instagram:"@gf.studio.henderson",
+    address:"Hipólito Yrigoyen 229, Henderson",hours:"Lunes a sábado · 09:00 — 18:00",email:"hola@gfstudio.com.ar"},
+  faq:[
+    {q:"¿Cómo reservo un turno?",a:"Desde el botón Reservá tu turno elegís servicio, día y horario. Recibís confirmación por email y Guada te confirma por WhatsApp el mismo día."},
+    {q:"¿Necesito seña para reservar?",a:"Por ahora no. La reserva es directa. Si no podés venir, avisá hasta 4hs antes por WhatsApp."},
+    {q:"¿Cuándo abre el estudio?",a:"Lunes a sábado de 09:00 a 18:00. Fuera de ese horario podés escribirnos por WhatsApp y coordinamos."},
+    {q:"¿Aceptan tarjeta?",a:"Sí, todos los medios de pago: efectivo, transferencia, débito y crédito."},
+    {q:"¿Los packs tienen vencimiento?",a:"No hay vencimiento estricto, pero recomendamos consumirlos dentro de los 3 meses."},
+    {q:"¿Dónde están ubicadas?",a:"En Hipólito Yrigoyen 229, centro de Henderson (Buenos Aires)."},
+  ],
+  testimonials:[
+    {name:"Lucía P.",svc:"Laminado de cejas",text:"Cambió mi cara. Guada tiene un ojo para la forma que pocas tienen.",rating:5,visible:true},
+    {name:"Martina T.",svc:"Radiofrecuencia facial",text:"Hice el pack de 4 y la diferencia es real. Piel más tensa y luminosa.",rating:5,visible:true},
+    {name:"Carla L.",svc:"Limpieza profunda",text:"Espacio muy relajado, productos de calidad. Ya reservé la próxima.",rating:5,visible:true},
+  ],
+};
 
-/* ═══ LOGO ═══ */
-const Logo=({c="#3D4A18",s=100})=>(
-  <svg width={s} height={s} viewBox="0 0 100 100">
-    <text x="50" y="58" textAnchor="middle" fontFamily="Playfair Display,serif" fontSize="48" fontWeight="700" fill={c} letterSpacing="-1">GF</text>
-    <line x1="16" y1="68" x2="84" y2="68" stroke={c} strokeWidth="1" opacity=".2"/>
-    <text x="50" y="84" textAnchor="middle" fontFamily="Figtree,sans-serif" fontSize="12" letterSpacing="7" fill={c} opacity=".5" fontWeight="400">STUDIO</text>
-  </svg>
-);
-
-/* ═══ BOOKING MODAL ═══ */
-const BookingModal=({open,onClose,svcs,blocks,initialServiceId})=>{
+/* ═══════════ BOOKING WIZARD ═══════════ */
+const BookingWizard=({open,onClose,svcs,blocks,initialSvcId,coupons})=>{
   const[step,setStep]=useState("servicio"); // servicio | fecha | datos | exito
-  const[selSvc,setSelSvc]=useState(null); // objeto de gf_services
-  const[selDate,setSelDate]=useState(""); // "YYYY-MM-DD"
-  const[weekOffset,setWeekOffset]=useState(0); // 0 = semana actual
+  const[selSvc,setSelSvc]=useState(null);
+  const[viewMode,setViewMode]=useState("week");
+  const[cursorDate,setCursorDate]=useState(new Date());
+  const[selDate,setSelDate]=useState("");
+  const[selTime,setSelTime]=useState("");
   const[takenSlots,setTakenSlots]=useState([]);
   const[loadingSlots,setLoadingSlots]=useState(false);
-  const[selTime,setSelTime]=useState(""); // "HH:MM"
   const[fm,setFm]=useState({n:"",em:"",ph:"",country:"AR"});
-  const[emailSuggestion,setEmailSuggestion]=useState("");
+  const[couponInput,setCouponInput]=useState("");
+  const[couponApplied,setCouponApplied]=useState(null); // {code,discount}
+  const[couponError,setCouponError]=useState("");
+  const[emailSugg,setEmailSugg]=useState("");
   const[submitting,setSubmitting]=useState(false);
   const[submitError,setSubmitError]=useState("");
   const[sentData,setSentData]=useState(null);
 
+  const todayISO=toISO(new Date());
+  const minISO=toISO(addDays(new Date(),1));
+
+  // ESC + body scroll lock
+  useEffect(()=>{
+    if(!open)return;
+    const onKey=e=>{if(e.key==="Escape")handleClose()};
+    document.addEventListener("keydown",onKey);
+    const prev=document.body.style.overflow;
+    document.body.style.overflow="hidden";
+    return()=>{document.removeEventListener("keydown",onKey);document.body.style.overflow=prev};
+    // eslint-disable-next-line
+  },[open]);
+
+  // Initial service from deep link
+  useEffect(()=>{
+    if(!open||!initialSvcId||!svcs.length)return;
+    const s=svcs.find(x=>x.id===initialSvcId);
+    if(s){setSelSvc(s);setStep("fecha");}
+  },[open,initialSvcId,svcs]);
+
+  // Load taken slots when date changes
   useEffect(()=>{
     if(!selDate||!sb){setTakenSlots([]);setLoadingSlots(false);return}
-    setSelTime(""); // clear slot when date changes
+    setSelTime("");
     let cancelled=false;
     setLoadingSlots(true);
-    sb.from("gf_appointments").select("time_slot,service_id,status").eq("appointment_date",selDate)
-      .then(({data})=>{if(!cancelled){setTakenSlots(data||[]);setLoadingSlots(false)}})
-      .catch(()=>{if(!cancelled){setTakenSlots([]);setLoadingSlots(false)}});
+    sb.from("gf_appointments").select("time_slot,service_id,status")
+      .eq("appointment_date",selDate)
+      .then(({data})=>{if(!cancelled){setTakenSlots(data||[]);setLoadingSlots(false)}},
+            ()=>{if(!cancelled){setTakenSlots([]);setLoadingSlots(false)}});
     return()=>{cancelled=true};
   },[selDate]);
 
   const resetWizard=()=>{
     setStep("servicio");setSelSvc(null);setSelDate("");setSelTime("");
-    setFm({n:"",em:"",ph:"",country:"AR"});setSentData(null);setSubmitError("");setEmailSuggestion("");
-    setWeekOffset(0);setTakenSlots([]);
+    setFm({n:"",em:"",ph:"",country:"AR"});setSentData(null);setSubmitError("");setEmailSugg("");
+    setCursorDate(new Date());setViewMode("week");setTakenSlots([]);
+    setCouponInput("");setCouponApplied(null);setCouponError("");
   };
 
   const isDirty=()=>{
     if(step==="exito")return false;
     return !!(selSvc||selDate||selTime||fm.n||fm.em||fm.ph);
   };
-
-  const handleCloseRef=useRef(null);
   const handleClose=()=>{
-    if(isDirty()){
-      if(!window.confirm("¿Descartar reserva? Vas a perder los datos que ya cargaste."))return;
-    }
-    resetWizard();
-    onClose();
+    if(isDirty()&&!window.confirm("¿Descartar reserva? Vas a perder los datos que ya cargaste."))return;
+    resetWizard();onClose();
   };
-  handleCloseRef.current=handleClose;
 
-  // ESC key + body scroll lock
-  useEffect(()=>{
-    if(!open)return;
-    const onKey=e=>{if(e.key==="Escape")handleCloseRef.current?.()};
-    document.addEventListener("keydown",onKey);
-    const prev=document.body.style.overflow;
-    document.body.style.overflow="hidden";
-    return()=>{
-      document.removeEventListener("keydown",onKey);
-      document.body.style.overflow=prev;
-    };
-  },[open]);
+  const applyCoupon=()=>{
+    setCouponError("");
+    const code=(couponInput||"").trim().toUpperCase();
+    if(!code){setCouponError("Ingresá un código.");return}
+    const c=coupons.find(x=>x.code.toUpperCase()===code);
+    if(!c){setCouponError("Código no válido.");return}
+    if(!c.active){setCouponError("Cupón inactivo.");return}
+    const today=todayISO;
+    if(c.valid_from&&today<c.valid_from){setCouponError("Cupón aún no vigente.");return}
+    if(c.valid_to&&today>c.valid_to){setCouponError("Cupón vencido.");return}
+    if(c.max_uses&&c.uses_count>=c.max_uses){setCouponError("Cupón agotado.");return}
+    if(c.applies_to==="services"&&c.applies_ids?.length&&selSvc&&!c.applies_ids.includes(selSvc.id)){
+      setCouponError("Este cupón no aplica a este servicio.");return;
+    }
+    if(c.applies_to==="packs"){setCouponError("Este cupón es para packs, no servicios.");return}
+    const price=Number(selSvc?.price)||0;
+    if(c.min_amount&&price<Number(c.min_amount)){setCouponError(`Mínimo ${fP(c.min_amount)} para usar este cupón.`);return}
+    const discount=c.type==="percent"?Math.round(price*Number(c.value)/100):Math.min(Number(c.value),price);
+    setCouponApplied({code:c.code,discount,type:c.type,value:Number(c.value)});
+  };
+  const removeCoupon=()=>{setCouponApplied(null);setCouponInput("");setCouponError("")};
 
-  useEffect(()=>{
-    if(!open||!initialServiceId||!svcs.length)return;
-    const s=svcs.find(x=>x.id===initialServiceId);
-    if(s){setSelSvc(s);setStep("fecha");setWeekOffset(0);setSelDate("");}
-  },[open,initialServiceId,svcs]);
+  const finalPrice=useMemo(()=>{
+    if(!selSvc)return 0;
+    return Math.max(0,Number(selSvc.price)-(couponApplied?.discount||0));
+  },[selSvc,couponApplied]);
 
   const handleSubmit=async(e)=>{
     e.preventDefault();setSubmitError("");
@@ -448,41 +412,73 @@ const BookingModal=({open,onClose,svcs,blocks,initialServiceId})=>{
     if(!n||!em||!ph||!selSvc||!selDate||!selTime){setSubmitError("Completá todos los campos.");return}
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.trim())){setSubmitError("Ingresá un email válido.");return}
     const digits=ph.replace(/\D/g,'');
-    if(digits.length<7){setSubmitError("Ingresá un número de teléfono válido.");return}
+    if(digits.length<7){setSubmitError("Ingresá un teléfono válido.");return}
     if(!sb){setSubmitError("Error de conexión. Intentá de nuevo.");return}
     setSubmitting(true);
     try{
+      // Re-check collision with fresh data
       const{data:freshSlots}=await sb.from("gf_appointments").select("time_slot,service_id,status").eq("appointment_date",selDate);
       const dur=selSvc.duration_minutes||60;
       const sMin=toMin(selTime),eMin=sMin+dur;
-      const hasCollision=freshSlots&&freshSlots.some(r=>{
+      const collision=freshSlots&&freshSlots.some(r=>{
         if(r.status==="cancelled")return false;
         const aMin=toMin(r.time_slot);
         const aDur=(svcs.find(s=>s.id===r.service_id)?.duration_minutes)||60;
         return aMin<eMin&&(aMin+aDur)>sMin;
       });
-      if(hasCollision){
-        setTakenSlots(freshSlots);setSelTime("");setSubmitError("Ese horario acaba de ser reservado. Elegí otro.");
+      if(collision){
+        setTakenSlots(freshSlots);setSelTime("");
+        setSubmitError("Ese horario acaba de ser reservado. Elegí otro.");
         setSubmitting(false);setStep("fecha");return;
       }
       const phoneFmt=normPhoneByCountry(ph,country);
-      const{error}=await sb.from("gf_appointments").insert({
+      const apptInsert={
         client_name:n.trim(),client_email:em.trim(),client_phone:phoneFmt,
         service_id:selSvc.id,appointment_date:selDate,time_slot:selTime,status:"pending"
-      });
+      };
+      // Defensive: try with new fields, fallback if column missing
+      if(couponApplied){
+        apptInsert.coupon_code=couponApplied.code;
+        apptInsert.discount_amount=couponApplied.discount;
+        apptInsert.final_price=finalPrice;
+      }
+      let{error}=await sb.from("gf_appointments").insert(apptInsert);
+      if(error&&(error.message||"").includes("column")){
+        // Fallback: insert without new columns
+        const fallback={...apptInsert};
+        delete fallback.coupon_code;delete fallback.discount_amount;delete fallback.final_price;
+        const r=await sb.from("gf_appointments").insert(fallback);
+        error=r.error;
+      }
       if(error){
-        if(error.code==="23505"){setSubmitError("Ese horario acaba de ser reservado. Elegí otro.");setTakenSlots(p=>[...p,{time_slot:selTime,service_id:selSvc.id,status:"pending"}]);setSelTime("");setStep("fecha");}
-        else{setSubmitError("Error al reservar. Intentá de nuevo.");}
+        if(error.code==="23505"){
+          setSubmitError("Ese horario acaba de ser reservado. Elegí otro.");
+          setTakenSlots(p=>[...p,{time_slot:selTime,service_id:selSvc.id,status:"pending"}]);
+          setSelTime("");setStep("fecha");
+        }else{
+          setSubmitError("Error al reservar. Intentá de nuevo.");
+        }
         setSubmitting(false);return;
       }
-      const df=new Date(selDate+"T12:00:00").toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"});
+      // Upsert client (idempotent by phone)
+      try{
+        await sb.from("gf_clients").upsert({name:n.trim(),phone:phoneFmt,email:em.trim()},{onConflict:"phone",ignoreDuplicates:false});
+      }catch(_){/* tabla puede no existir aún */}
+      // Bump coupon usage
+      if(couponApplied){
+        try{
+          const c=coupons.find(x=>x.code===couponApplied.code);
+          if(c)await sb.from("gf_coupons").update({uses_count:(c.uses_count||0)+1}).eq("id",c.id);
+        }catch(_){}
+      }
+      const df=fromISO(selDate).toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"});
       try{
         await fetch(`${SB_URL}/functions/v1/notify-booking`,{
           method:"POST",headers:{"Content-Type":"application/json","apikey":SB_KEY},
-          body:JSON.stringify({nombre:n.trim(),email:em.trim(),telefono:phoneFmt,servicio:selSvc.name,fecha:df,horario:selTime,precio:fP(selSvc.price)})
+          body:JSON.stringify({nombre:n.trim(),email:em.trim(),telefono:phoneFmt,servicio:selSvc.name,fecha:df,horario:selTime,precio:fP(finalPrice)})
         });
-      }catch(e){console.warn("notify-booking failed",e)}
-      setSentData({nombre:n.trim(),servicio:selSvc.name,fecha:df,horario:selTime,precio:fP(selSvc.price),fecha_raw:selDate,dur_min:selSvc.duration_minutes||60});
+      }catch(_){}
+      setSentData({nombre:n.trim(),servicio:selSvc.name,fecha:df,horario:selTime,precio:fP(finalPrice),fecha_raw:selDate,dur_min:selSvc.duration_minutes||60,coupon:couponApplied?.code||null,discount:couponApplied?.discount||0});
       setSubmitting(false);setStep("exito");
     }catch(err){
       setSubmitError("Error de conexión. Intentá de nuevo.");setSubmitting(false);
@@ -491,276 +487,1009 @@ const BookingModal=({open,onClose,svcs,blocks,initialServiceId})=>{
 
   if(!open)return null;
 
+  const STEPS=[{id:"servicio",label:"Servicio"},{id:"fecha",label:"Fecha y horario"},{id:"datos",label:"Tus datos"}];
+  const curIdx=STEPS.findIndex(s=>s.id===step);
+
   return(
-    <>
-      <div className="bk-backdrop" onClick={handleClose}/>
-      <div className="bk-modal" role="dialog" aria-modal="true" aria-labelledby="bk-title">
-        {(()=>{
-          const TITLES={servicio:"Elegí tu servicio",fecha:"Elegí fecha y horario",datos:"Confirmá tu turno",exito:"¡Turno reservado!"};
-          const STEPS=[
-            {id:"servicio",num:1,label:"Servicio"},
-            {id:"fecha",num:2,label:"Fecha"},
-            {id:"datos",num:3,label:"Datos"},
-          ];
-          const currentIdx=STEPS.findIndex(s=>s.id===step);
-          const goStep=id=>{
-            const idx=STEPS.findIndex(s=>s.id===id);
-            if(idx>=currentIdx||step==="exito")return;
-            setStep(id);
-          };
-          const stepClass=(s,i)=>{
-            if(step==="exito")return "bk-step done";
-            if(s.id===step)return "bk-step active";
-            if(i<currentIdx)return "bk-step done";
-            return "bk-step future";
-          };
-          return(
-            <div className="border-b flex-shrink-0" style={{borderColor:'rgba(0,0,0,.06)'}}>
-              <div className="flex items-center justify-between px-5 pt-5 pb-3">
-                <h2 id="bk-title" style={{fontFamily:'Playfair Display,serif',fontSize:'1.25rem',color:'var(--ink)'}}>{TITLES[step]}</h2>
-                <button onClick={handleClose} aria-label="Cerrar" className="w-9 h-9 rounded-full flex items-center justify-center transition-colors hover:bg-[rgba(0,0,0,.05)]">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="1.8" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                </button>
-              </div>
-              <div className="flex items-center gap-1 px-5 pb-4 overflow-x-auto">
-                {STEPS.map((s,i)=>(
-                  <React.Fragment key={s.id}>
-                    <button type="button" onClick={()=>i<currentIdx&&step!=="exito"&&goStep(s.id)} className={stepClass(s,i)} disabled={step==="exito"||i>=currentIdx}>
-                      <span className="bk-step-num">{step==="exito"||i<currentIdx?"✓":s.num}</span>
-                      <span>{s.label}</span>
-                    </button>
-                    {i<STEPS.length-1&&<span className="bk-sep"/>}
-                  </React.Fragment>
-                ))}
-              </div>
-            </div>
-          );
-        })()}
-        <div className="flex-1 overflow-y-auto p-6">
-          <div className="bk-step-body" key={step}>
-          {step==="servicio"&&(
-            <div className="space-y-3">
-              {svcs.length===0?(
-                <p className="text-sm text-center py-8" style={{color:'var(--muted)'}}>Cargando servicios...</p>
-              ):(
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {svcs.map(s=>{
-                    const sel=selSvc?.id===s.id;
-                    return(
-                      <button key={s.id} type="button" className={"bk-svc"+(sel?" sel":"")} onClick={()=>{setSelSvc(s);setStep("fecha");setWeekOffset(0);setSelDate("")}}>
-                        <div className="flex items-start justify-between gap-2 mb-1">
-                          <span className="text-sm font-semibold" style={{color:'var(--ink)'}}>{s.name}</span>
-                          <span className="text-xs flex-shrink-0 px-2 py-0.5 rounded-full" style={{background:'rgba(94,107,46,.08)',color:'var(--olive-dk)'}}>{s.duration_minutes||60} min</span>
-                        </div>
-                        <p className="text-sm font-medium mb-1" style={{color:'var(--olive)'}}>{fP(s.price)}</p>
-                        {s.description&&<p className="text-xs font-light leading-relaxed line-clamp-2" style={{color:'var(--muted)'}}>{s.description}</p>}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          )}
-          {step==="fecha"&&(()=>{
-            const today=new Date().toLocaleDateString("sv",{timeZone:"America/Argentina/Buenos_Aires"});
-            const mDate=(()=>{const d=new Date(today+"T12:00:00");d.setDate(d.getDate()+1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')})();
-            const days=weekDays(today,weekOffset);
-            const dur=selSvc?.duration_minutes||60;
-            return(
-              <div>
-                {/* Carrusel de días */}
-                <div className="mb-6">
-                  <div className="flex items-center gap-2">
-                    <button type="button" className="bk-weekarrow" onClick={()=>{setWeekOffset(o=>Math.max(0,o-1));setSelDate("")}} disabled={weekOffset<=0} aria-label="Semana anterior">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--olive-dk)" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
-                    </button>
-                    <div className="flex gap-1.5 flex-1 min-w-0">
-                      {days.map(d=>{
-                        const disabled=!dayHasSlots(d.iso,dur,blocks,mDate);
-                        const sel=selDate===d.iso;
-                        return(
-                          <button key={d.iso} type="button" className={"bk-daypill"+(sel?" sel":"")+(disabled?" dis":"")} disabled={disabled} onClick={()=>!disabled&&setSelDate(d.iso)}>
-                            <span className="bk-day-month">{MONTH_ABBR[d.month]}</span>
-                            <span className="bk-day-dow">{DAY_ABBR[d.dow]}</span>
-                            <span className="bk-day-num">{d.day}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                    <button type="button" className="bk-weekarrow" onClick={()=>{setWeekOffset(o=>Math.min(8,o+1));setSelDate("")}} disabled={weekOffset>=8} aria-label="Semana siguiente">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--olive-dk)" strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>
-                    </button>
-                  </div>
-                </div>
-                {/* Slots agrupados Mañana/Tarde */}
-                {selDate&&(()=>{
-                  if(loadingSlots)return <p className="text-xs text-center py-4" style={{color:'var(--muted)'}}>Cargando horarios...</p>;
-                  const allSlots=genSlots(dur);
-                  const available=allSlots.map(t=>({t,ok:slotAvailable(t,dur,takenSlots,svcs,blocks,selDate)}));
-                  const morning=available.filter(s=>toMin(s.t)<13*60);
-                  const afternoon=available.filter(s=>toMin(s.t)>=13*60);
-                  const renderGroup=(label,items)=>items.length===0?null:(
-                    <div>
-                      <div className="bk-slot-group">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                        <span>{label}</span>
-                      </div>
-                      <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-5">
-                        {items.map(({t,ok})=>{
-                          const sel=selTime===t;
-                          return <button key={t} type="button" className={"bk-slot"+(sel?" sel":"")} disabled={!ok} onClick={()=>{if(ok){setSelTime(t);setStep("datos")}}}>{shortHM(t)} hs</button>;
-                        })}
-                      </div>
-                    </div>
-                  );
-                  const anyAvailable=available.some(s=>s.ok);
-                  if(!anyAvailable)return <p className="text-xs text-center py-4" style={{color:'var(--muted)'}}>Este día no tiene horarios disponibles.</p>;
-                  return(
-                    <div>
-                      {renderGroup("Por la mañana",morning)}
-                      {renderGroup("Por la tarde",afternoon)}
-                    </div>
-                  );
-                })()}
-                {!selDate&&<p className="text-xs text-center" style={{color:'var(--muted)'}}>Elegí un día</p>}
-              </div>
-            );
-          })()}
-          {step==="datos"&&(()=>{
-            const dateDisplay=selDate?new Date(selDate+"T12:00:00").toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"}):"";
-            if(!selTime)return <p style={{color:'var(--muted)'}}>Elegí un horario</p>;
-            const dur=selSvc?.duration_minutes||60;
-            const[sh,sm]=selTime.split(":").map(Number);
-            const eMin=sh*60+sm+dur;
-            const endStr=`${String(Math.floor(eMin/60)).padStart(2,'0')}:${String(eMin%60).padStart(2,'0')}`;
-            return(
-              <div className="space-y-3">
-                {/* Cards resumen */}
-                <div className="space-y-2">
-                  <div className="bk-sum">
-                    <div className="bk-sum-body">
-                      <div className="bk-sum-label">Servicio</div>
-                      <div className="bk-sum-val">{selSvc?.name} · {selSvc?.duration_minutes||60} min · {fP(selSvc?.price||0)}</div>
-                    </div>
-                    <button type="button" className="bk-sum-mod" onClick={()=>setStep("servicio")}>Modificar</button>
-                  </div>
-                  <div className="bk-sum">
-                    <div className="bk-sum-body">
-                      <div className="bk-sum-label">Fecha y horario</div>
-                      <div className="bk-sum-val">{dateDisplay} · {shortHM(selTime)} → {shortHM(endStr)} hs</div>
-                    </div>
-                    <button type="button" className="bk-sum-mod" onClick={()=>setStep("fecha")}>Modificar</button>
-                  </div>
-                </div>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label className="text-[10px] uppercase tracking-[.2em] block mb-2 font-medium" style={{color:'var(--muted)',opacity:.5}}>Nombre completo</label>
-                    <input type="text" autoComplete="name" value={fm.n} onChange={e=>setFm(p=>({...p,n:e.target.value}))} className="field w-full px-4 py-3 rounded-xl text-sm" placeholder="María García" required maxLength={80}/>
-                  </div>
-                  <div>
-                    <label className="text-[10px] uppercase tracking-[.2em] block mb-2 font-medium" style={{color:'var(--muted)',opacity:.5}}>Email</label>
-                    <input type="email" autoComplete="email" value={fm.em} onChange={e=>{setFm(p=>({...p,em:e.target.value}));setEmailSuggestion(suggestEmail(e.target.value)||"")}} className="field w-full px-4 py-3 rounded-xl text-sm" placeholder="maria@email.com" required maxLength={120}/>
-                    {emailSuggestion&&<p className="text-xs mt-1.5" style={{color:'#92400E'}}>¿Quisiste decir <button type="button" onClick={()=>{setFm(p=>({...p,em:emailSuggestion}));setEmailSuggestion("")}} className="font-semibold underline">{emailSuggestion}</button>?</p>}
-                  </div>
-                  <div>
-                    <label className="text-[10px] uppercase tracking-[.2em] block mb-2 font-medium" style={{color:'var(--muted)',opacity:.5}}>WhatsApp</label>
-                    <div className="flex gap-2">
-                      <select value={fm.country} onChange={e=>setFm(p=>({...p,country:e.target.value}))} className="field px-3 py-3 rounded-xl text-sm cursor-pointer" style={{flex:'0 0 auto'}}>
-                        {COUNTRIES.map(c=><option key={c.code} value={c.code}>{c.flag} {c.prefix}</option>)}
-                      </select>
-                      <input type="tel" inputMode="numeric" autoComplete="tel-national" value={fm.ph} onChange={e=>setFm(p=>({...p,ph:e.target.value.replace(/[^\d\s\-]/g,'')}))} className="field flex-1 px-4 py-3 rounded-xl text-sm" placeholder={COUNTRIES.find(c=>c.code===fm.country)?.placeholder||""} required maxLength={20}/>
-                    </div>
-                  </div>
-                  {submitError&&<p className="text-xs text-center py-2 px-4 rounded-xl" style={{background:'#fef2f2',color:'#991b1b',border:'1px solid #fecaca'}}>{submitError}</p>}
-                  <button type="submit" disabled={submitting} className="w-full text-sm font-medium py-3.5 rounded-xl text-white flex items-center justify-center gap-2 transition-all hover:brightness-110 disabled:opacity-50" style={{background:'var(--olive-dk)'}}>
-                    {submitting?"Reservando...":"Confirmar reserva"}
+    <div className="bk-overlay flex items-center justify-center p-0 sm:p-6">
+      <div className="absolute inset-0" onClick={handleClose}/>
+      <div className="bk-modal" role="dialog" aria-modal="true">
+        {/* Header */}
+        <div className="flex-shrink-0 px-6 sm:px-8 pt-6 pb-5 border-b" style={{borderColor:"var(--border)"}}>
+          <div className="flex items-center justify-between mb-4">
+            <span className="sec-label" style={{color:"var(--olive)"}}>Reserva</span>
+            <button onClick={handleClose} aria-label="Cerrar" className="w-9 h-9 rounded-full flex items-center justify-center transition-colors hover:bg-black/5">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+          {step!=="exito"&&(
+            <div className="flex items-center gap-2 overflow-x-auto">
+              {STEPS.map((s,i)=>(
+                <React.Fragment key={s.id}>
+                  <button
+                    onClick={()=>i<curIdx&&setStep(s.id)}
+                    disabled={i>curIdx}
+                    className="flex items-center gap-2.5 transition-opacity flex-shrink-0"
+                    style={{opacity:i===curIdx?1:i<curIdx?.55:.3,cursor:i<curIdx?"pointer":"default"}}>
+                    <span className="mono text-[10px] tracking-[.15em]" style={{color:"var(--muted)"}}>0{i+1}</span>
+                    <span className="text-[12px]" style={{color:"var(--ink)",fontWeight:i===curIdx?500:400}}>{s.label}</span>
                   </button>
-                  <div className="flex items-start gap-2.5 px-3.5 py-3 rounded-xl text-[11px] leading-relaxed" style={{background:'rgba(94,107,46,.06)',border:'1px solid rgba(94,107,46,.1)',color:'var(--muted)'}}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--olive)" strokeWidth="1.8" strokeLinecap="round" className="flex-shrink-0 mt-px"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
-                    <span><strong style={{color:'var(--olive-dk)'}}>Cancelación:</strong> avisanos por WhatsApp con al menos 4 hs de anticipación.</span>
-                  </div>
-                </form>
-              </div>
-            );
-          })()}
-          {step==="exito"&&sentData&&(
-            <div className="text-center">
-              <div className="w-16 h-16 rounded-full mx-auto mb-5 flex items-center justify-center" style={{background:'rgba(37,211,102,.08)'}}>
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="#25D366"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-              </div>
-              <h3 className="mb-2" style={{fontFamily:'Playfair Display,serif',fontSize:'1.6rem',color:'var(--ink)'}}>¡Turno reservado!</h3>
-              <div className="text-left rounded-2xl p-5 mb-5 space-y-2" style={{background:'var(--sand)',border:'1px solid rgba(94,107,46,.08)'}}>
-                {[["Servicio",sentData.servicio],["Fecha",sentData.fecha],["Horario",sentData.horario+" hs"],["Precio",sentData.precio]].map(([k,v])=>
-                  <div key={k} className="flex justify-between items-center">
-                    <span className="text-xs font-light" style={{color:'var(--muted)'}}>{k}</span>
-                    <span className="text-xs font-medium" style={{color:'var(--ink)'}}>{v}</span>
-                  </div>
-                )}
-              </div>
-              <p className="text-xs font-light mb-5" style={{color:'var(--muted)'}}>Recibimos tu reserva. Te confirmamos por WhatsApp a la brevedad.</p>
-              <div className="flex flex-col gap-2 mb-5">
-                <button type="button" onClick={()=>downloadICS(sentData)} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium transition-all hover:opacity-80" style={{background:'var(--olive-dk)',color:'#fff'}}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                  Agregar al calendario
-                </button>
-                <a href="https://maps.google.com/?q=Hip%C3%B3lito+Yrigoyen+229+Henderson+Buenos+Aires" target="_blank" rel="noopener" className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium transition-all hover:opacity-80" style={{background:'rgba(94,107,46,.08)',color:'var(--olive-dk)'}}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                  Cómo llegar
-                </a>
-                <a href={`https://api.whatsapp.com/send?phone=${WA_GUADA}&text=${encodeURIComponent("Hola! Quiero reagendar mi turno en GF Studio.")}`} target="_blank" rel="noopener" className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium transition-all hover:opacity-80" style={{background:'#25D366',color:'#fff'}}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                  Reagendar por WhatsApp
-                </a>
-              </div>
-              <button type="button" onClick={resetWizard} className="btn-ghost text-xs px-6 py-2.5 rounded-full">Reservar otro turno</button>
+                  {i<STEPS.length-1&&<span className="w-6 h-px flex-shrink-0" style={{background:"var(--border)"}}/>}
+                </React.Fragment>
+              ))}
             </div>
           )}
+        </div>
+
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="bk-step-body" key={step}>
+            {step==="servicio"&&<StepService svcs={svcs} onSelect={s=>{setSelSvc(s);setStep("fecha");setSelDate("");setSelTime("")}} selected={selSvc}/>}
+
+            {step==="fecha"&&<StepDate selSvc={selSvc} viewMode={viewMode} setViewMode={setViewMode}
+              cursorDate={cursorDate} setCursorDate={setCursorDate}
+              selDate={selDate} setSelDate={setSelDate}
+              selTime={selTime} setSelTime={setSelTime}
+              takenSlots={takenSlots} loadingSlots={loadingSlots}
+              svcs={svcs} blocks={blocks} minISO={minISO} todayISO={todayISO}
+              onNext={()=>setStep("datos")} onBack={()=>setStep("servicio")}/>}
+
+            {step==="datos"&&<StepData selSvc={selSvc} selDate={selDate} selTime={selTime}
+              fm={fm} setFm={setFm} emailSugg={emailSugg} setEmailSugg={setEmailSugg}
+              couponInput={couponInput} setCouponInput={setCouponInput}
+              couponApplied={couponApplied} couponError={couponError}
+              applyCoupon={applyCoupon} removeCoupon={removeCoupon}
+              finalPrice={finalPrice}
+              onSubmit={handleSubmit} submitting={submitting} submitError={submitError}
+              onBack={()=>setStep("fecha")}
+              onEditSvc={()=>setStep("servicio")} onEditDate={()=>setStep("fecha")}/>}
+
+            {step==="exito"&&sentData&&<StepExito data={sentData} onClose={handleClose} onNew={resetWizard}/>}
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
-/* ═══ APP ═══ */
-const App=()=>{
-  const[bk,setBk]=useState(false);
-  const[initialSvcId,setInitialSvcId]=useState(null);
-  const handleBkClose=useCallback(()=>{setBk(false);setInitialSvcId(null);history.replaceState(null,"","/");},[]);
-  const[mn,setMn]=useState(false);
-  const[scrolled,setScrolled]=useState(false);
-  const[svcs,setSvcs]=useState([]);
-  const[blocks,setBlocks]=useState([]);
-  const[loadingSvcs,setLoadingSvcs]=useState(true);
+/* ------- Step 1: Servicio ------- */
+const StepService=({svcs,onSelect,selected})=>{
+  const cats=useMemo(()=>{
+    const set=new Set(svcs.map(s=>s.category||"otros"));
+    return ["todos",...Array.from(set)];
+  },[svcs]);
+  const[cat,setCat]=useState("todos");
+  const visible=svcs.filter(s=>cat==="todos"||(s.category||"otros")===cat);
+  return(
+    <div className="p-6 sm:p-8">
+      <h2 className="serif text-[1.75rem] leading-tight mb-1" style={{color:"var(--ink)"}}>¿Qué te hacés hoy?</h2>
+      <p className="text-[13px] mb-5" style={{color:"var(--muted)"}}>Elegí el servicio que vas a reservar.</p>
+      {cats.length>2&&(
+        <div className="flex flex-wrap gap-1.5 mb-5">
+          {cats.map(c=>(
+            <button key={c} onClick={()=>setCat(c)}
+              className="text-[11px] px-3 py-1.5 rounded-full capitalize transition-colors"
+              style={{
+                background:cat===c?"var(--ink)":"rgba(94,107,46,.06)",
+                color:cat===c?"var(--cream)":"var(--olive-dk)",
+              }}>{c}</button>
+          ))}
+        </div>
+      )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        {visible.length===0?(
+          <p className="text-sm py-8 col-span-full text-center" style={{color:"var(--muted)"}}>Cargando servicios…</p>
+        ):visible.map(s=>{
+          const sel=selected?.id===s.id;
+          return(
+            <button key={s.id} onClick={()=>onSelect(s)} className="text-left p-4 rounded transition-all hover:shadow-sm"
+              style={{background:sel?"rgba(94,107,46,.06)":"rgba(255,255,255,.6)",
+                      border:`1px solid ${sel?"var(--olive)":"var(--border)"}`}}>
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <span className="text-[14px] font-medium" style={{color:"var(--ink)"}}>{s.name}</span>
+                <span className="mono text-[11px] px-2 py-0.5 rounded-full flex-shrink-0"
+                      style={{background:"rgba(94,107,46,.08)",color:"var(--olive-dk)"}}>{s.duration_minutes||60}′</span>
+              </div>
+              {s.description&&<p className="text-[12px] leading-relaxed mb-3" style={{color:"var(--muted)"}}>{s.description}</p>}
+              <div className="flex items-center justify-between mt-auto">
+                <span className="serif text-[18px]" style={{color:"var(--olive-dk)"}}>{fP(s.price)}</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{color:"var(--olive)"}}>
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
-  // Scroll observer for nav + reveal
+/* ------- Step 2: Fecha + Hora ------- */
+const StepDate=({selSvc,viewMode,setViewMode,cursorDate,setCursorDate,selDate,setSelDate,selTime,setSelTime,takenSlots,loadingSlots,svcs,blocks,minISO,todayISO,onNext,onBack})=>{
+  const dur=selSvc?.duration_minutes||60;
+
+  const monday=mondayOf(cursorDate);
+  const week=weekDaysFrom(monday);
+  const weekRange=`${week[0].getDate()} ${MONTH_ABBR[week[0].getMonth()]} — ${week[5].getDate()} ${MONTH_ABBR[week[5].getMonth()]}`;
+
+  const monthFirst=new Date(cursorDate.getFullYear(),cursorDate.getMonth(),1);
+  const monthGrid=(()=>{
+    const firstDow=monthFirst.getDay();
+    const lead=firstDow===0?6:firstDow-1;
+    const days=new Date(cursorDate.getFullYear(),cursorDate.getMonth()+1,0).getDate();
+    const cells=[];for(let i=0;i<lead;i++)cells.push(null);
+    for(let d=1;d<=days;d++)cells.push(new Date(cursorDate.getFullYear(),cursorDate.getMonth(),d));
+    return cells;
+  })();
+
+  const slotsList=selDate?(()=>{
+    const all=genSlots(dur);
+    return all.map(t=>({t,ok:slotAvailable(t,dur,takenSlots,svcs,blocks,selDate)}));
+  })():[];
+
+  const morning=slotsList.filter(s=>toMin(s.t)<13*60);
+  const afternoon=slotsList.filter(s=>toMin(s.t)>=13*60);
+  const anyAvail=slotsList.some(s=>s.ok);
+
+  return(
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto px-6 sm:px-8 pt-6 pb-4">
+        <div className="flex items-start justify-between gap-4 mb-5">
+          <div>
+            <h2 className="serif text-[1.5rem] leading-tight" style={{color:"var(--ink)"}}>Elegí fecha</h2>
+            <p className="text-[13px] mt-1" style={{color:"var(--muted)"}}>{selSvc?.name} · {dur} min · {fP(selSvc?.price||0)}</p>
+          </div>
+          <div className="flex rounded-full p-0.5" style={{background:"rgba(0,0,0,.04)"}}>
+            {[["week","Semana"],["month","Mes"]].map(([k,l])=>(
+              <button key={k} onClick={()=>setViewMode(k)}
+                className="px-3.5 py-1.5 rounded-full text-[12px] transition-all"
+                style={{background:viewMode===k?"var(--cream)":"transparent",color:viewMode===k?"var(--ink)":"var(--muted)",fontWeight:viewMode===k?500:400,boxShadow:viewMode===k?"0 1px 3px rgba(0,0,0,.06)":"none"}}>{l}</button>
+            ))}
+          </div>
+        </div>
+
+        {viewMode==="week"&&(
+          <div className="mb-5">
+            <div className="flex items-center justify-between mb-3">
+              <button onClick={()=>setCursorDate(addDays(monday,-7))}
+                disabled={toISO(monday)<=todayISO}
+                className="w-9 h-9 rounded-full flex items-center justify-center transition-colors hover:bg-black/5 disabled:opacity-20 disabled:cursor-not-allowed">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M15 18l-6-6 6-6"/></svg>
+              </button>
+              <div className="text-[13px] font-medium" style={{color:"var(--ink)"}}>{weekRange}</div>
+              <button onClick={()=>setCursorDate(addDays(monday,7))} className="w-9 h-9 rounded-full flex items-center justify-center transition-colors hover:bg-black/5">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M9 18l6-6-6-6"/></svg>
+              </button>
+            </div>
+            <div className="grid grid-cols-6 gap-1.5">
+              {week.map(d=>{
+                const iso=toISO(d);
+                const sel=selDate===iso;
+                const ok=dayHasSlots(iso,dur,blocks,minISO);
+                const isToday=iso===todayISO;
+                return(
+                  <button key={iso} onClick={()=>ok&&setSelDate(iso)} disabled={!ok}
+                    className="flex flex-col items-center py-3 px-1 rounded transition-all"
+                    style={{
+                      background:sel?"var(--ink)":ok?"rgba(255,255,255,.6)":"transparent",
+                      color:sel?"var(--cream)":"var(--ink)",
+                      border:`1px solid ${sel?"var(--ink)":ok?"var(--border)":"transparent"}`,
+                      opacity:ok?1:.25,cursor:ok?"pointer":"not-allowed",
+                    }}>
+                    <span className="text-[10px] uppercase tracking-wider mb-0.5" style={{opacity:.6}}>{DAY_ABBR[d.getDay()]}</span>
+                    <span className="serif text-[20px] leading-none">{d.getDate()}</span>
+                    {isToday&&!sel&&<span className="mt-1 w-1 h-1 rounded-full" style={{background:"var(--olive)"}}/>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {viewMode==="month"&&(
+          <div className="mb-5">
+            <div className="flex items-center justify-between mb-4">
+              <button onClick={()=>setCursorDate(new Date(cursorDate.getFullYear(),cursorDate.getMonth()-1,1))} className="w-9 h-9 rounded-full flex items-center justify-center transition-colors hover:bg-black/5">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M15 18l-6-6 6-6"/></svg>
+              </button>
+              <div className="serif text-[18px] capitalize" style={{color:"var(--ink)"}}>
+                {MONTH_FULL[cursorDate.getMonth()]} {cursorDate.getFullYear()}
+              </div>
+              <button onClick={()=>setCursorDate(new Date(cursorDate.getFullYear(),cursorDate.getMonth()+1,1))} className="w-9 h-9 rounded-full flex items-center justify-center transition-colors hover:bg-black/5">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M9 18l6-6-6-6"/></svg>
+              </button>
+            </div>
+            <div className="grid grid-cols-7 gap-1">
+              {["L","M","M","J","V","S","D"].map((d,i)=>(
+                <div key={i} className="text-center text-[10px] uppercase tracking-wider pb-2" style={{color:"var(--muted)"}}>{d}</div>
+              ))}
+              {monthGrid.map((d,i)=>{
+                if(!d)return <div key={i}/>;
+                const iso=toISO(d);
+                const ok=dayHasSlots(iso,dur,blocks,minISO);
+                const sel=selDate===iso;
+                const isToday=iso===todayISO;
+                return(
+                  <button key={i} onClick={()=>ok&&setSelDate(iso)} disabled={!ok}
+                    className="aspect-square flex items-center justify-center rounded text-[13px] transition-all relative"
+                    style={{
+                      background:sel?"var(--ink)":"transparent",
+                      color:sel?"var(--cream)":ok?"var(--ink)":"var(--muted)",
+                      opacity:ok?1:.25,cursor:ok?"pointer":"not-allowed",
+                      border:`1px solid ${sel?"var(--ink)":"transparent"}`,
+                    }}>
+                    {d.getDate()}
+                    {isToday&&!sel&&<span className="absolute bottom-1.5 w-1 h-1 rounded-full" style={{background:"var(--olive)"}}/>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {selDate&&(
+          <div>
+            <div className="rule my-5" style={{color:"var(--ink)"}}/>
+            <p className="sec-label mb-5" style={{color:"var(--olive)"}}>
+              {fromISO(selDate).toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"})}
+            </p>
+            {loadingSlots&&<p className="text-center text-[12px] py-4" style={{color:"var(--muted)"}}>Cargando horarios…</p>}
+            {!loadingSlots&&!anyAvail&&<p className="text-center text-[12px] py-4" style={{color:"var(--muted)"}}>No hay horarios disponibles este día.</p>}
+            {!loadingSlots&&anyAvail&&morning.length>0&&(
+              <div className="mb-6">
+                <p className="mono text-[10px] uppercase tracking-[.2em] mb-3" style={{color:"var(--muted)"}}>Mañana</p>
+                <div className="grid grid-cols-4 sm:grid-cols-5 gap-1.5">
+                  {morning.map(({t,ok})=>(
+                    <button key={t} disabled={!ok} onClick={()=>setSelTime(t)}
+                      className="py-2.5 rounded text-[13px] transition-all mono"
+                      style={{
+                        background:selTime===t?"var(--ink)":ok?"rgba(255,255,255,.6)":"transparent",
+                        color:selTime===t?"var(--cream)":ok?"var(--ink)":"var(--muted)",
+                        border:`1px solid ${selTime===t?"var(--ink)":ok?"var(--border)":"transparent"}`,
+                        opacity:ok?1:.3,cursor:ok?"pointer":"not-allowed",
+                      }}>{shortHM(t)}</button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {!loadingSlots&&anyAvail&&afternoon.length>0&&(
+              <div>
+                <p className="mono text-[10px] uppercase tracking-[.2em] mb-3" style={{color:"var(--muted)"}}>Tarde</p>
+                <div className="grid grid-cols-4 sm:grid-cols-5 gap-1.5">
+                  {afternoon.map(({t,ok})=>(
+                    <button key={t} disabled={!ok} onClick={()=>setSelTime(t)}
+                      className="py-2.5 rounded text-[13px] transition-all mono"
+                      style={{
+                        background:selTime===t?"var(--ink)":ok?"rgba(255,255,255,.6)":"transparent",
+                        color:selTime===t?"var(--cream)":ok?"var(--ink)":"var(--muted)",
+                        border:`1px solid ${selTime===t?"var(--ink)":ok?"var(--border)":"transparent"}`,
+                        opacity:ok?1:.3,cursor:ok?"pointer":"not-allowed",
+                      }}>{shortHM(t)}</button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+        {!selDate&&<p className="text-center text-[12px] py-8" style={{color:"var(--muted)",opacity:.5}}>Elegí un día para ver horarios</p>}
+      </div>
+      <div className="flex-shrink-0 px-6 sm:px-8 py-4 border-t flex items-center justify-between gap-3" style={{borderColor:"var(--border)",background:"rgba(0,0,0,.015)"}}>
+        <button onClick={onBack} className="text-[13px] flex items-center gap-2 hover:opacity-60 transition-opacity" style={{color:"var(--muted)"}}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M15 18l-6-6 6-6"/></svg>
+          Cambiar servicio
+        </button>
+        <button disabled={!selTime} onClick={onNext} className="btn btn-dk disabled:opacity-30 disabled:cursor-not-allowed">
+          Continuar
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  );
+};
+
+/* ------- Step 3: Datos + Cupón ------- */
+const StepData=({selSvc,selDate,selTime,fm,setFm,emailSugg,setEmailSugg,couponInput,setCouponInput,couponApplied,couponError,applyCoupon,removeCoupon,finalPrice,onSubmit,submitting,submitError,onBack,onEditSvc,onEditDate})=>{
+  const dateDisplay=fromISO(selDate).toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"});
+  const[dh,dm]=selTime.split(":").map(Number);
+  const endMin=dh*60+dm+(selSvc.duration_minutes||60);
+  const endStr=toHHMM(endMin);
+  return(
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto p-6 sm:p-8">
+        <h2 className="serif text-[1.5rem] leading-tight mb-4" style={{color:"var(--ink)"}}>Confirmá tu turno</h2>
+        <div className="space-y-2 mb-6">
+          <SumRow label="Servicio" value={`${selSvc.name} · ${selSvc.duration_minutes||60} min · ${fP(selSvc.price)}`} onEdit={onEditSvc}/>
+          <SumRow label="Fecha" value={dateDisplay} onEdit={onEditDate}/>
+          <SumRow label="Horario" value={`${shortHM(selTime)} → ${shortHM(endStr)} hs`} onEdit={onEditDate}/>
+          {couponApplied&&(
+            <div className="flex items-center justify-between gap-3 py-3 px-4 rounded" style={{background:"rgba(94,107,46,.08)",border:"1px solid rgba(94,107,46,.2)"}}>
+              <div className="flex-1 min-w-0">
+                <div className="mono text-[10px] uppercase tracking-[.2em]" style={{color:"var(--olive-dk)"}}>Cupón {couponApplied.code}</div>
+                <div className="text-[13px] mt-0.5" style={{color:"var(--ink)"}}>−{fP(couponApplied.discount)} · Total: <strong>{fP(finalPrice)}</strong></div>
+              </div>
+              <button type="button" onClick={removeCoupon} className="text-[11px] px-3 py-1 rounded-full hover:bg-black/5 transition-colors" style={{color:"var(--muted)"}}>Quitar</button>
+            </div>
+          )}
+        </div>
+
+        <form onSubmit={onSubmit} className="space-y-3" id="book-form">
+          <div>
+            <label className="mono text-[10px] uppercase tracking-[.2em] block mb-1.5" style={{color:"var(--muted)"}}>Nombre completo</label>
+            <input className="field" required placeholder="María García" autoComplete="name" maxLength={80} value={fm.n} onChange={e=>setFm(p=>({...p,n:e.target.value}))}/>
+          </div>
+          <div>
+            <label className="mono text-[10px] uppercase tracking-[.2em] block mb-1.5" style={{color:"var(--muted)"}}>Email</label>
+            <input className="field" type="email" required placeholder="maria@email.com" autoComplete="email" maxLength={120}
+              value={fm.em} onChange={e=>{setFm(p=>({...p,em:e.target.value}));setEmailSugg(suggestEmail(e.target.value)||"")}}/>
+            {emailSugg&&<p className="text-xs mt-1.5" style={{color:"#92400E"}}>¿Quisiste decir <button type="button" onClick={()=>{setFm(p=>({...p,em:emailSugg}));setEmailSugg("")}} className="font-semibold underline">{emailSugg}</button>?</p>}
+          </div>
+          <div>
+            <label className="mono text-[10px] uppercase tracking-[.2em] block mb-1.5" style={{color:"var(--muted)"}}>WhatsApp</label>
+            <div className="flex gap-2">
+              <select value={fm.country} onChange={e=>setFm(p=>({...p,country:e.target.value}))} className="field cursor-pointer" style={{flex:"0 0 auto",width:"auto",minWidth:"110px"}}>
+                {COUNTRIES.map(c=><option key={c.code} value={c.code}>{c.flag} {c.prefix}</option>)}
+              </select>
+              <input className="field flex-1" type="tel" required placeholder={COUNTRIES.find(c=>c.code===fm.country)?.placeholder||""}
+                inputMode="numeric" autoComplete="tel-national" maxLength={20}
+                value={fm.ph} onChange={e=>setFm(p=>({...p,ph:e.target.value.replace(/[^\d\s\-]/g,'')}))}/>
+            </div>
+          </div>
+
+          {!couponApplied&&(
+            <details className="pt-2">
+              <summary className="mono text-[11px] uppercase tracking-[.15em] cursor-pointer" style={{color:"var(--olive)"}}>+ Tengo un código de descuento</summary>
+              <div className="mt-3 flex gap-2">
+                <input className="field flex-1 mono uppercase" placeholder="HOLAGF" value={couponInput} onChange={e=>setCouponInput(e.target.value.toUpperCase())} maxLength={20}/>
+                <button type="button" onClick={applyCoupon} className="btn btn-ghost" style={{padding:"10px 18px",fontSize:12}}>Aplicar</button>
+              </div>
+              {couponError&&<p className="text-[11px] mt-2" style={{color:"#991b1b"}}>{couponError}</p>}
+            </details>
+          )}
+
+          <div className="flex items-start gap-2.5 px-3.5 py-3 rounded text-[11px] leading-relaxed mt-4"
+            style={{background:"rgba(94,107,46,.05)",border:"1px solid rgba(94,107,46,.1)",color:"var(--muted)"}}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--olive)" strokeWidth="1.5" className="flex-shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+            <span><strong style={{color:"var(--olive-dk)"}}>Política de cancelación:</strong> avisanos por WhatsApp con al menos 4 hs de anticipación.</span>
+          </div>
+          {submitError&&<p className="text-xs text-center py-2 px-4 rounded" style={{background:"#fef2f2",color:"#991b1b",border:"1px solid #fecaca"}}>{submitError}</p>}
+        </form>
+      </div>
+      <div className="flex-shrink-0 px-6 sm:px-8 py-4 border-t flex items-center justify-between gap-3" style={{borderColor:"var(--border)",background:"rgba(0,0,0,.015)"}}>
+        <button type="button" onClick={onBack} className="text-[13px] flex items-center gap-2 hover:opacity-60 transition-opacity" style={{color:"var(--muted)"}}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M15 18l-6-6 6-6"/></svg>
+          Atrás
+        </button>
+        <button type="submit" form="book-form" disabled={submitting} className="btn btn-dk disabled:opacity-50">
+          {submitting?"Reservando…":"Confirmar reserva"}
+          {!submitting&&<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20 6L9 17l-5-5"/></svg>}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const SumRow=({label,value,onEdit})=>(
+  <div className="flex items-center justify-between gap-3 py-3 px-4 rounded" style={{background:"rgba(255,255,255,.6)",border:"1px solid var(--border)"}}>
+    <div className="flex-1 min-w-0">
+      <div className="mono text-[10px] uppercase tracking-[.2em]" style={{color:"var(--muted)"}}>{label}</div>
+      <div className="text-[13px] mt-0.5" style={{color:"var(--ink)"}}>{value}</div>
+    </div>
+    <button onClick={onEdit} type="button" className="text-[11px] px-3 py-1 rounded-full hover:bg-black/5 transition-colors" style={{color:"var(--olive-dk)"}}>Editar</button>
+  </div>
+);
+
+/* ------- Step 4: Éxito ------- */
+const StepExito=({data,onClose,onNew})=>(
+  <div className="flex flex-col h-full">
+    <div className="flex-1 overflow-y-auto p-6 sm:p-8 text-center flex flex-col justify-center">
+      <div className="w-14 h-14 rounded-full mx-auto mb-5 flex items-center justify-center" style={{background:"rgba(94,107,46,.1)"}}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--olive-dk)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+      <h2 className="serif text-[2rem] leading-tight mb-2" style={{color:"var(--ink)"}}>Te esperamos, {data.nombre.split(" ")[0]}.</h2>
+      <p className="text-[13px] mb-6" style={{color:"var(--muted)"}}>Recibiste un email con los detalles. Guada va a confirmarte por WhatsApp.</p>
+      <div className="text-left rounded p-5 mb-5 space-y-2 max-w-sm mx-auto w-full" style={{background:"var(--bone)",border:"1px solid var(--border)"}}>
+        {[
+          ["Servicio",data.servicio],
+          ["Fecha",data.fecha],
+          ["Horario",data.horario+" hs"],
+          ...(data.coupon?[["Cupón",`${data.coupon} (−${fP(data.discount)})`]]:[]),
+          ["Precio",data.precio],
+        ].map(([k,v])=>(
+          <div key={k} className="flex justify-between items-start gap-3">
+            <span className="mono text-[10px] uppercase tracking-[.2em] pt-0.5" style={{color:"var(--muted)"}}>{k}</span>
+            <span className="text-[13px] text-right" style={{color:"var(--ink)"}}>{v}</span>
+          </div>
+        ))}
+      </div>
+      <div className="flex flex-col gap-2 max-w-sm mx-auto w-full">
+        <button onClick={()=>downloadICS(data)} className="btn btn-dk">Agregar al calendario</button>
+        <a href={`https://wa.me/${WA_GUADA}?text=${encodeURIComponent(`Hola Guada! Reservé un turno para ${data.servicio} el ${data.fecha} a las ${data.horario} hs.`)}`} target="_blank" rel="noopener" className="btn btn-ghost">Avisar por WhatsApp</a>
+        <button onClick={onNew} className="btn btn-ghost">Reservar otro turno</button>
+      </div>
+    </div>
+  </div>
+);
+
+/* ═══════════ LANDING ═══════════ */
+const Landing=({content,svcs,packs,promos,coupons,blocks,openBooking})=>{
+  const[scrolled,setScrolled]=useState(false);
+  const[mobileNav,setMobileNav]=useState(false);
+
   useEffect(()=>{
     const onScroll=()=>setScrolled(window.scrollY>40);
     window.addEventListener("scroll",onScroll,{passive:true});
-    const o=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add("vis")})},{threshold:.05,rootMargin:"0px 0px -60px 0px"});
-    document.querySelectorAll(".reveal").forEach(el=>o.observe(el));
-    return()=>{window.removeEventListener("scroll",onScroll);o.disconnect()};
+    const io=typeof IntersectionObserver!=="undefined"
+      ? new IntersectionObserver(es=>es.forEach(e=>e.isIntersecting&&e.target.classList.add("vis")),{threshold:.01,rootMargin:"200px 0px 200px 0px"})
+      : null;
+    if(io){
+      document.querySelectorAll(".reveal").forEach(el=>io.observe(el));
+      setTimeout(()=>document.querySelectorAll(".reveal:not(.vis)").forEach(el=>{
+        const r=el.getBoundingClientRect();
+        if(r.top<window.innerHeight+200)el.classList.add("vis");
+      }),300);
+    }else{
+      document.querySelectorAll(".reveal").forEach(el=>el.classList.add("vis"));
+    }
+    return()=>{window.removeEventListener("scroll",onScroll);if(io)io.disconnect()};
   },[]);
-  // Re-observe reveal elements after dynamic content (services) loads
+  // Re-observe revealed elements when async data lands
   useEffect(()=>{
     if(!svcs.length)return;
-    const o=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add("vis")})},{threshold:.05,rootMargin:"0px 0px -60px 0px"});
-    document.querySelectorAll(".reveal:not(.vis)").forEach(el=>o.observe(el));
-    return()=>o.disconnect();
-  },[svcs]);
+    const io=typeof IntersectionObserver!=="undefined"
+      ? new IntersectionObserver(es=>es.forEach(e=>e.isIntersecting&&e.target.classList.add("vis")),{threshold:.01,rootMargin:"200px 0px 200px 0px"})
+      : null;
+    if(!io){document.querySelectorAll(".reveal:not(.vis)").forEach(el=>el.classList.add("vis"));return}
+    document.querySelectorAll(".reveal:not(.vis)").forEach(el=>io.observe(el));
+    return()=>io.disconnect();
+  },[svcs,packs,coupons]);
 
-  useEffect(()=>{
-    if(!sb){setLoadingSvcs(false);return;}
-    Promise.all([
-      sb.from("gf_services").select("*").order("id"),
-      sb.from("gf_blocked_slots").select("*")
-    ]).then(([{data:s},{data:b}])=>{
-      setSvcs(s||[]);
-      setBlocks(b||[]);
-      setLoadingSvcs(false);
-    }).catch(()=>setLoadingSvcs(false));
+  return(
+    <div className="relative" style={{zIndex:2}}>
+      <Nav scrolled={scrolled} mobileNav={mobileNav} setMobileNav={setMobileNav} onBook={()=>openBooking()}/>
+      <Hero data={content.hero} onBook={()=>openBooking()}/>
+      <Ticker svcs={svcs}/>
+      <About data={content.about}/>
+      <Services svcs={svcs} onPick={id=>openBooking(id)}/>
+      <Promos coupons={coupons} onBook={()=>openBooking()}/>
+      <Packs packs={packs} onBook={()=>openBooking()}/>
+      <Gallery/>
+      <Testimonios items={content.testimonials}/>
+      <FAQ items={content.faq}/>
+      <Contact data={content.contact} onBook={()=>openBooking()}/>
+      <Footer/>
+      <WhatsAppFloat phone={content.contact?.whatsapp||WA_GUADA}/>
+    </div>
+  );
+};
+
+/* ---------- Nav ---------- */
+const Nav=({scrolled,mobileNav,setMobileNav,onBook})=>(
+  <nav className={"fixed top-0 left-0 right-0 z-40 transition-all duration-500 "+(scrolled?"nav-scrolled":"")}>
+    <div className="max-w-[1280px] mx-auto px-5 sm:px-10 flex items-center justify-between h-[72px]">
+      <a href="#top" className="flex items-center gap-2.5">
+        <span className="serif text-[22px]" style={{color:"var(--olive-dk)",letterSpacing:"-.03em",fontWeight:500}}>GF</span>
+        <span className="mono text-[10px] uppercase tracking-[.3em] hidden sm:inline" style={{color:"var(--muted)"}}>Studio</span>
+      </a>
+      <div className="hidden md:flex items-center gap-10">
+        {[["#servicios","Servicios"],["#packs","Packs"],["#galeria","Galería"],["#faq","FAQ"],["#contacto","Contacto"]].map(([href,l])=>(
+          <a key={href} href={href} className="link-u text-[12px] tracking-[.05em]" style={{color:"var(--ink)"}}>{l}</a>
+        ))}
+      </div>
+      <div className="flex items-center gap-3">
+        <button onClick={onBook} className="hidden sm:inline-flex btn btn-dk" style={{padding:"10px 22px",fontSize:12}}>Reservar turno</button>
+        <button className="md:hidden w-10 h-10 flex items-center justify-center rounded-full transition-colors hover:bg-black/5" onClick={()=>setMobileNav(!mobileNav)}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d={mobileNav?"M18 6L6 18M6 6l12 12":"M4 7h16M4 12h16M4 17h16"}/></svg>
+        </button>
+      </div>
+    </div>
+    {mobileNav&&(
+      <div className="md:hidden px-5 pb-6 pt-2" style={{background:"rgba(242,237,224,.96)",backdropFilter:"blur(20px)"}}>
+        {[["#servicios","Servicios"],["#packs","Packs"],["#galeria","Galería"],["#faq","FAQ"],["#contacto","Contacto"]].map(([href,l])=>(
+          <a key={href} href={href} onClick={()=>setMobileNav(false)} className="block py-3 text-[14px] border-b" style={{color:"var(--ink)",borderColor:"var(--border)"}}>{l}</a>
+        ))}
+        <button onClick={()=>{setMobileNav(false);onBook()}} className="btn btn-dk w-full mt-5">Reservar turno</button>
+      </div>
+    )}
+  </nav>
+);
+
+/* ---------- Hero ---------- */
+const Hero=({data,onBook})=>{
+  const d=data||DEFAULT_CONTENT.hero;
+  return(
+    <section id="top" className="relative pt-[128px] sm:pt-[148px] pb-20 sm:pb-24 overflow-hidden">
+      <div className="max-w-[1280px] mx-auto px-5 sm:px-10">
+        <div className="flex items-center justify-between mb-14 reveal">
+          <span className="tag"><span className="dot-live"/>{d.tag}</span>
+          <span className="mono text-[11px] hidden sm:block" style={{color:"var(--muted)"}}>VOL. III · OTOÑO 2026 · HENDERSON</span>
+        </div>
+        <div className="reveal" style={{transitionDelay:".1s"}}>
+          <h1 className="hero-type">{d.title_a}<br/><em>{d.title_b}.</em></h1>
+        </div>
+        <div className="grid grid-cols-12 gap-6 mt-12 sm:mt-14 items-start">
+          <div className="col-span-12 md:col-span-5 reveal" style={{transitionDelay:".2s"}}>
+            <p className="serif italic text-[20px] sm:text-[22px] leading-[1.3]" style={{color:"var(--ink)",maxWidth:"32ch"}}>{d.quote}</p>
+            <p className="mono text-[10px] uppercase tracking-[.22em] mt-5" style={{color:"var(--muted)"}}>— {d.quote_attr}</p>
+          </div>
+          <div className="col-span-12 md:col-span-3 md:col-start-7 reveal" style={{transitionDelay:".3s"}}>
+            <div className="mono text-[10px] uppercase tracking-[.22em] mb-2" style={{color:"var(--olive)"}}>N.º 01 · Qué ofrecemos</div>
+            <p className="text-[13.5px] leading-[1.55]" style={{color:"var(--ink)"}}>Cejas, faciales, terapias lumínicas, depilación y maquillaje. Todo con consulta previa.</p>
+            <div className="mt-5 pt-5 border-t" style={{borderColor:"var(--border)"}}>
+              <div className="flex items-center gap-5">
+                <div>
+                  <div className="serif text-[26px] leading-none" style={{color:"var(--olive-dk)"}}>{d.stat_a_v}</div>
+                  <div className="mono text-[9px] uppercase tracking-[.2em] mt-1.5" style={{color:"var(--muted)"}}>{d.stat_a_l}</div>
+                </div>
+                <div className="w-px h-7" style={{background:"var(--border)"}}/>
+                <div>
+                  <div className="serif text-[26px] leading-none" style={{color:"var(--olive-dk)"}}>{d.stat_b_v}</div>
+                  <div className="mono text-[9px] uppercase tracking-[.2em] mt-1.5" style={{color:"var(--muted)"}}>{d.stat_b_l}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="col-span-12 md:col-span-3 md:col-start-10 reveal flex flex-col gap-3" style={{transitionDelay:".4s"}}>
+            <button onClick={onBook} className="btn btn-dk w-full">
+              Reservá tu turno
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+            <a href="#servicios" className="btn btn-ghost w-full">Ver servicios</a>
+            <a href="#packs" className="mono text-[10px] uppercase tracking-[.22em] text-center mt-2" style={{color:"var(--olive)"}}>Packs con descuento ↓</a>
+          </div>
+        </div>
+        {d.sticker&&(
+          <div className="hidden lg:block absolute top-[150px] right-[40px] reveal" style={{transitionDelay:".5s"}}>
+            <div style={{width:"100px",height:"100px",borderRadius:"50%",background:"var(--olive)",color:"var(--cream)",display:"flex",alignItems:"center",justifyContent:"center",padding:"14px",textAlign:"center",transform:"rotate(-6deg)",fontFamily:"ui-monospace,Menlo,monospace",fontSize:"10px",lineHeight:"1.4",letterSpacing:".05em",textTransform:"uppercase",boxShadow:"0 10px 30px rgba(94,107,46,.2)",whiteSpace:"pre-line"}}>{d.sticker}</div>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+};
+
+/* ---------- Ticker ---------- */
+const Ticker=({svcs})=>{
+  const items=svcs.length>3?svcs.slice(0,9).map(s=>s.name):["Perfilado","Laminado","Fototerapia LED","Radiofrecuencia","Limpieza facial","Lifting de pestañas","Depilación","Skincare","Maquillaje"];
+  return(
+    <div className="py-5 border-y overflow-hidden" style={{borderColor:"var(--border)"}}>
+      <div className="ticker">
+        {[...Array(3)].map((_,k)=>(
+          <div key={k} className="flex items-center gap-12 pr-12">
+            {items.map((it,i)=>(
+              <span key={i} className="flex items-center gap-12">
+                <span className="serif italic text-[22px]" style={{color:"var(--olive)",opacity:.85}}>{it}</span>
+                <span style={{opacity:.25,color:"var(--olive)"}}>✳</span>
+              </span>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+/* ---------- About ---------- */
+const About=({data})=>{
+  const d=data||DEFAULT_CONTENT.about;
+  return(
+    <section className="py-24 sm:py-32">
+      <div className="max-w-[1280px] mx-auto px-5 sm:px-10">
+        <div className="grid grid-cols-12 gap-10 items-start">
+          <div className="col-span-12 md:col-span-5 reveal">
+            <div className="aspect-[3/4] relative overflow-hidden rounded-sm" style={{background:"var(--sand)"}}>
+              <div className="g-ph">[ foto del espacio ]</div>
+            </div>
+          </div>
+          <div className="col-span-12 md:col-span-6 md:col-start-7 reveal" style={{transitionDelay:".15s"}}>
+            <span className="sec-label mb-6" style={{color:"var(--olive)"}}>Sobre nosotras</span>
+            <h2 className="serif text-[clamp(2rem,4.5vw,3.5rem)] leading-[1.05] mb-6 mt-4" style={{color:"var(--ink)"}}>
+              {d.title_a}<br/><em style={{color:"var(--olive)"}}>{d.title_b}.</em>
+            </h2>
+            <p className="text-[15px] leading-relaxed mb-4" style={{color:"var(--ink)",maxWidth:"52ch"}}>{d.body_main}</p>
+            <p className="text-[14px] leading-relaxed" style={{color:"var(--muted)",maxWidth:"52ch"}}>{d.body_sec}</p>
+            <div className="grid grid-cols-3 gap-6 mt-10 pt-8 border-t" style={{borderColor:"var(--border)"}}>
+              {[[d.stat_a_v,d.stat_a_l],[d.stat_b_v,d.stat_b_l],[d.stat_c_v,d.stat_c_l]].map(([n,l],i)=>(
+                <div key={i}>
+                  <div className="serif text-[32px] leading-none" style={{color:"var(--olive-dk)"}}>{n}</div>
+                  <div className="mono text-[10px] uppercase tracking-[.15em] mt-2" style={{color:"var(--muted)"}}>{l}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ---------- Services ---------- */
+const Services=({svcs,onPick})=>(
+  <section id="servicios" className="py-20 sm:py-28" style={{background:"var(--cream)"}}>
+    <div className="max-w-[1280px] mx-auto px-5 sm:px-10">
+      <div className="flex flex-col sm:flex-row items-start justify-between gap-6 mb-12 reveal">
+        <div>
+          <span className="sec-label mb-4" style={{color:"var(--olive)"}}>Carta · N.º 02</span>
+          <h2 className="serif text-[clamp(2rem,4.5vw,3.5rem)] leading-[1.05] mt-4" style={{color:"var(--ink)"}}>
+            Tratamientos <em style={{color:"var(--olive)"}}>especializados</em>
+          </h2>
+        </div>
+        <p className="text-[14px] max-w-sm" style={{color:"var(--muted)"}}>
+          Técnica profesional y tecnología de última generación. Todos los precios en pesos argentinos.
+        </p>
+      </div>
+      <div className="reveal">
+        {svcs.length===0?(
+          <p className="text-center text-sm py-10" style={{color:"var(--muted)"}}>Cargando servicios…</p>
+        ):svcs.map((s,i)=>(
+          <div key={s.id} className="svc-row" onClick={()=>onPick(s.id)}>
+            <span className="num">N.º {String(i+1).padStart(2,'0')}</span>
+            <div>
+              <h3 className="serif text-[clamp(1.25rem,2.5vw,1.65rem)] leading-tight" style={{color:"var(--ink)"}}>{s.name}</h3>
+              {s.description&&<p className="text-[13px] mt-1.5 max-w-lg" style={{color:"var(--muted)"}}>{s.description}</p>}
+              <span className="mono text-[11px] mt-1.5 inline-block" style={{color:"var(--olive)"}}>{s.duration_minutes||60} minutos</span>
+            </div>
+            <div className="serif text-[clamp(1.25rem,2.5vw,1.75rem)]" style={{color:"var(--olive-dk)"}}>{fP(s.price)}</div>
+            <svg className="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+/* ---------- Promos (auto desde cupones activos públicos) ---------- */
+const Promos=({coupons,onBook})=>{
+  const visibleCoupons=coupons.filter(c=>c.active);
+  if(!visibleCoupons.length)return null;
+  const main=visibleCoupons[0];
+  const second=visibleCoupons[1];
+  const fmt=c=>c.type==="percent"?`${c.value}% OFF`:`${fP(c.value)} OFF`;
+  return(
+    <section id="promos" className="py-20 sm:py-28" style={{background:"var(--cream)"}}>
+      <div className="max-w-[1280px] mx-auto px-5 sm:px-10">
+        <div className="reveal mb-10">
+          <span className="sec-label mb-4" style={{color:"var(--olive)"}}>Este mes · N.º 04</span>
+          <h2 className="serif text-[clamp(2rem,4.5vw,3.5rem)] leading-[1.05] mt-4" style={{color:"var(--ink)"}}>
+            Destacados y <em style={{color:"var(--olive)"}}>cupones</em>
+          </h2>
+        </div>
+        <div className={`grid grid-cols-1 ${second?"md:grid-cols-3":"md:grid-cols-1"} gap-4 reveal`}>
+          <div className={second?"md:col-span-2 promo":"promo"} style={{minHeight:"280px"}}>
+            <div className="flex items-start justify-between mb-6">
+              <span className="mono text-[10px] uppercase tracking-[.25em] px-3 py-1 rounded-full" style={{background:"rgba(255,255,255,.12)",color:"var(--cream)"}}>Cupón</span>
+              <span className="mono text-[10px] tracking-[.2em]" style={{color:"rgba(250,247,239,.5)"}}>— {fmt(main)}</span>
+            </div>
+            <h3 className="serif text-[clamp(2rem,5vw,3.5rem)] leading-tight mb-4" style={{color:"var(--cream)"}}>{main.name||main.code}</h3>
+            <p className="text-[14px] leading-relaxed max-w-md mb-8" style={{color:"rgba(250,247,239,.75)"}}>
+              Usá el código <strong className="mono" style={{color:"var(--cream)"}}>{main.code}</strong> en tu próxima reserva.
+              {main.first_visit_only&&" Solo nuevos clientes."}
+              {main.valid_to&&` Vigente hasta el ${new Date(main.valid_to).toLocaleDateString("es-AR",{day:"numeric",month:"long"})}.`}
+            </p>
+            <button onClick={onBook} className="btn" style={{background:"var(--cream)",color:"var(--ink)"}}>
+              Reservar y aplicar
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+          {second&&(
+            <div className="rounded-sm p-8 flex flex-col justify-between" style={{background:"rgba(94,107,46,.08)",border:"1px solid var(--border)",minHeight:"280px"}}>
+              <div>
+                <span className="mono text-[10px] uppercase tracking-[.25em] px-3 py-1 rounded-full inline-block mb-6" style={{background:"rgba(94,107,46,.12)",color:"var(--olive-dk)"}}>{fmt(second)}</span>
+                <h3 className="serif text-[24px] leading-tight mb-4" style={{color:"var(--ink)"}}>{second.name||second.code}</h3>
+                <p className="text-[13px] leading-relaxed" style={{color:"var(--muted)"}}>Usá <strong className="mono" style={{color:"var(--olive-dk)"}}>{second.code}</strong> al reservar.</p>
+              </div>
+              <div className="mt-6 pt-4 border-t" style={{borderColor:"var(--border)"}}>
+                <button onClick={onBook} className="text-[12px] font-medium flex items-center gap-2 link-u" style={{color:"var(--olive-dk)"}}>
+                  Reservar
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ---------- Packs ---------- */
+const Packs=({packs,onBook})=>{
+  if(!packs.length)return null;
+  return(
+    <section id="packs" className="py-20 sm:py-28" style={{background:"var(--olive-dk)",color:"var(--cream)"}}>
+      <div className="max-w-[1280px] mx-auto px-5 sm:px-10">
+        <div className="flex flex-col sm:flex-row items-start justify-between gap-6 mb-12 reveal">
+          <div>
+            <span className="sec-label mb-4" style={{color:"rgba(250,247,239,.7)"}}>Packs · N.º 03</span>
+            <h2 className="serif text-[clamp(2rem,4.5vw,3.5rem)] leading-[1.05] mt-4">
+              Combos con <em style={{color:"#B8C481"}}>ventaja.</em>
+            </h2>
+          </div>
+          <p className="text-[14px] max-w-sm" style={{color:"rgba(250,247,239,.65)"}}>
+            Reservá varias sesiones y ahorrá. Los packs se consumen a tu ritmo.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 reveal" style={{transitionDelay:".15s"}}>
+          {packs.slice(0,6).map(p=>{
+            const list=Number(p.list_price)||0;
+            const price=Number(p.pack_price)||0;
+            const off=list>0?Math.round(((list-price)/list)*100):0;
+            return(
+              <div key={p.id} className="p-7 flex flex-col" style={{background:"rgba(250,247,239,.04)",border:"1px solid rgba(250,247,239,.1)",borderRadius:2}}>
+                <div className="flex items-center justify-between mb-5">
+                  <span className="mono text-[10px] uppercase tracking-[.2em]" style={{color:"#B8C481"}}>Pack</span>
+                  {off>0&&<span className="text-[11px] px-2 py-1" style={{background:"#B8C481",color:"var(--olive-dk)",borderRadius:2,fontWeight:600}}>-{off}%</span>}
+                </div>
+                <h3 className="serif text-[24px] leading-tight mb-3">{p.name}</h3>
+                {p.description&&<p className="text-[13px] leading-relaxed mb-6" style={{color:"rgba(250,247,239,.7)"}}>{p.description}</p>}
+                <div className="mt-auto pt-5 border-t" style={{borderColor:"rgba(250,247,239,.1)"}}>
+                  <div className="flex items-baseline gap-3 mb-4">
+                    <span className="serif text-[28px]" style={{color:"#B8C481"}}>{fP(price)}</span>
+                    {list>price&&<span className="mono text-[11px] line-through" style={{color:"rgba(250,247,239,.4)"}}>{fP(list)}</span>}
+                  </div>
+                  <button onClick={onBook} className="btn btn-ghost w-full" style={{borderColor:"rgba(250,247,239,.25)",color:"var(--cream)"}}>
+                    Reservar pack
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ---------- Gallery ---------- */
+const Gallery=()=>{
+  const items=[
+    {span:"col-span-3 row-span-2",label:"antes · después"},
+    {span:"col-span-2 row-span-1",label:"cejas"},
+    {span:"col-span-1 row-span-1",label:"espacio"},
+    {span:"col-span-1 row-span-2",label:"detalle"},
+    {span:"col-span-2 row-span-1",label:"facial"},
+    {span:"col-span-2 row-span-1",label:"materiales"},
+    {span:"col-span-1 row-span-1",label:"ambiente"},
+    {span:"col-span-2 row-span-2",label:"retrato"},
+    {span:"col-span-1 row-span-1",label:"producto"},
+  ];
+  return(
+    <section id="galeria" className="py-20 sm:py-28">
+      <div className="max-w-[1280px] mx-auto px-5 sm:px-10">
+        <div className="flex items-end justify-between gap-4 mb-10 reveal">
+          <div>
+            <span className="sec-label mb-4" style={{color:"var(--olive)"}}>Trabajos · N.º 05</span>
+            <h2 className="serif text-[clamp(2rem,4.5vw,3.5rem)] leading-[1.05] mt-4" style={{color:"var(--ink)"}}>
+              El resultado<br/><em style={{color:"var(--olive)"}}>habla por sí solo</em>
+            </h2>
+          </div>
+          <a href="https://www.instagram.com/gfstudio.ok" target="_blank" rel="noopener" className="hidden sm:inline-flex link-u text-[12px]" style={{color:"var(--ink)"}}>Ver Instagram →</a>
+        </div>
+        <div className="gallery-grid reveal">
+          {items.map((it,i)=>(
+            <div key={i} className={`g-item ${it.span}`}>
+              <div className="g-ph">{it.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ---------- Testimonios ---------- */
+const Testimonios=({items})=>{
+  const list=(items||DEFAULT_CONTENT.testimonials).filter(t=>t.visible!==false);
+  if(!list.length)return null;
+  return(
+    <section className="py-20 sm:py-28">
+      <div className="max-w-[1280px] mx-auto px-5 sm:px-10">
+        <div className="flex items-end justify-between gap-4 mb-12 reveal">
+          <div>
+            <span className="sec-label mb-4" style={{color:"var(--olive)"}}>Clientas · N.º 06</span>
+            <h2 className="serif text-[clamp(2rem,4.5vw,3.5rem)] leading-[1.05] mt-4" style={{color:"var(--ink)"}}>
+              Lo que dicen<br/><em style={{color:"var(--olive)"}}>quienes pasaron.</em>
+            </h2>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 reveal" style={{transitionDelay:".15s"}}>
+          {list.slice(0,6).map((t,i)=>(
+            <figure key={i} className="p-7 flex flex-col h-full" style={{background:"var(--cream)",border:"1px solid var(--border)",borderRadius:2}}>
+              <div className="serif text-[40px] leading-none mb-3" style={{color:"var(--olive)",opacity:.6}}>&ldquo;</div>
+              <blockquote className="serif text-[18px] leading-[1.4] italic mb-6 flex-1" style={{color:"var(--ink)"}}>{t.text}</blockquote>
+              <figcaption className="pt-5 border-t flex items-center justify-between" style={{borderColor:"var(--border)"}}>
+                <div>
+                  <div className="text-[13px] font-medium" style={{color:"var(--ink)"}}>{t.name}</div>
+                  <div className="mono text-[10px] uppercase tracking-[.15em] mt-0.5" style={{color:"var(--muted)"}}>{t.svc}</div>
+                </div>
+                <div className="flex gap-0.5" style={{color:"var(--olive)"}}>
+                  {Array.from({length:t.rating||5}).map((_,k)=><span key={k}>★</span>)}
+                </div>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ---------- FAQ ---------- */
+const FAQ=({items})=>{
+  const list=items||DEFAULT_CONTENT.faq;
+  const[open,setOpen]=useState(0);
+  return(
+    <section id="faq" className="py-20 sm:py-28" style={{background:"var(--cream)"}}>
+      <div className="max-w-[1000px] mx-auto px-5 sm:px-10">
+        <div className="text-center mb-14 reveal">
+          <span className="sec-label mb-4" style={{color:"var(--olive)"}}>Preguntas · N.º 07</span>
+          <h2 className="serif text-[clamp(2rem,4.5vw,3.5rem)] leading-[1.05] mt-4" style={{color:"var(--ink)"}}>
+            Dudas <em style={{color:"var(--olive)"}}>frecuentes.</em>
+          </h2>
+        </div>
+        <div className="reveal" style={{transitionDelay:".15s"}}>
+          {list.map((f,i)=>{
+            const isOpen=open===i;
+            return(
+              <div key={i} style={{borderTop:"1px solid var(--border)",borderBottom:i===list.length-1?"1px solid var(--border)":"none"}}>
+                <button onClick={()=>setOpen(isOpen?-1:i)} className="w-full py-6 flex items-center justify-between gap-5 text-left">
+                  <span className="serif text-[clamp(1.15rem,2vw,1.5rem)] leading-snug transition-colors" style={{color:isOpen?"var(--olive-dk)":"var(--ink)"}}>{f.q}</span>
+                  <span className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all" style={{background:isOpen?"var(--olive-dk)":"transparent",color:isOpen?"var(--cream)":"var(--ink)",border:"1px solid var(--border)",transform:isOpen?"rotate(45deg)":"none"}}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 5v14M5 12h14"/></svg>
+                  </span>
+                </button>
+                <div style={{maxHeight:isOpen?"300px":"0",overflow:"hidden",transition:"max-height .5s cubic-bezier(.2,.8,.2,1)"}}>
+                  <p className="pb-6 pr-12 text-[14.5px] leading-[1.65]" style={{color:"var(--muted)",maxWidth:"62ch"}}>{f.a}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="text-center mt-12 reveal" style={{transitionDelay:".3s"}}>
+          <p className="text-[13px] mb-4" style={{color:"var(--muted)"}}>¿Tenés otra duda? Te la respondemos por WhatsApp.</p>
+          <a href={`https://wa.me/${WA_GUADA}`} target="_blank" rel="noopener" className="btn btn-ghost">
+            Escribir por WhatsApp
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ---------- Contact ---------- */
+const Contact=({data,onBook})=>{
+  const c=data||DEFAULT_CONTENT.contact;
+  const wa=(c.whatsapp||WA_GUADA).replace(/\D/g,'');
+  return(
+    <section id="contacto" className="py-24 sm:py-32" style={{background:"var(--ink)",color:"var(--cream)"}}>
+      <div className="max-w-[1280px] mx-auto px-5 sm:px-10">
+        <div className="grid grid-cols-12 gap-10">
+          <div className="col-span-12 md:col-span-7 reveal">
+            <span className="sec-label mb-4" style={{color:"var(--olive-lt)"}}>Encontranos · N.º 08</span>
+            <h2 className="serif text-[clamp(2.5rem,6vw,5rem)] leading-[1] mt-4 mb-6">Vení a<br/>conocernos.</h2>
+            <p className="text-[15px] leading-relaxed max-w-md mb-10" style={{color:"rgba(250,247,239,.65)"}}>
+              El estudio está en pleno centro de Henderson. Estacionamiento en la puerta y un ambiente pensado para que te relajes desde que entrás.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button onClick={onBook} className="btn" style={{background:"var(--cream)",color:"var(--ink)"}}>Reservar turno</button>
+              <a href={`https://maps.google.com/?q=${encodeURIComponent(c.address||"Hipólito Yrigoyen 229 Henderson")}`} target="_blank" rel="noopener" className="btn btn-ghost" style={{color:"var(--cream)",borderColor:"rgba(250,247,239,.2)"}}>Cómo llegar ↗</a>
+            </div>
+          </div>
+          <div className="col-span-12 md:col-span-5 reveal" style={{transitionDelay:".1s"}}>
+            <div className="space-y-0">
+              {[
+                {k:"Dirección",v:c.address||"Hipólito Yrigoyen 229\nHenderson, Buenos Aires"},
+                {k:"Horarios", v:c.hours||"Lunes a sábado\n09:00 — 18:00 hs"},
+                {k:"WhatsApp", v:c.phone||"+54 9 2314 55-5856"},
+                {k:"Instagram",v:c.instagram||"@gfstudio.ok"},
+                ...(c.email?[{k:"Email",v:c.email}]:[]),
+              ].map((r,i)=>(
+                <div key={i} className="flex items-start justify-between gap-6 py-5 border-t" style={{borderColor:"rgba(250,247,239,.1)"}}>
+                  <span className="mono text-[10px] uppercase tracking-[.2em] pt-1" style={{color:"rgba(250,247,239,.4)"}}>{r.k}</span>
+                  <span className="text-[14px] text-right whitespace-pre-line" style={{color:"var(--cream)"}}>{r.v}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ---------- Footer ---------- */
+const Footer=()=>(
+  <footer className="py-10" style={{background:"var(--ink)",color:"rgba(250,247,239,.4)"}}>
+    <div className="max-w-[1280px] mx-auto px-5 sm:px-10 flex flex-col sm:flex-row items-center justify-between gap-4 border-t pt-8" style={{borderColor:"rgba(250,247,239,.08)"}}>
+      <p className="mono text-[11px]">© 2026 GF Studio · Henderson, Buenos Aires</p>
+      <p className="mono text-[11px]">Made with care in Argentina</p>
+    </div>
+  </footer>
+);
+
+/* ---------- WhatsApp float ---------- */
+const WhatsAppFloat=({phone})=>(
+  <a href={`https://wa.me/${(phone||WA_GUADA).replace(/\D/g,'')}?text=${encodeURIComponent("Hola! Quiero consultar sobre turnos en GF Studio.")}`} target="_blank" rel="noopener"
+     className="fixed bottom-6 right-6 z-30 w-12 h-12 rounded-full flex items-center justify-center transition-transform hover:scale-110"
+     style={{background:"var(--olive-dk)",color:"var(--cream)",boxShadow:"0 8px 24px rgba(61,74,24,.3)"}}>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </a>
+);
+
+/* ═══════════ APP ROOT ═══════════ */
+const App=()=>{
+  const[bk,setBk]=useState(false);
+  const[initialSvcId,setInitialSvcId]=useState(null);
+  const[svcs,setSvcs]=useState([]);
+  const[blocks,setBlocks]=useState([]);
+  const[packs,setPacks]=useState([]);
+  const[coupons,setCoupons]=useState([]);
+  const[content,setContent]=useState(DEFAULT_CONTENT);
+
+  const handleBkClose=useCallback(()=>{setBk(false);setInitialSvcId(null);history.replaceState(null,"","/")},[]);
+  const openBooking=svcId=>{setInitialSvcId(svcId||null);setBk(true)};
+
+  // Load all data
+  const loadAll=useCallback(async()=>{
+    if(!sb)return;
+    // Services + blocks (always exist)
+    try{
+      const svcRes=await sb.from("gf_services").select("*").order("display_order",{ascending:true,nullsFirst:false});
+      let svcData=svcRes.data;
+      if(svcRes.error||!svcData){
+        // Fallback if display_order doesn't exist yet
+        const r=await sb.from("gf_services").select("*").order("id");
+        svcData=r.data||[];
+      }
+      // Filter active (default true if column missing)
+      svcData=(svcData||[]).filter(s=>s.active!==false);
+      setSvcs(svcData);
+    }catch(_){setSvcs([])}
+    try{
+      const{data}=await sb.from("gf_blocked_slots").select("*");
+      setBlocks(data||[]);
+    }catch(_){setBlocks([])}
+    // Packs (may have new columns)
+    try{
+      const{data}=await sb.from("gf_packs").select("*");
+      const visible=(data||[]).filter(p=>p.active!==false&&p.landing_visible!==false);
+      setPacks(visible);
+    }catch(_){setPacks([])}
+    // Coupons (may not exist)
+    try{
+      const{data}=await sb.from("gf_coupons").select("*").eq("active",true);
+      setCoupons(data||[]);
+    }catch(_){setCoupons([])}
+    // Content (may not exist)
+    try{
+      const{data}=await sb.from("gf_content").select("*");
+      if(data&&data.length){
+        const map={...DEFAULT_CONTENT};
+        data.forEach(r=>{map[r.key]=r.value});
+        setContent(map);
+      }
+    }catch(_){/* fallback to defaults */}
   },[]);
 
+  useEffect(()=>{loadAll()},[loadAll]);
+
+  // Realtime subscription with debounce
+  useEffect(()=>{
+    if(!sb)return;
+    let timer=null;
+    const debouncedReload=()=>{clearTimeout(timer);timer=setTimeout(loadAll,400)};
+    const ch=sb.channel("gf-public-realtime")
+      .on("postgres_changes",{event:"*",schema:"public",table:"gf_services"},debouncedReload)
+      .on("postgres_changes",{event:"*",schema:"public",table:"gf_blocked_slots"},debouncedReload)
+      .on("postgres_changes",{event:"*",schema:"public",table:"gf_packs"},debouncedReload)
+      .on("postgres_changes",{event:"*",schema:"public",table:"gf_coupons"},debouncedReload)
+      .on("postgres_changes",{event:"*",schema:"public",table:"gf_content"},debouncedReload)
+      .subscribe();
+    return()=>{clearTimeout(timer);sb.removeChannel(ch)};
+  },[loadAll]);
+
+  // Deep link ?book=1 (&svc=ID)
   useEffect(()=>{
     const p=new URLSearchParams(window.location.search);
     if(p.get("book")==="1"){
@@ -770,205 +1499,28 @@ const App=()=>{
     }
   },[]);
 
-  const go=id=>{document.getElementById(id)?.scrollIntoView({behavior:"smooth"});setMn(false)};
-
   return(
-    <div className="min-h-screen" style={{background:'var(--sand)'}}>
-
-      {/* ══════ NAV ══════ */}
-      <nav className="fixed top-0 left-0 right-0 z-50 transition-all duration-500" style={{
-        background:scrolled?'rgba(232,226,212,.88)':'transparent',
-        backdropFilter:scrolled?'blur(20px)':'none',
-        WebkitBackdropFilter:scrolled?'blur(20px)':'none',
-        borderBottom:scrolled?'1px solid rgba(61,74,24,.06)':'1px solid transparent',
-      }}>
-        <div className="max-w-6xl mx-auto px-5 sm:px-8 flex items-center justify-between h-16 sm:h-20">
-          <div className="cursor-pointer transition-transform hover:scale-105" onClick={()=>go("hero")}><Logo c="var(--olive-dk)" s={44}/></div>
-          <div className="hidden md:flex items-center gap-10">
-            {[{id:"servicios",l:"Servicios"},{id:"contacto",l:"Contacto"}].map(x=>
-              <button key={x.id} onClick={()=>go(x.id)} className="text-[13px] font-light tracking-wide transition-colors hover:text-[var(--olive-dk)]" style={{color:'var(--muted)'}}>{x.l}</button>
-            )}
-            <button onClick={()=>setBk(true)} className="btn-primary text-[13px] font-medium px-7 py-2.5 rounded-full">Reservar turno</button>
-          </div>
-          <button className="md:hidden w-10 h-10 flex items-center justify-center rounded-xl transition-colors" style={{background:mn?'rgba(61,74,24,.08)':'transparent'}} onClick={()=>setMn(!mn)}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d={mn?"M6 6L18 18M6 18L18 6":"M4 7H20M4 12H16M4 17H20"} stroke="var(--olive-dk)" strokeWidth="1.5" strokeLinecap="round"/></svg>
-          </button>
-        </div>
-        {mn&&<div className="md:hidden px-5 pb-5 space-y-1 fade" style={{background:'rgba(232,226,212,.95)',backdropFilter:'blur(20px)'}}>
-          {[{id:"servicios",l:"Servicios"},{id:"contacto",l:"Contacto"}].map(x=>
-            <button key={x.id} onClick={()=>go(x.id)} className="block w-full text-left text-sm py-3 px-3 rounded-xl transition-colors hover:bg-[rgba(94,107,46,.05)] capitalize font-light" style={{color:'var(--muted)'}}>{x.l}</button>
-          )}
-          <button onClick={()=>{setBk(true);setMn(false)}} className="btn-primary w-full text-sm font-medium py-3.5 rounded-full mt-2">Reservar Turno</button>
-        </div>}
-      </nav>
-
-      {/* ══════ HERO ══════ */}
-      <section id="hero" className="relative min-h-screen flex items-center overflow-hidden">
-        {/* Organic shapes */}
-        <div className="absolute top-[10%] left-1/2 -translate-x-1/2 w-72 sm:w-[480px] h-72 sm:h-[480px] opacity-[.06] pointer-events-none" style={{background:'var(--olive)',animation:'blob 20s ease-in-out infinite',borderRadius:'60% 40% 30% 70%/60% 30% 70% 40%'}}/>
-        <div className="absolute bottom-[12%] left-1/2 -translate-x-[60%] w-40 sm:w-64 h-40 sm:h-64 rounded-full opacity-[.03] pointer-events-none" style={{background:'var(--olive-dk)',animation:'float 12s ease-in-out infinite'}}/>
-        <div className="absolute top-[40%] left-[50%] w-1 h-32 sm:h-48 opacity-[.06] pointer-events-none" style={{background:'var(--olive)'}}/>
-
-        {/* Decorative line art */}
-        <svg className="absolute top-20 left-8 sm:left-16 opacity-[.04] pointer-events-none" width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="55" stroke="var(--olive-dk)" strokeWidth="0.5" fill="none"/><circle cx="60" cy="60" r="40" stroke="var(--olive-dk)" strokeWidth="0.3" fill="none"/></svg>
-
-        <div className="max-w-6xl mx-auto px-5 sm:px-8 py-20 w-full relative">
-          <div className="text-center max-w-3xl mx-auto">
-            {/* Logo */}
-            <div className="rise mb-6 sm:mb-10 flex justify-center">
-              <Logo c="var(--olive-dk)" s={window.innerWidth<640?180:252}/>
-            </div>
-
-            {/* Decorative rule */}
-            <div className="rise d1 flex items-center justify-center gap-4 mb-8">
-              <div className="h-px w-12 sm:w-20" style={{background:'var(--olive)',opacity:.15}}/>
-              <span className="text-[10px] sm:text-[11px] uppercase tracking-[.35em] font-light" style={{color:'var(--olive)',opacity:.5}}>Henderson, Buenos Aires</span>
-              <div className="h-px w-12 sm:w-20" style={{background:'var(--olive)',opacity:.15}}/>
-            </div>
-
-            {/* Title */}
-            <h1 className="rise d2" style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(1.9rem,6vw,4.6rem)',fontWeight:700,lineHeight:1.05,color:'var(--ink)',letterSpacing:'-0.02em'}}>
-              El arte de <em style={{color:'var(--olive)'}}>cuidarte</em>
-            </h1>
-
-            <p className="rise d3 mt-5 sm:mt-7 text-sm sm:text-[17px] font-light leading-relaxed max-w-md mx-auto" style={{color:'var(--muted)'}}>
-              Tu ritual de belleza profesional, con resultados reales.
-            </p>
-
-            <div className="rise d4 mt-8 sm:mt-12 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
-              <button onClick={()=>setBk(true)} className="btn-primary text-sm font-medium px-10 py-4 rounded-full w-full sm:w-auto">
-                Reservá tu turno
-              </button>
-              <button onClick={()=>go("servicios")} className="btn-ghost text-sm font-light px-10 py-4 rounded-full w-full sm:w-auto">
-                Ver servicios
-              </button>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* ══════ MARQUEE ══════ */}
-      <div className="overflow-hidden py-6 sm:py-8 relative" style={{borderTop:'1px solid rgba(94,107,46,.06)',borderBottom:'1px solid rgba(94,107,46,.06)'}}>
-        <div style={{display:'flex',width:'max-content',animation:'marquee 40s linear infinite'}}>
-          {[...Array(8)].map((_,i)=><span key={i} className="mx-6 sm:mx-10 whitespace-nowrap flex items-center gap-6 sm:gap-10" style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(.9rem,2vw,1.2rem)',fontStyle:'italic',color:'var(--olive)',opacity:.12}}>
-            <span>Perfilado</span><span style={{fontSize:'.5em',opacity:.5}}>✦</span>
-            <span>Laminado</span><span style={{fontSize:'.5em',opacity:.5}}>✦</span>
-            <span>Fototerapia</span><span style={{fontSize:'.5em',opacity:.5}}>✦</span>
-            <span>Skincare</span><span style={{fontSize:'.5em',opacity:.5}}>✦</span>
-            <span>Radiofrecuencia</span><span style={{fontSize:'.5em',opacity:.5}}>✦</span>
-            <span>Limpieza Facial</span><span style={{fontSize:'.5em',opacity:.5}}>✦</span>
-          </span>)}
-        </div>
-      </div>
-
-      {/* ══════ SERVICES ══════ */}
-      <section id="servicios" className="py-20 sm:py-32">
-        <div className="max-w-5xl mx-auto px-5 sm:px-8">
-          <div className="reveal text-center mb-14 sm:mb-20">
-            <span className="inline-block text-[10px] uppercase tracking-[.4em] font-medium px-4 py-1.5 rounded-full mb-5" style={{background:'rgba(94,107,46,.06)',color:'var(--olive)'}}>Nuestros servicios</span>
-            <h2 style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(2rem,5vw,3.4rem)',color:'var(--ink)',lineHeight:1.1}}>
-              Tratamientos <em style={{color:'var(--olive)'}}>especializados</em>
-            </h2>
-            <p className="mt-4 text-sm sm:text-base font-light max-w-md mx-auto leading-relaxed" style={{color:'var(--muted)'}}>
-              Técnica profesional y tecnología de última generación para resultados que se ven y se sienten.
-            </p>
-          </div>
-
-          <div className="space-y-3 sm:space-y-4">
-            {(loadingSvcs?[]:svcs).map((s,i)=>(
-              <div key={s.id} className="reveal svc glass rounded-2xl sm:rounded-[20px] overflow-hidden cursor-pointer group"
-                style={{transitionDelay:`${i*.05}s`}}
-                onClick={()=>{setInitialSvcId(s.id);setBk(true)}}>
-                <div className="p-5 sm:p-7">
-                  <div className="flex items-center gap-4 sm:gap-5">
-                    <div className="num w-11 h-11 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center text-xs sm:text-sm font-semibold flex-shrink-0 transition-all duration-500" style={{background:'rgba(94,107,46,.06)',color:'var(--olive)'}}>
-                      {String(i+1).padStart(2,'0')}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <h3 className="text-sm sm:text-[15px] font-semibold truncate" style={{color:'var(--ink)'}}>{s.name}</h3>
-                        <span className="flex-shrink-0 text-right" style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(1rem,2.5vw,1.35rem)',color:'var(--olive)',fontWeight:600}}>{fP(s.price)}</span>
-                      </div>
-                      <div className="flex items-center gap-3 mt-1">
-                        <span className="text-[11px] font-light" style={{color:'var(--muted)',opacity:.6}}>{"\u23F1"} {s.duration || (s.duration_minutes ? s.duration_minutes + " min" : "")}</span>
-                        {s.description&&<p className="text-xs sm:text-[13px] font-light mt-0.5" style={{color:'var(--muted)'}}>{s.description}</p>}
-                      </div>
-                    </div>
-                    <div className="arrow flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center" style={{background:'var(--olive-dk)',color:'#fff'}}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ══════ CONTACT ══════ */}
-      <section id="contacto" className="py-20 sm:py-28 relative">
-        <div className="max-w-5xl mx-auto px-5 sm:px-8">
-          <div className="reveal text-center mb-12">
-            <span className="inline-block text-[10px] uppercase tracking-[.4em] font-medium px-4 py-1.5 rounded-full mb-5" style={{background:'rgba(94,107,46,.06)',color:'var(--olive)'}}>Encontranos</span>
-            <h2 style={{fontFamily:'Playfair Display,serif',fontSize:'clamp(1.8rem,4vw,2.8rem)',color:'var(--ink)',lineHeight:1.1}}>
-              Vení a <em style={{color:'var(--olive)'}}>conocernos</em>
-            </h2>
-          </div>
-          <div className="reveal grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-            {[
-              {icon:<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--olive)" strokeWidth="1.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>,t:"Ubicación",d:"Henderson\nBuenos Aires"},
-              {icon:<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--olive)" strokeWidth="1.2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>,t:"Horarios",d:"Lunes a Viernes\n09:00 a 18:00 hs"},
-              {icon:<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--olive)" strokeWidth="1.2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>,t:"Contacto",d:"WhatsApp Business\nTurnos online 24/7"}
-            ].map((c,i)=>(
-              <div key={i} className="glass rounded-2xl p-7 text-center group hover:shadow-lg transition-all duration-500 hover:-translate-y-1" style={{transitionDelay:`${i*.05}s`}}>
-                <div className="w-12 h-12 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{background:'rgba(94,107,46,.06)'}}>{c.icon}</div>
-                <h3 className="text-sm font-semibold mb-2" style={{color:'var(--ink)'}}>{c.t}</h3>
-                <p className="text-xs font-light whitespace-pre-line leading-relaxed" style={{color:'var(--muted)'}}>{c.d}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ══════ FOOTER ══════ */}
-      <footer className="py-12 sm:py-14" style={{background:'var(--ink)'}}>
-        <div className="max-w-5xl mx-auto px-5 sm:px-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div className="text-center sm:text-left">
-              <Logo c="rgba(255,255,255,.3)" s={40}/>
-              <p className="text-[10px] font-light mt-2 tracking-wide" style={{color:"rgba(255,255,255,.12)"}}>Tu espacio de belleza y cuidado personal</p>
-            </div>
-            <div className="flex gap-3">
-              {[
-                {n:"IG",href:"https://www.instagram.com/gfstudio.ok",d:"M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"},
-                {n:"TT",href:"#",d:"M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"}
-              ].map(s=><a key={s.n} href={s.href} target="_blank" rel="noopener" className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110 hover:bg-[rgba(255,255,255,.08)]" style={{background:"rgba(255,255,255,.04)"}}><svg width="14" height="14" viewBox="0 0 24 24" fill="rgba(255,255,255,.25)"><path d={s.d}/></svg></a>)}
-            </div>
-          </div>
-          <div className="border-t mt-8 pt-5" style={{borderColor:"rgba(255,255,255,.04)"}}>
-            <p className="text-[10px] text-center tracking-wide" style={{color:"rgba(255,255,255,.08)"}}>© 2026 GF Studio · Henderson, Buenos Aires</p>
-          </div>
-        </div>
-      </footer>
-
-      {/* ══════ WA FLOTANTE ══════ */}
-      <a href={`https://api.whatsapp.com/send?phone=${WA_GUADA}&text=${encodeURIComponent("Hola! Quiero consultar sobre turnos en GF Studio.")}`} target="_blank" rel="noopener"
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center transition-transform hover:scale-110"
-        style={{background:'#25D366',boxShadow:'0 4px 20px rgba(37,211,102,.4)'}}>
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-      </a>
-
-      <BookingModal
+    <>
+      <Landing
+        content={content}
+        svcs={svcs}
+        packs={packs}
+        coupons={coupons}
+        blocks={blocks}
+        openBooking={openBooking}
+      />
+      <BookingWizard
         open={bk}
         onClose={handleBkClose}
         svcs={svcs}
         blocks={blocks}
-        initialServiceId={initialSvcId}
+        coupons={coupons}
+        initialSvcId={initialSvcId}
       />
-    </div>
+    </>
   );
 };
+
 ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
 </script>
 </body>
