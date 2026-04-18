@@ -39,15 +39,14 @@
   --border:rgba(26,24,16,.08);
 }
 *{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;color-scheme:light only;overflow-x:hidden}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;color-scheme:light only;overflow-x:clip}
 body{
   font-family:'Inter Tight',system-ui,sans-serif;
   background:var(--bone);
   color:var(--ink);
   font-weight:400;
   letter-spacing:-.005em;
-  overflow-x:hidden;
-  max-width:100vw;
+  overflow-x:clip;
 }
 @media(prefers-color-scheme:dark){html,body{background:var(--bone)!important;color:var(--ink)!important}img,svg{filter:none!important}}
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(0,0,0,.12);border-radius:9px}
@@ -1013,12 +1012,12 @@ const Hero=({data,onBook})=>{
         <div className="reveal" style={{transitionDelay:".1s"}}>
           <h1 className="hero-type">{d.title_a}<br/><em>{d.title_b}.</em></h1>
         </div>
-        <div className="grid grid-cols-12 gap-6 mt-12 sm:mt-14 items-start">
-          <div className="col-span-12 md:col-span-5 reveal" style={{transitionDelay:".2s"}}>
+        <div className="flex flex-col md:grid md:grid-cols-12 gap-8 md:gap-6 mt-12 sm:mt-14 md:items-start">
+          <div className="col-span-12 md:col-span-5 reveal min-w-0" style={{transitionDelay:".2s"}}>
             <p className="serif italic text-[20px] sm:text-[22px] leading-[1.3]" style={{color:"var(--ink)",maxWidth:"32ch"}}>{d.quote}</p>
             <p className="mono text-[10px] uppercase tracking-[.22em] mt-5" style={{color:"var(--muted)"}}>— {d.quote_attr}</p>
           </div>
-          <div className="col-span-12 md:col-span-3 md:col-start-7 reveal" style={{transitionDelay:".3s"}}>
+          <div className="col-span-12 md:col-span-3 md:col-start-7 reveal min-w-0" style={{transitionDelay:".3s"}}>
             <div className="mono text-[10px] uppercase tracking-[.22em] mb-2" style={{color:"var(--olive)"}}>N.º 01 · Qué ofrecemos</div>
             <p className="text-[13.5px] leading-[1.55]" style={{color:"var(--ink)"}}>Cejas, faciales, terapias lumínicas, depilación y maquillaje. Todo con consulta previa.</p>
             <div className="mt-5 pt-5 border-t" style={{borderColor:"var(--border)"}}>
@@ -1035,7 +1034,7 @@ const Hero=({data,onBook})=>{
               </div>
             </div>
           </div>
-          <div className="col-span-12 md:col-span-3 md:col-start-10 reveal flex flex-col gap-3" style={{transitionDelay:".4s"}}>
+          <div className="col-span-12 md:col-span-3 md:col-start-10 reveal flex flex-col gap-3 min-w-0" style={{transitionDelay:".4s"}}>
             <button onClick={onBook} className="btn btn-dk w-full">
               Reservá tu turno
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -1081,24 +1080,24 @@ const About=({data})=>{
   return(
     <section className="py-24 sm:py-32">
       <div className="max-w-[1280px] mx-auto px-5 sm:px-10">
-        <div className="grid grid-cols-12 gap-10 items-start">
-          <div className="col-span-12 md:col-span-5 reveal">
+        <div className="flex flex-col md:grid md:grid-cols-12 gap-8 md:gap-10 md:items-start">
+          <div className="col-span-12 md:col-span-5 reveal min-w-0">
             <div className="aspect-[3/4] relative overflow-hidden rounded-sm" style={{background:"var(--sand)"}}>
               <div className="g-ph">[ foto del espacio ]</div>
             </div>
           </div>
-          <div className="col-span-12 md:col-span-6 md:col-start-7 reveal" style={{transitionDelay:".15s"}}>
+          <div className="col-span-12 md:col-span-6 md:col-start-7 reveal min-w-0" style={{transitionDelay:".15s"}}>
             <span className="sec-label mb-6" style={{color:"var(--olive)"}}>Sobre nosotras</span>
             <h2 className="serif text-[clamp(2rem,4.5vw,3.5rem)] leading-[1.05] mb-6 mt-4" style={{color:"var(--ink)"}}>
               {d.title_a}<br/><em style={{color:"var(--olive)"}}>{d.title_b}.</em>
             </h2>
             <p className="text-[15px] leading-relaxed mb-4" style={{color:"var(--ink)",maxWidth:"52ch"}}>{d.body_main}</p>
             <p className="text-[14px] leading-relaxed" style={{color:"var(--muted)",maxWidth:"52ch"}}>{d.body_sec}</p>
-            <div className="grid grid-cols-3 gap-6 mt-10 pt-8 border-t" style={{borderColor:"var(--border)"}}>
+            <div className="grid grid-cols-3 gap-3 sm:gap-6 mt-10 pt-8 border-t" style={{borderColor:"var(--border)"}}>
               {[[d.stat_a_v,d.stat_a_l],[d.stat_b_v,d.stat_b_l],[d.stat_c_v,d.stat_c_l]].map(([n,l],i)=>(
-                <div key={i}>
-                  <div className="serif text-[32px] leading-none" style={{color:"var(--olive-dk)"}}>{n}</div>
-                  <div className="mono text-[10px] uppercase tracking-[.15em] mt-2" style={{color:"var(--muted)"}}>{l}</div>
+                <div key={i} className="min-w-0">
+                  <div className="serif text-[26px] sm:text-[32px] leading-none" style={{color:"var(--olive-dk)"}}>{n}</div>
+                  <div className="mono text-[9px] sm:text-[10px] uppercase tracking-[.1em] sm:tracking-[.15em] mt-2 break-words" style={{color:"var(--muted)"}}>{l}</div>
                 </div>
               ))}
             </div>
@@ -1370,8 +1369,8 @@ const Contact=({data,onBook})=>{
   return(
     <section id="contacto" className="py-24 sm:py-32" style={{background:"var(--ink)",color:"var(--cream)"}}>
       <div className="max-w-[1280px] mx-auto px-5 sm:px-10">
-        <div className="grid grid-cols-12 gap-10">
-          <div className="col-span-12 md:col-span-7 reveal">
+        <div className="flex flex-col md:grid md:grid-cols-12 gap-8 md:gap-10">
+          <div className="col-span-12 md:col-span-7 reveal min-w-0">
             <span className="sec-label mb-4" style={{color:"var(--olive-lt)"}}>Encontranos · N.º 08</span>
             <h2 className="serif text-[clamp(2.5rem,6vw,5rem)] leading-[1] mt-4 mb-6">Vení a<br/>conocernos.</h2>
             <p className="text-[15px] leading-relaxed max-w-md mb-10" style={{color:"rgba(250,247,239,.65)"}}>
@@ -1382,7 +1381,7 @@ const Contact=({data,onBook})=>{
               <a href={`https://maps.google.com/?q=${encodeURIComponent(c.address||"Hipólito Yrigoyen 229 Henderson")}`} target="_blank" rel="noopener" className="btn btn-ghost" style={{color:"var(--cream)",borderColor:"rgba(250,247,239,.2)"}}>Cómo llegar ↗</a>
             </div>
           </div>
-          <div className="col-span-12 md:col-span-5 reveal" style={{transitionDelay:".1s"}}>
+          <div className="col-span-12 md:col-span-5 reveal min-w-0" style={{transitionDelay:".1s"}}>
             <div className="space-y-0">
               {[
                 {k:"Dirección",v:c.address||"Hipólito Yrigoyen 229\nHenderson, Buenos Aires"},
@@ -1391,9 +1390,9 @@ const Contact=({data,onBook})=>{
                 {k:"Instagram",v:c.instagram||"@gfstudio.ok"},
                 ...(c.email?[{k:"Email",v:c.email}]:[]),
               ].map((r,i)=>(
-                <div key={i} className="flex items-start justify-between gap-6 py-5 border-t" style={{borderColor:"rgba(250,247,239,.1)"}}>
-                  <span className="mono text-[10px] uppercase tracking-[.2em] pt-1" style={{color:"rgba(250,247,239,.4)"}}>{r.k}</span>
-                  <span className="text-[14px] text-right whitespace-pre-line" style={{color:"var(--cream)"}}>{r.v}</span>
+                <div key={i} className="flex items-start justify-between gap-4 sm:gap-6 py-5 border-t" style={{borderColor:"rgba(250,247,239,.1)"}}>
+                  <span className="mono text-[10px] uppercase tracking-[.2em] pt-1 flex-shrink-0" style={{color:"rgba(250,247,239,.4)"}}>{r.k}</span>
+                  <span className="text-[13px] sm:text-[14px] text-right whitespace-pre-line break-words min-w-0" style={{color:"var(--cream)"}}>{r.v}</span>
                 </div>
               ))}
             </div>
