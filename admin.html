@@ -82,7 +82,7 @@ body::before{
   background:var(--ink);color:var(--cream);
   padding:28px 20px;
   display:flex;flex-direction:column;gap:24px;
-  position:sticky;top:0;height:100vh;
+  position:sticky;top:0;height:100vh;overflow-y:auto;
   border-right:1px solid rgba(250,247,239,.06);
 }
 .sidebar .brand{display:flex;align-items:center;gap:10px;padding:0 6px}
@@ -113,6 +113,13 @@ body::before{
 .sidebar .user .tx .r{font-size:10px;color:rgba(250,247,239,.4);letter-spacing:.1em;text-transform:uppercase;font-family:'JetBrains Mono',monospace;margin-top:2px}
 .sidebar a.logout{display:flex;align-items:center;gap:10px;padding:8px 6px;font-size:12px;color:rgba(250,247,239,.4);cursor:pointer;margin-top:12px}
 .sidebar a.logout:hover{color:var(--cream)}
+@media(max-height:720px){
+  .sidebar{padding:16px 14px;gap:12px}
+  .sidebar nav .nav-group{padding:10px 14px 4px;margin-top:2px}
+  .sidebar nav a{padding:8px 12px;font-size:13px}
+  .sidebar .footer{padding-top:12px}
+  .sidebar a.logout{margin-top:6px}
+}
 
 .main{overflow-y:auto;min-width:0;position:relative;z-index:2}
 .topbar{
