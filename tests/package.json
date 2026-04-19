@@ -1,0 +1,27 @@
+{
+  "name": "gf-studio-tests",
+  "version": "1.0.0",
+  "description": "Testing suite for GF Studio booking system",
+  "main": "test-smoke.js",
+  "scripts": {
+    "smoke": "node test-smoke.js",
+    "test": "node test-smoke.js",
+    "test:watch": "node test-smoke.js && echo '\\nWaiting 5 seconds before next run...' && sleep 5 && npm run test:watch"
+  },
+  "keywords": [
+    "testing",
+    "qa",
+    "smoke-tests",
+    "mobile",
+    "accessibility"
+  ],
+  "author": "GF Studio Team",
+  "license": "PROPRIETARY",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HenderseedsRepositorio/gf-studio"
+  }
+}

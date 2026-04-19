@@ -1,0 +1,160 @@
+╔════════════════════════════════════════════════════════════════════════════════╗
+║           GF STUDIO — TESTING SUITE v1.0 — QUICK START GUIDE                   ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+📂 UBICACIÓN:
+   /sessions/nice-happy-hopper/mnt/Documents/2-ClientesIA/gf-studio/tests/
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 INICIO RÁPIDO (Elige una opción):
+
+  1️⃣  DASHBOARD VISUAL (Recomendado)
+      Abre: tests/index.html en navegador
+      ├─ Acceso rápido a todas las herramientas
+      ├─ Descripción de cada recurso
+      └─ Tiempo estimado: 2 minutos para orientarse
+
+  2️⃣  SMOKE TESTS (Automático, rápido)
+      Ejecuta: node tests/test-smoke.js
+      ├─ Validaciones automáticas básicas
+      ├─ Tiempo: 2 minutos
+      └─ Usar antes de cada commit
+
+  3️⃣  MOBILE TESTING (Interactivo)
+      Abre: tests/test-mobile.html en navegador
+      ├─ Prueba 7 dispositivos (iPhone, Pixel, iPad)
+      ├─ Detecta overflow automáticamente
+      └─ Tiempo: 20 minutos
+
+  4️⃣  QA CHECKLIST (Comprehensive)
+      Abre: tests/test-checklist.html en navegador
+      ├─ 300+ casos de test interactivos
+      ├─ Progreso guardado automáticamente
+      └─ Tiempo: 60 minutos
+
+  5️⃣  PLAN COMPLETO (Referencia)
+      Lee: tests/TEST-PLAN.md
+      ├─ 130+ casos documentados
+      ├─ Procedimiento completo de testing
+      └─ Criterios de aceptación
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 FLUJO ESTÁNDAR DE TESTING:
+
+  PASO 1: Antes de Commit (5 min)
+  ─────────────────────────────────
+  $ cd gf-studio
+  $ node tests/test-smoke.js
+
+  Si ves "SMOKE TEST PASSED" → puedes hacer commit
+  Si ves errores críticos → corregir antes de commit
+
+  ─────────────────────────────────
+
+  PASO 2: Durante Desarrollo (20 min)
+  ─────────────────────────────────
+  1. Abre tests/test-mobile.html en navegador
+  2. Selecciona dispositivo (iPhone 14, Pixel 7, iPad)
+  3. Prueba la feature nueva
+  4. Si ves borde rojo = overflow → corregir
+
+  ─────────────────────────────────
+
+  PASO 3: Pre-Release (60 min)
+  ─────────────────────────────────
+  1. node tests/test-smoke.js
+  2. Abre tests/test-checklist.html
+  3. Marca tests: Pass (✓), Fail (✗), Skip (⊘)
+  4. Objetivo: 70%+ PASS
+  5. Exporta resultados (botón "Copiar al portapapeles")
+  6. Verifica Lighthouse > 85 en Vercel preview
+  7. Prueba en navegadores reales
+
+  ─────────────────────────────────
+
+  PASO 4: Deploy
+  ─────────────────────────────────
+  Si todos los pasos pasaron:
+  $ git add -A
+  $ git commit -m "chore: release v1.x.x"
+  $ git push origin main
+  → Vercel auto-deploya
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 ARCHIVOS DISPONIBLES:
+
+  TEST-PLAN.md              Guía completa de testing (130+ casos)
+  test-smoke.js             Script automático Node.js (2 min)
+  test-mobile.html          Prueba en 7 dispositivos (20 min)
+  test-checklist.html       Checklist QA con localStorage (60 min)
+  README.md                 Documentación detallada
+  index.html                Dashboard visual de acceso rápido
+  package.json              Scripts npm (test, smoke, test:watch)
+  ci-example.sh             Script para CI/CD pipelines
+  QUICK-START.txt           Este archivo
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ CHECKLIST ANTES DE DEPLOY:
+
+  Pre-Commit:
+  □ node tests/test-smoke.js → sin errores críticos
+
+  Pre-Release:
+  □ tests/test-mobile.html → sin overflow en iPhone, Pixel, iPad
+  □ tests/test-checklist.html → 70%+ PASS
+  □ Lighthouse en Vercel preview → Performance > 85
+  □ Probado en navegadores reales (Chrome, Firefox, Safari)
+  □ Probado en dispositivos reales (si es posible)
+  □ No hay console errors o warnings
+  □ URLs de Supabase están vivas
+  □ Emails de confirmación se envían
+  □ Cupones se aplican correctamente
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❓ FAQ RÁPIDAS:
+
+  P: ¿Por dónde empiezo?
+  R: Abre tests/index.html en navegador → sigue instrucciones
+
+  P: ¿Cuánto tiempo lleva hacer testing completo?
+  R: ~90 minutos (5 smoke + 20 mobile + 60 checklist + 5 lighthouse)
+
+  P: ¿Necesito instalar algo?
+  R: No. Node.js debe estar instalado para test-smoke.js (npm test)
+
+  P: ¿Se guarda mi progreso del checklist?
+  R: Sí, en localStorage del navegador (automáticamente)
+
+  P: ¿Puedo resetear el checklist?
+  R: Sí, botón "Resetear" en tests/test-checklist.html
+
+  P: ¿Cómo exporto los resultados?
+  R: tests/test-checklist.html → botón "Copiar al portapapeles"
+
+  P: ¿Qué pasa si fallo algún test?
+  R: Ve a TEST-PLAN.md → sección correspondiente → sigue pasos
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔗 LINKS RÁPIDOS:
+
+  Dashboard:           tests/index.html
+  Plan Completo:       tests/TEST-PLAN.md
+  Documentación:       tests/README.md
+  Smoke Tests:         node tests/test-smoke.js
+  Mobile Testing:      tests/test-mobile.html
+  QA Checklist:        tests/test-checklist.html
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+👤 RESPONSABLE: QA Team
+📅 FECHA: 2026-04-19
+🏷️  VERSIÓN: 1.0.0
+✅ ESTADO: Listo para Producción
+
+═════════════════════════════════════════════════════════════════════════════════

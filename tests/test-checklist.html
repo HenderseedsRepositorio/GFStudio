@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GF Studio — QA Test Checklist</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 32px;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #4CAF50 0%, #8BC34A 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    header p {
+      color: #999;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    button {
+      padding: 10px 18px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    button.primary {
+      background: #4CAF50;
+      border-color: #4CAF50;
+      color: #000;
+    }
+
+    button.primary:hover {
+      background: #45a049;
+      border-color: #45a049;
+    }
+
+    button.danger {
+      background: rgba(244, 67, 54, 0.2);
+      border-color: rgba(244, 67, 54, 0.5);
+      color: #ff9999;
+    }
+
+    button.danger:hover {
+      background: rgba(244, 67, 54, 0.3);
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4CAF50 0%, #8BC34A 100%);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .progress-label {
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: #4CAF50;
+      margin-bottom: 10px;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .test-section {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .test-section-header {
+      background: rgba(76, 175, 80, 0.15);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 16px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+      transition: background 0.2s;
+    }
+
+    .test-section-header:hover {
+      background: rgba(76, 175, 80, 0.25);
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #4CAF50;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-icon {
+      font-size: 18px;
+    }
+
+    .section-progress {
+      font-size: 12px;
+      color: #999;
+    }
+
+    .test-cases {
+      padding: 0;
+    }
+
+    .test-case {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 16px;
+      display: grid;
+      grid-template-columns: 40px 1fr 120px;
+      gap: 12px;
+      align-items: start;
+      transition: background 0.2s;
+    }
+
+    .test-case:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .test-case:last-child {
+      border-bottom: none;
+    }
+
+    .test-case.passed {
+      background: rgba(76, 175, 80, 0.08);
+    }
+
+    .test-case.failed {
+      background: rgba(244, 67, 54, 0.08);
+    }
+
+    .test-case.skipped {
+      background: rgba(255, 152, 0, 0.08);
+    }
+
+    .test-checkbox {
+      display: flex;
+      gap: 6px;
+      flex-direction: column;
+      margin-top: 4px;
+    }
+
+    .test-checkbox input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #4CAF50;
+    }
+
+    .test-checkbox label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #999;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .test-description {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .test-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #e0e0e0;
+    }
+
+    .test-steps {
+      font-size: 12px;
+      color: #aaa;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .test-expected {
+      font-size: 12px;
+      color: #8BC34A;
+      font-weight: 500;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 20px;
+      height: fit-content;
+    }
+
+    .stats-box {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .stats-box h3 {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #999;
+      margin-bottom: 16px;
+    }
+
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 13px;
+    }
+
+    .stat-item:last-child {
+      border-bottom: none;
+    }
+
+    .stat-label {
+      color: #aaa;
+    }
+
+    .stat-value {
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    .stat-value.pass {
+      color: #4CAF50;
+    }
+
+    .stat-value.fail {
+      color: #ff9999;
+    }
+
+    .stat-value.skip {
+      color: #ffb366;
+    }
+
+    .stat-value.pending {
+      color: #999;
+    }
+
+    .filter-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .filter-btn {
+      padding: 8px 12px !important;
+      font-size: 12px !important;
+      text-align: center;
+    }
+
+    .filter-btn.active {
+      background: rgba(76, 175, 80, 0.3) !important;
+      border-color: #4CAF50 !important;
+    }
+
+    .export-section {
+      background: rgba(76, 175, 80, 0.15);
+      border: 1px solid rgba(76, 175, 80, 0.3);
+      border-radius: 6px;
+      padding: 16px;
+      margin-top: 20px;
+    }
+
+    .export-section h4 {
+      font-size: 12px;
+      font-weight: 600;
+      color: #4CAF50;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .export-section button {
+      width: 100%;
+    }
+
+    .footer {
+      text-align: center;
+      color: #666;
+      font-size: 12px;
+      padding: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      margin-top: 30px;
+    }
+
+    @media (max-width: 900px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+      }
+
+      .test-case {
+        grid-template-columns: 40px 1fr;
+      }
+    }
+
+    .collapsed {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🧪 GF Studio — QA Test Checklist</h1>
+      <p>Seguimiento integral de testing before production deploy</p>
+    </header>
+
+    <div class="progress-label">
+      Completitud General: <span id="totalPercentage">0</span>%
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="toolbar">
+      <button class="primary" id="passAllBtn">✓ Marcar todo PASS</button>
+      <button id="resetBtn" class="danger">↻ Resetear checklist</button>
+      <button id="expandAllBtn">⬇ Expandir todo</button>
+      <button id="collapseAllBtn">⬆ Contraer todo</button>
+    </div>
+
+    <div class="main-grid">
+      <div id="sectionsContainer"></div>
+
+      <div class="sidebar">
+        <div class="stats-box">
+          <h3>📊 Estadísticas</h3>
+          <div class="stat-item">
+            <span class="stat-label">Total Tests</span>
+            <span class="stat-value pending" id="totalCount">0</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">✓ Pasados</span>
+            <span class="stat-value pass" id="passCount">0</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">✗ Fallados</span>
+            <span class="stat-value fail" id="failCount">0</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">⊘ Saltados</span>
+            <span class="stat-value skip" id="skipCount">0</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">⏳ Pendientes</span>
+            <span class="stat-value pending" id="pendingCount">0</span>
+          </div>
+        </div>
+
+        <div class="stats-box">
+          <h3>🔍 Filtrar por Estado</h3>
+          <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="all">Todos</button>
+            <button class="filter-btn" data-filter="pass">Pasados</button>
+            <button class="filter-btn" data-filter="fail">Fallados</button>
+            <button class="filter-btn" data-filter="skip">Saltados</button>
+          </div>
+        </div>
+
+        <div class="export-section">
+          <h4>📤 Exportar Resultados</h4>
+          <button id="exportBtn">Copiar al portapapeles</button>
+          <p style="font-size: 11px; color: #aaa; margin-top: 10px;">Se copian todos los resultados en formato resumido</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    GF Studio Testing Checklist v1.0 — Progreso guardado automáticamente en localStorage
+  </div>
+
+  <script>
+    // Test data structure
+    const testSections = [
+      {
+        id: 'booking-flow',
+        title: 'Flujo Público: Reservar Turno',
+        icon: '📅',
+        tests: [
+          { id: 'bf-1', title: 'Página carga correctamente', steps: '1. Navegar a https://gf-studio.vercel.app\n2. Esperar a que cargue\n3. Verificar que se ve hero section' },
+          { id: 'bf-2', title: 'Galería de servicios visible', steps: '1. Hacer scroll a servicios\n2. Verificar que se muestran todos los servicios\n3. Ver descripciones y precios' },
+          { id: 'bf-3', title: 'Click en servicio abre detalles', steps: '1. Click en cualquier servicio\n2. Se abre overlay con detalles\n3. Mostrar precio, duración, descripción' },
+          { id: 'bf-4', title: 'Click "Reservar" abre calendario', steps: '1. Click botón "Reservar"\n2. Se abre date picker\n3. Mostrar fechas disponibles' },
+          { id: 'bf-5', title: 'Validación de nombre', steps: '1. Dejar nombre vacío\n2. Intenta continuar\n3. Muestra error "Nombre requerido"' },
+          { id: 'bf-6', title: 'Validación de email', steps: '1. Ingresa email inválido (ej: "test")\n2. Intenta continuar\n3. Muestra error "Email inválido"' },
+          { id: 'bf-7', title: 'Validación de teléfono', steps: '1. Ingresa teléfono con formato incorrecto\n2. Intenta continuar\n3. Muestra error o reformat automático' },
+          { id: 'bf-8', title: 'Aplicar cupón descuento', steps: '1. Ingresa código cupón válido\n2. Verifica que se aplique descuento\n3. Total se actualiza correctamente' },
+          { id: 'bf-9', title: 'Cupón inválido muestra error', steps: '1. Ingresa código cupón inválido\n2. Intenta aplicar\n3. Muestra mensaje de error' },
+          { id: 'bf-10', title: 'Completar reserva', steps: '1. Completar todos los campos\n2. Click "Confirmar Reserva"\n3. Se crea turno en base de datos' },
+          { id: 'bf-11', title: 'Confirmación visual en pantalla', steps: '1. Después de reservar\n2. Muestra número de confirmación\n3. Puede cerrar o volver a agendar' },
+          { id: 'bf-12', title: 'Email de confirmación llega', steps: '1. Después de reservar\n2. Revisar email del cliente\n3. Contiene detalles del turno y QR' },
+        ]
+      },
+      {
+        id: 'admin-crud',
+        title: 'Flujo Admin: Gestión de Turnos',
+        icon: '⚙️',
+        tests: [
+          { id: 'ac-1', title: 'Admin puede loguearse', steps: '1. Ir a https://gf-studio.vercel.app/admin.html\n2. Ingresar credenciales correctas\n3. Se autentica y accede a panel' },
+          { id: 'ac-2', title: 'Listar turnos muestra tabla', steps: '1. Click "Turnos" en sidebar\n2. Tabla carga con todos los turnos\n3. Columnas: Cliente, Servicio, Fecha, Hora, Estado' },
+          { id: 'ac-3', title: 'Filtrar turnos por fecha', steps: '1. Seleccionar rango de fechas\n2. Tabla se actualiza\n3. Solo muestra turnos en ese rango' },
+          { id: 'ac-4', title: 'Buscar turno por cliente', steps: '1. Ingresar nombre en buscador\n2. Tabla se filtra en vivo\n3. Muestra solo turnos de ese cliente' },
+          { id: 'ac-5', title: 'Crear turno manual', steps: '1. Click "Nuevo Turno"\n2. Completar formulario (cliente, servicio, fecha, hora)\n3. Click Crear → se guarda en BD' },
+          { id: 'ac-6', title: 'Editar turno existente', steps: '1. Click en turno en tabla\n2. Se abre modal de edición\n3. Cambiar datos y guardar' },
+          { id: 'ac-7', title: 'Validación: no doble reserva', steps: '1. Intentar reservar mismo slot dos veces\n2. Segunda reserva rechaza\n3. Muestra error "Horario no disponible"' },
+          { id: 'ac-8', title: 'Cancelar turno', steps: '1. Click en turno → "Cancelar"\n2. Seleccionar motivo\n3. Turno marca como cancelado' },
+          { id: 'ac-9', title: 'Cambiar estado turno', steps: '1. Click turno → cambiar estado (pendiente → confirmado)\n2. Se actualiza\n3. Cliente recibe notificación (opcional)' },
+          { id: 'ac-10', title: 'Eliminar turno', steps: '1. Click turno → "Eliminar"\n2. Requiere confirmación\n3. Se elimina de BD' },
+        ]
+      },
+      {
+        id: 'services',
+        title: 'Gestión de Servicios',
+        icon: '💇',
+        tests: [
+          { id: 'svc-1', title: 'Listar todos los servicios', steps: '1. Admin → "Servicios"\n2. Tabla carga con todos\n3. Mostrar: nombre, precio, duración' },
+          { id: 'svc-2', title: 'Crear nuevo servicio', steps: '1. Click "Nuevo Servicio"\n2. Ingresar: nombre, descripción, precio, duración\n3. Click Crear' },
+          { id: 'svc-3', title: 'Editar servicio', steps: '1. Click en servicio\n2. Modal de edición\n3. Cambiar datos y guardar' },
+          { id: 'svc-4', title: 'Activar/desactivar servicio', steps: '1. Click servicio → toggle "Activo"\n2. Se guarda estado\n3. Si inactivo, no aparece en booking' },
+          { id: 'svc-5', title: 'Precio valida correctamente', steps: '1. Crear servicio con precio $5000\n2. En booking, muestra $5.000,00 ARS\n3. Formato de moneda correcto' },
+        ]
+      },
+      {
+        id: 'blocked-slots',
+        title: 'Bloqueo de Horarios',
+        icon: '🔒',
+        tests: [
+          { id: 'bs-1', title: 'Bloquear rango de fechas', steps: '1. Admin → "Bloqueos"\n2. Click "Nuevo Bloqueo"\n3. Seleccionar fechas (ej: 20-25 abril)' },
+          { id: 'bs-2', title: 'Bloqueos excluyen slots en booking', steps: '1. Bloquear 20-25 abril\n2. Usuario intenta reservar en ese rango\n3. Esas fechas no aparecen como disponibles' },
+          { id: 'bs-3', title: 'Bloqueo con motivo', steps: '1. Crear bloqueo\n2. Seleccionar motivo (vacaciones, mantenimiento)\n3. Se guarda motivo' },
+          { id: 'bs-4', title: 'Remover bloqueo', steps: '1. Click en bloqueo existente\n2. Click "Eliminar"\n3. Se remueve, slots vuelven disponibles' },
+          { id: 'bs-5', title: 'Bloqueos no solapan', steps: '1. Crear bloqueo 15-20\n2. Intentar crear bloqueo 18-25\n3. Sistema previene solapamiento' },
+        ]
+      },
+      {
+        id: 'coupons',
+        title: 'Gestión de Cupones',
+        icon: '🎟️',
+        tests: [
+          { id: 'cp-1', title: 'Listar cupones activos', steps: '1. Admin → "Cupones"\n2. Tabla con código, descuento %, vigencia\n3. Mostrar usos restantes' },
+          { id: 'cp-2', title: 'Crear cupón', steps: '1. Click "Nuevo Cupón"\n2. Ingresar: código, descuento, fechas\n3. Click Crear' },
+          { id: 'cp-3', title: 'Código único', steps: '1. Crear cupón "PROMO2026"\n2. Intentar crear otro con mismo código\n3. Rechaza, muestra error' },
+          { id: 'cp-4', title: 'Cupón con límite de usos', steps: '1. Crear cupón con "Usos máximos: 10"\n2. Aplicar 10 veces\n3. A la 11va vez, rechaza "Cupón agotado"' },
+          { id: 'cp-5', title: 'Cupón con vigencia', steps: '1. Crear cupón vigencia 1-15 abril\n2. Intenta usar el 16 de abril\n3. Rechaza "Cupón expirado"' },
+          { id: 'cp-6', title: 'Editar cupón', steps: '1. Click en cupón → editar\n2. Cambiar descuento o vigencia\n3. Se actualiza' },
+          { id: 'cp-7', title: 'Desactivar cupón', steps: '1. Click cupón → "Desactivar"\n2. Ya no se puede usar\n3. En cliente muestra "Cupón no válido"' },
+        ]
+      },
+      {
+        id: 'mobile-ux',
+        title: 'UX Mobile & Responsive',
+        icon: '📱',
+        tests: [
+          { id: 'mob-1', title: 'iPhone SE (375px) - booking', steps: '1. Abrir test-mobile.html\n2. Seleccionar iPhone SE\n3. Verificar que index.html se vea correctamente' },
+          { id: 'mob-2', title: 'iPhone 14 (390px) - responsive', steps: '1. Seleccionar iPhone 14\n2. Scroll y interactuar\n3. No hay overflow, todo legible' },
+          { id: 'mob-3', title: 'Pixel 7 (412px) - Android', steps: '1. Seleccionar Pixel 7\n2. Probar formulario de reserva\n3. Inputs are touch-friendly (min 44px)' },
+          { id: 'mob-4', title: 'iPad Mini (768px) - tablet', steps: '1. Seleccionar iPad Mini\n2. Verificar layout 2 columnas\n3. Galería se adapta' },
+          { id: 'mob-5', title: 'iPad Pro (1024px) - landscape', steps: '1. Seleccionar iPad Pro\n2. Click "Landscape"\n3. Layout se adapta correctamente' },
+          { id: 'mob-6', title: 'Inputs no ocultos por teclado', steps: '1. Mobile, hacer focus en input\n2. Teclado aparece\n3. Input no queda oculto debajo' },
+          { id: 'mob-7', title: 'Botones no se solapan', steps: '1. Mobile\n2. Verificar que botones tengan espacio\n3. No se pisan unos a otros' },
+          { id: 'mob-8', title: 'Galería es carrusel en mobile', steps: '1. Mobile\n2. Scroll por galería\n3. Es un carrusel (swipe), no grid' },
+          { id: 'mob-9', title: 'Admin sidebar colapsable', steps: '1. admin.html mobile\n2. Click hamburger menu\n3. Sidebar se abre/cierra' },
+          { id: 'mob-10', title: 'Tabla scrollea horizontal', steps: '1. Admin, tabla de turnos\n2. Ancho menor a tabla\n3. Scrollea horizontalmente sin romper' },
+        ]
+      },
+      {
+        id: 'accessibility',
+        title: 'Accesibilidad (WCAG AA)',
+        icon: '♿',
+        tests: [
+          { id: 'a11y-1', title: 'Contraste texto vs fondo', steps: '1. Verificar contraste texto negro sobre cream\n2. Debe ser > 4.5:1 (AA)\n3. Usar verificador de contraste' },
+          { id: 'a11y-2', title: 'Focus visible en botones', steps: '1. Press Tab\n2. Botones tienen outline claro\n3. No hay "outline: none"' },
+          { id: 'a11y-3', title: 'Keyboard navigation funciona', steps: '1. Presionar Tab\n2. Recorrer todos los elementos\n3. Enter activa botones, links\n4. Escape cierra modales' },
+          { id: 'a11y-4', title: 'Formularios tienen labels', steps: '1. Inspeccionar inputs\n2. Cada input tiene <label for="id">\n3. Labels asociados correctamente' },
+          { id: 'a11y-5', title: 'Alt text en imágenes', steps: '1. Inspeccionar imágenes\n2. Todas tienen alt="" descriptivo\n3. No alt vacío ni "imagen"' },
+          { id: 'a11y-6', title: 'Textos en rojo tienen icono', steps: '1. Buscar mensajes de error (rojo)\n2. Todos tienen icono ✗ + color\n3. No solo color para diferenciar' },
+          { id: 'a11y-7', title: 'Modal tiene aria-modal="true"', steps: '1. Inspeccionar modal\n2. Tiene role="dialog"\n3. Tiene aria-modal="true"' },
+          { id: 'a11y-8', title: 'Headings en orden lógico', steps: '1. Inspeccionar h1, h2, h3\n2. No hay saltos (no h1 → h3)\n3. Orden semántico correcto' },
+          { id: 'a11y-9', title: 'Skip to main content', steps: '1. Press Tab first\n2. Debe haber "Skip to main content"\n3. Permite saltar navbar' },
+          { id: 'a11y-10', title: 'Animaciones respetan prefers-reduced-motion', steps: '1. Browser setting: reduce motion\n2. Animaciones se desactivan\n3. Página funciona sin animaciones' },
+        ]
+      },
+      {
+        id: 'notifications',
+        title: 'Notificaciones & Emails',
+        icon: '📧',
+        tests: [
+          { id: 'notif-1', title: 'Email confirmación llega al cliente', steps: '1. Hacer una reserva\n2. Revisar email\n3. Llega confirmación con detalles' },
+          { id: 'notif-2', title: 'Email tiene formato HTML correcto', steps: '1. Recibir email de confirmación\n2. Abrir en navegador\n3. Se ve correctamente, sin caracteres extraños' },
+          { id: 'notif-3', title: 'QR en email es válido', steps: '1. Recibir confirmación\n2. QR está en email\n3. Scanear QR agrega a calendario' },
+          { id: 'notif-4', title: 'Admin recibe notificación de nueva reserva', steps: '1. Hacer reserva en booking\n2. Admin revisa inbox\n3. Llega notificación interna' },
+          { id: 'notif-5', title: 'Cambio de turno notifica cliente', steps: '1. Admin cambia hora de turno existente\n2. Marcar "Notificar cliente"\n3. Cliente recibe email de cambio' },
+          { id: 'notif-6', title: 'Cancelación notifica cliente', steps: '1. Admin cancela turno\n2. Marcar "Notificar cliente"\n3. Cliente recibe email de cancelación' },
+          { id: 'notif-7', title: 'Email de recordatorio previo', steps: '1. Crear turno para mañana\n2. Esperar recordatorio automático (24hs antes)\n3. Cliente recibe email' },
+        ]
+      },
+      {
+        id: 'performance',
+        title: 'Performance & Carga',
+        icon: '⚡',
+        tests: [
+          { id: 'perf-1', title: 'LCP < 2.5s', steps: '1. Chrome DevTools → Lighthouse\n2. Medir performance en live\n3. LCP (Largest Contentful Paint) < 2.5s' },
+          { id: 'perf-2', title: 'CLS < 0.1', steps: '1. Lighthouse score\n2. CLS (Cumulative Layout Shift) < 0.1\n3. Página no tiene jank visual' },
+          { id: 'perf-3', title: 'TTI < 3s', steps: '1. Time to Interactive (TTI) metric\n2. Página es interactiva en < 3s\n3. Inputs responden rápido' },
+          { id: 'perf-4', title: 'index.html < 150KB', steps: '1. Inspeccionar tamaño archivo\n2. Minificado y comprimido\n3. < 150KB' },
+          { id: 'perf-5', title: 'CDN assets cargan rápido', steps: '1. DevTools → Network\n2. Verificar Tailwind, React, Babel\n3. Todos < 500KB combinado' },
+          { id: 'perf-6', title: 'Cambiar date picker es fluido', steps: '1. Click date picker\n2. Cambiar fechas\n3. No hay lag, animar es smooth (60fps)' },
+          { id: 'perf-7', title: 'Scroll es suave', steps: '1. Scroll page\n2. No stuttering\n3. Animaciones smooth' },
+          { id: 'perf-8', title: 'Filtrar tabla no causa jank', steps: '1. Tabla de 100+ turnos\n2. Filtrar/buscar\n3. Respuesta en < 100ms' },
+        ]
+      },
+      {
+        id: 'security',
+        title: 'Seguridad & Auth',
+        icon: '🔐',
+        tests: [
+          { id: 'sec-1', title: 'XSS: input <script> es sanitizado', steps: '1. Booking, ingresar "<script>alert(1)</script>" en nombre\n2. Guardar\n3. Email no ejecuta script, muestra texto' },
+          { id: 'sec-2', title: 'Auth: logout invalida sesión', steps: '1. Login admin\n2. Logout\n3. Refrescar página → requiere login nuevamente' },
+          { id: 'sec-3', title: 'JWT token no en localStorage sin encriptar', steps: '1. Login\n2. DevTools → Application → LocalStorage\n3. Token JWT está (normal) pero seguro' },
+          { id: 'sec-4', title: 'Rutas admin requieren auth', steps: '1. Ir a /admin.html sin login\n2. Redirige a login\n3. No se puede acceder sin credenciales' },
+          { id: 'sec-5', title: 'CORS correctamente configurado', steps: '1. Network requests a Supabase\n2. Headers incluyen origin correcto\n3. No hay CORS errors' },
+          { id: 'sec-6', title: 'No hay credenciales en URLs', steps: '1. Inspeccionar Network → URL\n2. Ningún password, token, CUI en URL\n3. Datos sensibles solo en headers' },
+          { id: 'sec-7', title: 'Errores no exponen info sensible', steps: '1. Forzar error\n2. Mensaje es genérico ("Error al procesar")\n3. No muestra detalles de BD' },
+          { id: 'sec-8', title: 'HTTPS obligatorio en prod', steps: '1. Ir a http://gf-studio.vercel.app\n2. Redirige a https://\n3. URL siempre con candado' },
+        ]
+      },
+      {
+        id: 'browsers',
+        title: 'Compatibilidad Navegadores',
+        icon: '🌐',
+        tests: [
+          { id: 'br-1', title: 'Chrome/Edge 100+ funciona', steps: '1. Abrir en Chrome/Edge\n2. Todos features funcionan\n3. Sin errores de consola' },
+          { id: 'br-2', title: 'Firefox 95+ funciona', steps: '1. Abrir en Firefox\n2. Probar booking completo\n3. Sin issues de CSS/JS' },
+          { id: 'br-3', title: 'Safari 15+ (Mac) funciona', steps: '1. Abrir en Safari macOS\n2. Verificar date picker, modales\n3. Todo funciona (inputs nativo OK)' },
+          { id: 'br-4', title: 'Safari iOS funciona', steps: '1. Abrir en iPhone\n2. Probar booking completo\n3. Keyboard modal no rompe layout' },
+          { id: 'br-5', title: 'Chrome Android funciona', steps: '1. Abrir en Android Chrome\n2. Completar flujo reserva\n3. Payments funcionan' },
+          { id: 'br-6', title: 'Babel transpila ES6 correctamente', steps: '1. Verificar que arrow functions funcionan\n2. const/let soportados\n3. Spread operator funciona' },
+          { id: 'br-7', title: 'CSS Grid soportado', steps: '1. Inspeccionar layouts\n2. Grid funciona en todos los browsers\n3. Fallbacks para IE no necesarios' },
+        ]
+      },
+    ];
+
+    // Initialize
+    function init() {
+      loadProgress();
+      renderSections();
+      updateStats();
+      setupEventListeners();
+    }
+
+    function renderSections() {
+      const container = document.getElementById('sectionsContainer');
+      container.innerHTML = '';
+
+      testSections.forEach(section => {
+        const sectionEl = document.createElement('div');
+        sectionEl.className = 'test-section';
+        sectionEl.dataset.section = section.id;
+
+        const passCount = section.tests.filter(t => getTestStatus(t.id) === 'pass').length;
+        const totalCount = section.tests.length;
+
+        sectionEl.innerHTML = `
+          <div class="test-section-header" onclick="toggleSection('${section.id}')">
+            <div class="section-title">
+              <span class="section-icon">${section.icon}</span>
+              <span>${section.title}</span>
+            </div>
+            <div class="section-progress">${passCount}/${totalCount} ✓</div>
+          </div>
+          <div class="test-cases" id="cases-${section.id}">
+            ${section.tests.map(test => renderTestCase(test)).join('')}
+          </div>
+        `;
+
+        container.appendChild(sectionEl);
+      });
+    }
+
+    function renderTestCase(test) {
+      const status = getTestStatus(test.id);
+      const statusClass = status ? status : '';
+
+      return `
+        <div class="test-case ${statusClass}" data-test="${test.id}" data-status="${status || ''}">
+          <div class="test-checkbox">
+            <input type="radio" name="${test.id}" value="pass"
+              ${status === 'pass' ? 'checked' : ''}
+              onchange="setTestStatus('${test.id}', 'pass')">
+            <label for="${test.id}-pass">✓ Pass</label>
+
+            <input type="radio" name="${test.id}" value="fail"
+              ${status === 'fail' ? 'checked' : ''}
+              onchange="setTestStatus('${test.id}', 'fail')">
+            <label for="${test.id}-fail">✗ Fail</label>
+
+            <input type="radio" name="${test.id}" value="skip"
+              ${status === 'skip' ? 'checked' : ''}
+              onchange="setTestStatus('${test.id}', 'skip')">
+            <label for="${test.id}-skip">⊘ Skip</label>
+          </div>
+
+          <div class="test-description">
+            <div class="test-title">${test.title}</div>
+            <div class="test-steps">${test.steps}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleSection(sectionId) {
+      const cases = document.getElementById(`cases-${sectionId}`);
+      cases.classList.toggle('collapsed');
+    }
+
+    function setTestStatus(testId, status) {
+      const progress = JSON.parse(localStorage.getItem('gf-test-progress') || '{}');
+      progress[testId] = status;
+      localStorage.setItem('gf-test-progress', JSON.stringify(progress));
+      updateStats();
+      renderSections();
+    }
+
+    function getTestStatus(testId) {
+      const progress = JSON.parse(localStorage.getItem('gf-test-progress') || '{}');
+      return progress[testId] || null;
+    }
+
+    function loadProgress() {
+      const saved = localStorage.getItem('gf-test-progress');
+      if (!saved) {
+        localStorage.setItem('gf-test-progress', JSON.stringify({}));
+      }
+    }
+
+    function updateStats() {
+      let pass = 0, fail = 0, skip = 0, total = 0;
+
+      testSections.forEach(section => {
+        section.tests.forEach(test => {
+          total++;
+          const status = getTestStatus(test.id);
+          if (status === 'pass') pass++;
+          else if (status === 'fail') fail++;
+          else if (status === 'skip') skip++;
+        });
+      });
+
+      const pending = total - pass - fail - skip;
+      const percentage = total > 0 ? Math.round((pass / total) * 100) : 0;
+
+      document.getElementById('totalCount').textContent = total;
+      document.getElementById('passCount').textContent = pass;
+      document.getElementById('failCount').textContent = fail;
+      document.getElementById('skipCount').textContent = skip;
+      document.getElementById('pendingCount').textContent = pending;
+      document.getElementById('totalPercentage').textContent = percentage;
+      document.getElementById('progressFill').style.width = percentage + '%';
+    }
+
+    function setupEventListeners() {
+      document.getElementById('passAllBtn').addEventListener('click', () => {
+        testSections.forEach(section => {
+          section.tests.forEach(test => {
+            setTestStatus(test.id, 'pass');
+          });
+        });
+      });
+
+      document.getElementById('resetBtn').addEventListener('click', () => {
+        if (confirm('¿Estás seguro? Esto reseteará toda la progress.')) {
+          localStorage.removeItem('gf-test-progress');
+          renderSections();
+          updateStats();
+        }
+      });
+
+      document.getElementById('expandAllBtn').addEventListener('click', () => {
+        document.querySelectorAll('.test-cases').forEach(el => {
+          el.classList.remove('collapsed');
+        });
+      });
+
+      document.getElementById('collapseAllBtn').addEventListener('click', () => {
+        document.querySelectorAll('.test-cases').forEach(el => {
+          el.classList.add('collapsed');
+        });
+      });
+
+      document.getElementById('exportBtn').addEventListener('click', exportResults);
+
+      document.querySelectorAll('[data-filter]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const filter = btn.dataset.filter;
+          filterTests(filter);
+        });
+      });
+    }
+
+    function exportResults() {
+      const timestamp = new Date().toLocaleString('es-AR');
+      let pass = 0, fail = 0, skip = 0, total = 0;
+
+      testSections.forEach(section => {
+        section.tests.forEach(test => {
+          total++;
+          const status = getTestStatus(test.id);
+          if (status === 'pass') pass++;
+          else if (status === 'fail') fail++;
+          else if (status === 'skip') skip++;
+        });
+      });
+
+      const percentage = total > 0 ? Math.round((pass / total) * 100) : 0;
+
+      let export_text = `GF STUDIO — TESTING REPORT\n`;
+      export_text += `════════════════════════════════════\n`;
+      export_text += `Fecha: ${timestamp}\n`;
+      export_text += `\n📊 RESUMEN\n`;
+      export_text += `Total Tests: ${total}\n`;
+      export_text += `✓ Pasados: ${pass}\n`;
+      export_text += `✗ Fallados: ${fail}\n`;
+      export_text += `⊘ Saltados: ${skip}\n`;
+      export_text += `Completitud: ${percentage}%\n`;
+      export_text += `════════════════════════════════════\n\n`;
+
+      testSections.forEach(section => {
+        const sectionPass = section.tests.filter(t => getTestStatus(t.id) === 'pass').length;
+        export_text += `${section.icon} ${section.title}\n`;
+        export_text += `${sectionPass}/${section.tests.length}\n`;
+        section.tests.forEach(test => {
+          const status = getTestStatus(test.id);
+          const icon = status === 'pass' ? '✓' : status === 'fail' ? '✗' : status === 'skip' ? '⊘' : '○';
+          export_text += `  ${icon} ${test.title}\n`;
+        });
+        export_text += '\n';
+      });
+
+      navigator.clipboard.writeText(export_text).then(() => {
+        alert('✓ Resultados copiados al portapapeles');
+      });
+    }
+
+    function filterTests(filter) {
+      document.querySelectorAll('.test-case').forEach(testEl => {
+        const status = testEl.dataset.status;
+        if (filter === 'all') {
+          testEl.style.display = '';
+        } else if (filter === status) {
+          testEl.style.display = '';
+        } else {
+          testEl.style.display = 'none';
+        }
+      });
+    }
+
+    // Start
+    init();
+  </script>
+</body>
+</html>

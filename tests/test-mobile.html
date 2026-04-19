@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GF Studio — Mobile Testing Tool</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #4CAF50 0%, #8BC34A 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    header p {
+      color: #aaa;
+      font-size: 14px;
+    }
+
+    .controls {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .control-group label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #aaa;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 10px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    button:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    button.active {
+      background: #4CAF50;
+      border-color: #4CAF50;
+      color: #000;
+    }
+
+    .toggle {
+      display: flex;
+      gap: 6px;
+    }
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #4CAF50;
+    }
+
+    label.checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .preview-area {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .preview-container {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .preview-header {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .preview-info {
+      color: #4CAF50;
+    }
+
+    .preview-content {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f5f5f5;
+      position: relative;
+      min-height: 600px;
+    }
+
+    .device-frame {
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .device-frame.overflow-error {
+      box-shadow: 0 0 0 3px #f44336, 0 20px 60px rgba(244, 67, 54, 0.3);
+    }
+
+    .device-frame.overflow-error::after {
+      content: 'OVERFLOW DETECTED';
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #f44336;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 600;
+      z-index: 1000;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    .ruler {
+      background: linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.1) 50%, transparent 100%);
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: #666;
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .ruler-marks {
+      position: relative;
+      width: 100%;
+      height: 20px;
+      display: flex;
+    }
+
+    .ruler-mark {
+      flex: 1;
+      border-right: 1px solid rgba(0, 0, 0, 0.1);
+      font-size: 10px;
+      color: #999;
+      display: flex;
+      align-items: flex-end;
+      padding-right: 4px;
+      padding-bottom: 2px;
+    }
+
+    .sidebar {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 20px;
+      height: fit-content;
+      position: sticky;
+      top: 20px;
+    }
+
+    .sidebar h3 {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #aaa;
+      margin-bottom: 12px;
+    }
+
+    .info-item {
+      font-size: 12px;
+      margin-bottom: 12px;
+      line-height: 1.6;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .info-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .info-label {
+      color: #aaa;
+      font-weight: 600;
+    }
+
+    .info-value {
+      color: #4CAF50;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .status-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4CAF50;
+      margin-right: 4px;
+    }
+
+    .status-indicator.error {
+      background: #f44336;
+    }
+
+    .footer {
+      background: rgba(255, 255, 255, 0.03);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 16px;
+      text-align: center;
+      font-size: 12px;
+      color: #aaa;
+    }
+
+    @media (max-width: 1024px) {
+      .preview-area {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: relative;
+        top: auto;
+      }
+    }
+
+    .device-sizes {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+    }
+
+    .size-preset {
+      padding: 8px 12px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .size-preset small {
+      display: block;
+      color: #888;
+      font-size: 11px;
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>GF Studio — Mobile Testing Tool</h1>
+      <p>Prueba responsividad en diferentes dispositivos y resuelve problemas de overflow</p>
+    </header>
+
+    <div class="controls">
+      <div class="control-group">
+        <label>📱 Dispositivo Predefinido</label>
+        <div class="btn-group device-sizes">
+          <button class="size-preset active" data-width="375" data-height="812" data-name="iPhone SE">
+            iPhone SE
+            <small>375×812</small>
+          </button>
+          <button class="size-preset" data-width="390" data-height="844" data-name="iPhone 14">
+            iPhone 14
+            <small>390×844</small>
+          </button>
+          <button class="size-preset" data-width="430" data-height="932" data-name="iPhone 14 Pro Max">
+            iPhone 14 PM
+            <small>430×932</small>
+          </button>
+          <button class="size-preset" data-width="412" data-height="915" data-name="Pixel 7">
+            Pixel 7
+            <small>412×915</small>
+          </button>
+          <button class="size-preset" data-width="768" data-height="1024" data-name="iPad Mini">
+            iPad Mini
+            <small>768×1024</small>
+          </button>
+          <button class="size-preset" data-width="1024" data-height="1366" data-name="iPad Pro">
+            iPad Pro
+            <small>1024×1366</small>
+          </button>
+          <button class="size-preset" data-width="1920" data-height="1080" data-name="Desktop 1080p">
+            Desktop
+            <small>1920×1080</small>
+          </button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>📄 Página a Probar</label>
+        <div class="btn-group">
+          <button class="active page-btn" data-page="index.html" data-name="Booking (Landing)">
+            Landing
+          </button>
+          <button class="page-btn" data-page="admin.html" data-name="Admin Panel">
+            Admin
+          </button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>🎨 Opciones Visuales</label>
+        <div class="toggle">
+          <input type="checkbox" id="showRuler" checked>
+          <label for="showRuler" class="checkbox-label">Mostrar regla</label>
+        </div>
+        <div class="toggle">
+          <input type="checkbox" id="highlightOverflow" checked>
+          <label for="highlightOverflow" class="checkbox-label">Detectar overflow</label>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>🔄 Orientación</label>
+        <div class="btn-group">
+          <button id="portraitBtn" class="active" data-orientation="portrait">
+            Portrait
+          </button>
+          <button id="landscapeBtn" data-orientation="landscape">
+            Landscape
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="preview-area">
+      <div class="preview-container">
+        <div class="preview-header">
+          <span class="preview-info">
+            <span class="status-indicator" id="statusIndicator"></span>
+            <span id="deviceInfo">iPhone SE (375×812)</span>
+          </span>
+          <button id="refreshBtn" style="margin: 0;">↻ Refrescar</button>
+        </div>
+        <div class="preview-content">
+          <div class="device-frame" id="deviceFrame">
+            <div class="ruler" id="ruler">
+              <div class="ruler-marks" id="rulerMarks"></div>
+            </div>
+            <iframe id="previewFrame" src="../index.html"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar">
+        <h3>📊 Información del Dispositivo</h3>
+
+        <div class="info-item">
+          <div class="info-label">Ancho (px)</div>
+          <div class="info-value" id="widthDisplay">375</div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-label">Alto (px)</div>
+          <div class="info-value" id="heightDisplay">812</div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-label">Página Actual</div>
+          <div class="info-value" id="pageDisplay">index.html</div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-label">Orientación</div>
+          <div class="info-value" id="orientationDisplay">Portrait</div>
+        </div>
+
+        <h3 style="margin-top: 20px;">⚠️ Problemas Detectados</h3>
+        <div class="info-item">
+          <span class="status-indicator" id="overflowStatus"></span>
+          <span id="overflowMessage">Sin problemas</span>
+        </div>
+
+        <h3 style="margin-top: 20px;">💡 Tips</h3>
+        <div class="info-item" style="font-size: 11px; border-bottom: none; line-height: 1.8; color: #aaa;">
+          <p>• Abre DevTools (F12) en el iframe para inspeccionar elementos</p>
+          <p>• Si ves borde rojo, hay contenido que sobresale</p>
+          <p>• Prueba todas las páginas en todos los dispositivos</p>
+          <p>• Usa landscape para revisar orientación horizontal</p>
+          <p>• Verifica que inputs sean touch-friendly (min 44px)</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    GF Studio Testing Tool v1.0 — Para desarrollo interno — No distribuir
+  </div>
+
+  <script>
+    let currentDevice = { width: 375, height: 812, name: 'iPhone SE', page: 'index.html', orientation: 'portrait' };
+
+    // Device presets
+    document.querySelectorAll('.size-preset').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.size-preset').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentDevice.width = parseInt(btn.dataset.width);
+        currentDevice.height = parseInt(btn.dataset.height);
+        currentDevice.name = btn.dataset.name;
+        updatePreview();
+      });
+    });
+
+    // Page switching
+    document.querySelectorAll('.page-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.page-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentDevice.page = btn.dataset.page;
+        currentDevice.pageName = btn.dataset.name;
+        updatePreview();
+      });
+    });
+
+    // Orientation toggle
+    document.getElementById('portraitBtn').addEventListener('click', () => {
+      document.getElementById('portraitBtn').classList.add('active');
+      document.getElementById('landscapeBtn').classList.remove('active');
+      currentDevice.orientation = 'portrait';
+      updatePreview();
+    });
+
+    document.getElementById('landscapeBtn').addEventListener('click', () => {
+      document.getElementById('landscapeBtn').classList.add('active');
+      document.getElementById('portraitBtn').classList.remove('active');
+      currentDevice.orientation = 'landscape';
+      const temp = currentDevice.width;
+      currentDevice.width = currentDevice.height;
+      currentDevice.height = temp;
+      updatePreview();
+    });
+
+    // Refresh button
+    document.getElementById('refreshBtn').addEventListener('click', () => {
+      document.getElementById('previewFrame').src = currentDevice.page;
+    });
+
+    // Ruler toggle
+    document.getElementById('showRuler').addEventListener('change', (e) => {
+      document.getElementById('ruler').style.display = e.target.checked ? 'flex' : 'none';
+    });
+
+    // Overflow detection toggle
+    document.getElementById('highlightOverflow').addEventListener('change', (e) => {
+      if (e.target.checked) {
+        monitorOverflow();
+      } else {
+        document.getElementById('deviceFrame').classList.remove('overflow-error');
+        document.getElementById('statusIndicator').classList.remove('error');
+        document.getElementById('statusIndicator').classList.add('status-indicator');
+        document.getElementById('overflowMessage').textContent = 'Sin problemas';
+      }
+    });
+
+    function updatePreview() {
+      const frame = document.getElementById('deviceFrame');
+      frame.style.width = currentDevice.width + 'px';
+      frame.style.height = currentDevice.height + 'px';
+
+      document.getElementById('deviceInfo').textContent = `${currentDevice.name} (${currentDevice.width}×${currentDevice.height})`;
+      document.getElementById('widthDisplay').textContent = currentDevice.width + 'px';
+      document.getElementById('heightDisplay').textContent = currentDevice.height + 'px';
+      document.getElementById('pageDisplay').textContent = currentDevice.page;
+      document.getElementById('orientationDisplay').textContent = currentDevice.orientation === 'portrait' ? 'Portrait' : 'Landscape';
+
+      // Update iframe
+      document.getElementById('previewFrame').src = '../' + currentDevice.page;
+
+      // Generate ruler marks
+      generateRuler();
+
+      // Monitor overflow
+      if (document.getElementById('highlightOverflow').checked) {
+        setTimeout(monitorOverflow, 500);
+      }
+    }
+
+    function generateRuler() {
+      const rulerMarks = document.getElementById('rulerMarks');
+      rulerMarks.innerHTML = '';
+      const width = currentDevice.width;
+      const step = Math.ceil(width / 10);
+
+      for (let i = 0; i < width; i += step) {
+        const mark = document.createElement('div');
+        mark.className = 'ruler-mark';
+        mark.textContent = i === 0 ? '0' : (i % (step * 2) === 0 ? i : '');
+        rulerMarks.appendChild(mark);
+      }
+    }
+
+    function monitorOverflow() {
+      const frame = document.getElementById('deviceFrame');
+      const iframe = document.getElementById('previewFrame');
+
+      try {
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+        if (!iframeDoc) return;
+
+        const body = iframeDoc.body;
+        const html = iframeDoc.documentElement;
+
+        const hasOverflow = body.scrollWidth > currentDevice.width ||
+                           html.scrollWidth > currentDevice.width;
+
+        if (hasOverflow) {
+          frame.classList.add('overflow-error');
+          document.getElementById('statusIndicator').classList.add('error');
+          document.getElementById('overflowMessage').innerHTML = `
+            <strong>⚠️ Overflow detectado</strong><br>
+            Ancho real: ${body.scrollWidth}px (esperado: ${currentDevice.width}px)
+          `;
+        } else {
+          frame.classList.remove('overflow-error');
+          document.getElementById('statusIndicator').classList.remove('error');
+          document.getElementById('overflowMessage').textContent = 'Sin problemas';
+        }
+      } catch (e) {
+        // CORS error, se espera en desarrollo
+        document.getElementById('overflowMessage').textContent = 'No se puede verificar (CORS)';
+      }
+    }
+
+    // Initialize
+    generateRuler();
+  </script>
+</body>
+</html>
