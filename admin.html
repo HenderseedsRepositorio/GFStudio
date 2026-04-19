@@ -89,6 +89,8 @@ body::before{
 .sidebar .brand .name{font-family:'Fraunces',serif;font-size:17px;letter-spacing:-.01em}
 .sidebar .meta{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(250,247,239,.4);padding:0 6px}
 .sidebar nav{display:flex;flex-direction:column;gap:2px;margin-top:8px}
+.sidebar nav .nav-group{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:rgba(250,247,239,.32);padding:14px 14px 6px;border-top:1px solid rgba(250,247,239,.06);margin-top:6px}
+.sidebar nav .nav-group:first-child{border-top:0;margin-top:0;padding-top:4px}
 .sidebar nav a{
   display:flex;align-items:center;gap:12px;
   padding:11px 14px;border-radius:2px;
@@ -674,18 +676,22 @@ const Sidebar = ({current, onNav, appts, onLogout, isMobile, drawerOpen}) => {
   const todayISO = toISO(TODAY);
   const pending = appts.filter(a=>a.status==="pending").length;
   const upcoming = appts.filter(a=>(a.status==="confirmed"||a.status==="pending") && a.appointment_date >= todayISO).length;
-  const items = [
-    { id:"turnos",     label:"Turnos",      icon:"calendar", badge: pending ? String(pending) : (upcoming ? String(upcoming) : null) },
-    { id:"clientes",   label:"Clientes",    icon:"user" },
-    { id:"ficha",      label:"Ficha",       icon:"edit" },
-    { id:"servicios",  label:"Servicios",   icon:"sparkle" },
-    { id:"packs",      label:"Packs",       icon:"box" },
-    { id:"galeria",    label:"Galería",     icon:"eye" },
-    { id:"testimonios",label:"Testimonios", icon:"chart" },
-    { id:"cupones",    label:"Cupones",     icon:"ticket" },
-    { id:"contenido",  label:"Contenido",   icon:"layout" },
-    { id:"bloqueos",   label:"Agenda",      icon:"lock" },
-    { id:"resultados", label:"Resultados",  icon:"chart" },
+  const groups = [
+    { label:"Operación", items:[
+      { id:"turnos",     label:"Turnos",      icon:"calendar", badge: pending ? String(pending) : (upcoming ? String(upcoming) : null) },
+      { id:"clientes",   label:"Clientes",    icon:"user" },
+      { id:"ficha",      label:"Ficha",       icon:"edit" },
+      { id:"bloqueos",   label:"Agenda",      icon:"lock" },
+      { id:"resultados", label:"Resultados",  icon:"chart" },
+    ]},
+    { label:"Catálogo & Landing", items:[
+      { id:"servicios",  label:"Servicios",   icon:"sparkle" },
+      { id:"packs",      label:"Packs",       icon:"box" },
+      { id:"galeria",    label:"Galería",     icon:"eye" },
+      { id:"testimonios",label:"Testimonios", icon:"chart" },
+      { id:"cupones",    label:"Cupones",     icon:"ticket" },
+      { id:"contenido",  label:"Contenido",   icon:"layout" },
+    ]},
   ];
   const asideRef = useRef(null);
   useEffect(()=>{
@@ -707,12 +713,17 @@ const Sidebar = ({current, onNav, appts, onLogout, isMobile, drawerOpen}) => {
       </div>
       <div className="meta">Panel · Admin</div>
       <nav>
-        {items.map(it=>(
-          <a key={it.id} className={current===it.id?"active":""} onClick={()=>onNav(it.id)}>
-            <Icon name={it.icon}/>
-            <span>{it.label}</span>
-            {it.badge && <span className="badge">{it.badge}</span>}
-          </a>
+        {groups.map(g=>(
+          <React.Fragment key={g.label}>
+            <div className="nav-group">{g.label}</div>
+            {g.items.map(it=>(
+              <a key={it.id} className={current===it.id?"active":""} onClick={()=>onNav(it.id)}>
+                <Icon name={it.icon}/>
+                <span>{it.label}</span>
+                {it.badge && <span className="badge">{it.badge}</span>}
+              </a>
+            ))}
+          </React.Fragment>
         ))}
       </nav>
       <div className="footer">
