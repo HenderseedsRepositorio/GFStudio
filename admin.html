@@ -677,8 +677,11 @@ const Sidebar = ({current, onNav, appts, onLogout, isMobile, drawerOpen}) => {
   const items = [
     { id:"turnos",     label:"Turnos",      icon:"calendar", badge: pending ? String(pending) : (upcoming ? String(upcoming) : null) },
     { id:"clientes",   label:"Clientes",    icon:"user" },
+    { id:"ficha",      label:"Ficha",       icon:"edit" },
     { id:"servicios",  label:"Servicios",   icon:"sparkle" },
     { id:"packs",      label:"Packs",       icon:"box" },
+    { id:"galeria",    label:"Galería",     icon:"eye" },
+    { id:"testimonios",label:"Testimonios", icon:"chart" },
     { id:"cupones",    label:"Cupones",     icon:"ticket" },
     { id:"contenido",  label:"Contenido",   icon:"layout" },
     { id:"bloqueos",   label:"Agenda",      icon:"lock" },
@@ -1202,10 +1205,11 @@ const waMessageFor = (c) => {
   return `${hi} Soy Guada de GF Studio. `;
 };
 
-const ClientesTab = ({appts, services}) => {
+const ClientesTab = ({appts, services, fichaQuestions, fichas, refetch}) => {
   const [selected, setSelected] = useState(null);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
+  const [fichaEditing, setFichaEditing] = useState(null);
 
   const clientes = useMemo(()=>buildClientes(appts, services), [appts, services]);
   const svcMap = useMemo(()=>Object.fromEntries(services.map(s=>[s.id,s])), [services]);
@@ -1344,18 +1348,56 @@ const ClientesTab = ({appts, services}) => {
             <div className="flex gap-2 flex-wrap">
               {selected.phone && <a className="btn btn-wa" href={`https://wa.me/${waTel(selected.phone)}?text=${encodeURIComponent(waMessageFor(selected))}`} target="_blank" rel="noopener"><Icon name="phone" size={13}/> WhatsApp</a>}
               {selected.email && <a className="btn btn-sc" href={`mailto:${selected.email}`}><Icon name="mail" size={13}/> Email</a>}
+              <button className="btn btn-sc" onClick={()=>setFichaEditing({
+                id:null, client_phone:selected.phone||"", client_name:selected.name||"",
+                responses:{}, professional_notes:""
+              })}><Icon name="edit" size={13}/> Nueva ficha</button>
             </div>
             <button className="btn btn-pr" onClick={()=>setSelected(null)}>Cerrar</button>
           </>
         )}>
-        {selected && <ClienteDetail c={selected} svcMap={svcMap}/>}
+        {selected && <ClienteDetail c={selected} svcMap={svcMap} fichas={fichas} questions={fichaQuestions} onEditFicha={setFichaEditing}/>}
+      </Drawer>
+
+      <Drawer open={!!fichaEditing} onClose={()=>setFichaEditing(null)}
+        subtitle={fichaEditing?.id ? "Ficha · Editar":"Ficha · Nueva"}
+        title={fichaEditing?.id ? `Editar <em>ficha</em>`:`Nueva <em>ficha</em>`}
+        footer={fichaEditing && (
+          <>
+            <div>{fichaEditing.id && <button className="btn btn-dg" onClick={async()=>{
+              if(!confirm("¿Eliminar esta ficha?")) return;
+              const { error } = await sb.from("gf_fichas").delete().eq("id", fichaEditing.id);
+              if(error){ toast("Error: "+error.message); return; }
+              setFichaEditing(null); refetch(); toast("Ficha eliminada");
+            }}><Icon name="trash" size={13}/> Eliminar</button>}</div>
+            <div className="flex gap-2">
+              <button className="btn btn-sc" onClick={()=>setFichaEditing(null)}>Cancelar</button>
+              <button className="btn btn-pr" onClick={async()=>{
+                const payload = {
+                  client_phone: fichaEditing.client_phone||"",
+                  client_name: fichaEditing.client_name||"",
+                  responses: fichaEditing.responses||{},
+                  professional_notes: fichaEditing.professional_notes||"",
+                  updated_at: new Date().toISOString(),
+                };
+                let error;
+                if(fichaEditing.id) ({ error } = await sb.from("gf_fichas").update(payload).eq("id", fichaEditing.id));
+                else ({ error } = await sb.from("gf_fichas").insert(payload));
+                if(error){ toast("Error: "+error.message); return; }
+                setFichaEditing(null); refetch(); toast(fichaEditing.id?"Ficha actualizada":"Ficha guardada");
+              }}>Guardar</button>
+            </div>
+          </>
+        )}>
+        {fichaEditing && <FichaEditor ficha={fichaEditing} onChange={setFichaEditing} questions={fichaQuestions}/>}
       </Drawer>
     </>
   );
 };
 
-const ClienteDetail = ({c, svcMap}) => {
+const ClienteDetail = ({c, svcMap, fichas, questions, onEditFicha}) => {
   const tag = clientTag(c);
+  const clientFichas = (fichas||[]).filter(f => (f.client_phone||"") === (c.phone||""));
   return (
     <div className="flex flex-col gap-6">
       <div className="card">
@@ -1406,9 +1448,31 @@ const ClienteDetail = ({c, svcMap}) => {
         </div>
       </div>
 
+      <div>
+        <div className="sec-label mb-3">Fichas ({clientFichas.length})</div>
+        {clientFichas.length===0 ? (
+          <div style={{fontSize:12.5,color:"var(--muted)",padding:"10px 0"}}>Sin fichas cargadas. Usá el botón "Nueva ficha" para crear la primera.</div>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {clientFichas.map(f=>{
+              const respCount = Object.keys(f.responses||{}).length;
+              return (
+                <button key={f.id} onClick={()=>onEditFicha&&onEditFicha(f)} className="p-3 text-left" style={{background:"var(--cream)",border:"1px solid var(--border)",borderRadius:2,cursor:"pointer"}}>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="mono" style={{fontSize:10.5,color:"var(--muted)",letterSpacing:".1em"}}>{fDate((f.created_at||"").slice(0,10))}</div>
+                    <div className="mono" style={{fontSize:10,color:"var(--muted)"}}>{respCount} {respCount===1?"respuesta":"respuestas"}</div>
+                  </div>
+                  {f.professional_notes && <div style={{fontSize:12.5,color:"var(--ink)",marginTop:4,lineHeight:1.45}}>{f.professional_notes.slice(0,120)}{f.professional_notes.length>120?"…":""}</div>}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
       {c.notes.length>0 && (
         <div>
-          <div className="sec-label mb-3">Notas</div>
+          <div className="sec-label mb-3">Notas (de turnos)</div>
           <div className="flex flex-col gap-2">
             {c.notes.map((n,i)=>(
               <div key={i} className="p-3" style={{background:"var(--cream)",border:"1px solid var(--border)",borderRadius:2}}>
@@ -1419,6 +1483,69 @@ const ClienteDetail = ({c, svcMap}) => {
           </div>
         </div>
       )}
+    </div>
+  );
+};
+
+/* ============ FICHA EDITOR (usado en Clientes + Ficha tab) ============ */
+const FichaEditor = ({ficha, onChange, questions}) => {
+  const u = (k,v) => onChange({...ficha,[k]:v});
+  const setResponse = (qid, val) => onChange({...ficha, responses:{...(ficha.responses||{}), [qid]:val}});
+  const activeQs = (questions||[]).filter(q=>q.active!==false).sort((a,b)=>(a.display_order||0)-(b.display_order||0));
+  const byCat = {};
+  activeQs.forEach(q=>{ (byCat[q.category||"general"] = byCat[q.category||"general"]||[]).push(q); });
+  const catLabels = { habitos:"Hábitos", piel:"Piel", salud:"Salud", rutina:"Rutina", notas:"Notas", general:"General" };
+  return (
+    <div className="flex flex-col gap-5">
+      <div className="flex gap-3">
+        <Field label="Nombre" grow><input className="inp" value={ficha.client_name||""} onChange={e=>u("client_name",e.target.value)} placeholder="Nombre de la clienta"/></Field>
+        <Field label="Teléfono" grow><input className="inp mono" value={ficha.client_phone||""} onChange={e=>u("client_phone",e.target.value)} placeholder="+54 9 ..."/></Field>
+      </div>
+
+      {Object.keys(byCat).length===0 ? (
+        <div className="card"><div className="card-empty">
+          No hay preguntas configuradas. Andá al tab <strong>Ficha</strong> para agregar preguntas.
+        </div></div>
+      ) : Object.entries(byCat).map(([cat, qs])=>(
+        <div key={cat}>
+          <div className="sec-label mb-3">{catLabels[cat]||cat}</div>
+          <div className="flex flex-col gap-4">
+            {qs.map(q=>{
+              const val = (ficha.responses||{})[q.id];
+              return (
+                <Field key={q.id} label={q.question + (q.required?" *":"")} hint={q.hint}>
+                  {q.type==="textarea" && <textarea className="inp" rows="3" value={val||""} onChange={e=>setResponse(q.id,e.target.value)}/>}
+                  {q.type==="text" && <input className="inp" value={val||""} onChange={e=>setResponse(q.id,e.target.value)}/>}
+                  {q.type==="number" && <input className="inp num" type="number" value={val||""} onChange={e=>setResponse(q.id,e.target.value)}/>}
+                  {q.type==="select" && (
+                    <select className="inp" value={val||""} onChange={e=>setResponse(q.id,e.target.value)}>
+                      <option value="">—</option>
+                      {(q.options||[]).map(o=><option key={o} value={o}>{o}</option>)}
+                    </select>
+                  )}
+                  {q.type==="scale" && (
+                    <div className="flex gap-2">
+                      {[1,2,3,4,5].map(n=>(
+                        <button key={n} type="button" onClick={()=>setResponse(q.id,n)} className={"btn btn-sm "+(String(val)===String(n)?"btn-pr":"btn-sc")}>{n}</button>
+                      ))}
+                    </div>
+                  )}
+                  {q.type==="boolean" && (
+                    <div className="flex gap-2">
+                      <button type="button" onClick={()=>setResponse(q.id,"sí")} className={"btn btn-sm "+(val==="sí"?"btn-pr":"btn-sc")}>Sí</button>
+                      <button type="button" onClick={()=>setResponse(q.id,"no")} className={"btn btn-sm "+(val==="no"?"btn-pr":"btn-sc")}>No</button>
+                    </div>
+                  )}
+                </Field>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+
+      <Field label="Observaciones profesionales" hint="Notas internas sobre la sesión (solo las ve el equipo)">
+        <textarea className="inp" rows="4" value={ficha.professional_notes||""} onChange={e=>u("professional_notes",e.target.value)}/>
+      </Field>
     </div>
   );
 };
@@ -2748,6 +2875,464 @@ const ResultadosTab = ({appts, services, coupons}) => {
   );
 };
 
+/* ============ GALERIA TAB ============ */
+const EMPTY_GAL = { id:null, title:"", description:"", category:"otros", service_id:null, before_url:"", after_url:"", display_order:0, active:true };
+
+const GaleriaTab = ({gallery, services, refetch}) => {
+  const [editing, setEditing] = useState(null);
+  const [filter, setFilter] = useState("all");
+  const sorted = useMemo(()=>(gallery||[]).slice().sort((a,b)=>(a.display_order||0)-(b.display_order||0) || (b.created_at||"").localeCompare(a.created_at||"")), [gallery]);
+  const filtered = sorted.filter(g => filter==="all" ? true : filter==="active" ? g.active : !g.active);
+
+  const save = async (data) => {
+    if(!data.after_url){ toast("Falta la foto (después)"); return; }
+    const payload = {
+      title: data.title||null,
+      description: data.description||null,
+      category: data.category||"otros",
+      service_id: data.service_id||null,
+      before_url: data.before_url||null,
+      after_url: data.after_url,
+      display_order: data.display_order||0,
+      active: !!data.active,
+    };
+    let error;
+    if(data.id) ({ error } = await sb.from("gf_gallery").update(payload).eq("id", data.id));
+    else ({ error } = await sb.from("gf_gallery").insert(payload));
+    if(error){ toast("Error: "+error.message); return; }
+    setEditing(null); refetch(); toast(data.id?"Foto actualizada":"Foto agregada");
+  };
+  const del = async (id) => {
+    if(!confirm("¿Eliminar esta foto?")) return;
+    const { error } = await sb.from("gf_gallery").delete().eq("id", id);
+    if(error){ toast("Error: "+error.message); return; }
+    setEditing(null); refetch(); toast("Foto eliminada");
+  };
+  const toggle = async (g, v) => { await sb.from("gf_gallery").update({active:v}).eq("id", g.id); refetch(); };
+
+  return (
+    <>
+      <div className="strip">
+        <div>
+          <div className="sec-label" style={{color:"rgba(250,247,239,.6)"}}>Trabajos · Galería</div>
+          <h2 className="mt-2">Mostrá los <em>resultados.</em></h2>
+          <p>Subí fotos antes/después (o solo el después). Aparecen en la landing cuando la clienta toca "Galería" en el menú.</p>
+        </div>
+        <div className="kpis">
+          <div className="kpi"><div className="lb">Visibles</div><div className="v">{sorted.filter(g=>g.active).length}</div></div>
+          <div className="kpi"><div className="lb">Total</div><div className="v">{sorted.length}</div></div>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-3 items-center mb-5">
+        <Tabs value={filter} onChange={setFilter} options={[{v:"all",l:"Todas"},{v:"active",l:"Visibles"},{v:"inactive",l:"Ocultas"}]}/>
+        <div style={{flex:1}}/>
+        <button className="btn btn-pr" onClick={()=>setEditing({...EMPTY_GAL, display_order:(sorted.length+1)*10})}><Icon name="plus"/> Nueva foto</button>
+      </div>
+
+      {filtered.length===0 ? (
+        <EmptyState icon="eye" title="Sin fotos" desc="Subí el primer trabajo para que aparezca en la landing." action={<button className="btn btn-pr" onClick={()=>setEditing({...EMPTY_GAL})}><Icon name="plus"/> Nueva foto</button>}/>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          {filtered.map(g=>(
+            <div key={g.id} className="card" style={{opacity:g.active?1:.55,cursor:"pointer"}} onClick={()=>setEditing(g)}>
+              <div style={{aspectRatio:"4/5",background:"var(--cream)",overflow:"hidden",borderBottom:"1px solid var(--border)",position:"relative"}}>
+                {g.after_url ? <img src={g.after_url} alt={g.title||""} style={{width:"100%",height:"100%",objectFit:"cover"}}/> : <div style={{width:"100%",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--muted)",fontSize:12}}>Sin foto</div>}
+                {g.before_url && <div className="mono" style={{position:"absolute",top:8,left:8,background:"rgba(0,0,0,.65)",color:"#fff",fontSize:10,letterSpacing:".1em",padding:"3px 7px",textTransform:"uppercase"}}>Antes/Después</div>}
+              </div>
+              <div className="card-bd" style={{padding:12}}>
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <div style={{fontSize:13.5,fontWeight:500,flex:1,minWidth:0,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{g.title||"Sin título"}</div>
+                  <span onClick={e=>{e.stopPropagation();toggle(g,!g.active);}}><Toggle checked={g.active} onChange={()=>{}}/></span>
+                </div>
+                <div className="mono" style={{fontSize:10,letterSpacing:".12em",color:"var(--muted)",textTransform:"uppercase"}}>{g.category||"otros"}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <Drawer open={!!editing} onClose={()=>setEditing(null)}
+        subtitle={editing?.id?"Foto · Editar":"Foto · Nueva"}
+        title={editing?.id?`Editar <em>${editing.title||"foto"}</em>`:"Nueva <em>foto</em>"}
+        footer={editing && (
+          <>
+            <div>{editing.id && <button className="btn btn-dg" onClick={()=>del(editing.id)}><Icon name="trash" size={13}/> Eliminar</button>}</div>
+            <div className="flex gap-2">
+              <button className="btn btn-sc" onClick={()=>setEditing(null)}>Cancelar</button>
+              <button className="btn btn-pr" onClick={()=>save(editing)}>Guardar</button>
+            </div>
+          </>
+        )}>
+        {editing && <GalleryEditor item={editing} onChange={setEditing} services={services}/>}
+      </Drawer>
+    </>
+  );
+};
+
+const GalleryEditor = ({item, onChange, services}) => {
+  const u = (k,v) => onChange({...item,[k]:v});
+  return (
+    <div className="flex flex-col gap-5">
+      <div className="flex items-center gap-3 p-4" style={{background:"var(--cream)",border:"1px solid var(--border)",borderRadius:2}}>
+        <Toggle checked={item.active} onChange={v=>u("active",v)}/>
+        <div>
+          <div style={{fontSize:13,fontWeight:500}}>{item.active?"Visible en landing":"Oculta"}</div>
+          <div style={{fontSize:11.5,color:"var(--muted)",marginTop:2}}>{item.active?"Aparece en la galería pública":"No aparece en la landing"}</div>
+        </div>
+      </div>
+      <Field label="Foto después (URL) *" hint="Pegá un link público. Podés usar Supabase Storage, Cloudinary, ImgBB o similar.">
+        <input className="inp" value={item.after_url||""} onChange={e=>u("after_url",e.target.value)} placeholder="https://…"/>
+      </Field>
+      {item.after_url && <div style={{aspectRatio:"4/5",background:"var(--cream)",border:"1px solid var(--border)",overflow:"hidden",maxWidth:220}}><img src={item.after_url} alt="preview" style={{width:"100%",height:"100%",objectFit:"cover"}}/></div>}
+      <Field label="Foto antes (URL)" hint="Opcional — si la ponés, aparece el toggle antes/después en la landing.">
+        <input className="inp" value={item.before_url||""} onChange={e=>u("before_url",e.target.value)} placeholder="https://…"/>
+      </Field>
+      <Field label="Título"><input className="inp" value={item.title||""} onChange={e=>u("title",e.target.value)} placeholder="Laminado clásico / Facial rejuvenecedor…"/></Field>
+      <Field label="Descripción"><textarea className="inp" rows="2" value={item.description||""} onChange={e=>u("description",e.target.value)}/></Field>
+      <div className="flex gap-3">
+        <Field label="Categoría" grow>
+          <input className="inp" list="gal-cat" value={item.category||"otros"} onChange={e=>u("category",e.target.value)}/>
+          <datalist id="gal-cat">
+            <option value="cejas"/><option value="pestañas"/><option value="facial"/><option value="depilación"/><option value="otros"/>
+          </datalist>
+        </Field>
+        <Field label="Servicio" grow>
+          <select className="inp" value={item.service_id||""} onChange={e=>u("service_id", e.target.value?Number(e.target.value):null)}>
+            <option value="">—</option>
+            {(services||[]).map(s=><option key={s.id} value={s.id}>{s.name}</option>)}
+          </select>
+        </Field>
+        <Field label="Orden" grow><input className="inp num" type="number" value={item.display_order||0} onChange={e=>u("display_order",Number(e.target.value)||0)}/></Field>
+      </div>
+    </div>
+  );
+};
+
+/* ============ TESTIMONIOS TAB ============ */
+const TestimoniosTab = ({content, persist}) => {
+  const [list, setList] = useState(()=>Array.isArray(content.testimonials)?content.testimonials:[]);
+  const [dirty, setDirty] = useState(false);
+
+  useEffect(()=>{ setList(Array.isArray(content.testimonials)?content.testimonials:[]); setDirty(false); }, [content.testimonials]);
+
+  const update = (i, patch) => { setList(xs=>xs.map((t,idx)=>idx===i?{...t,...patch}:t)); setDirty(true); };
+  const add = () => { setList(xs=>[...xs, {name:"",svc:"",text:"",rating:5,visible:true}]); setDirty(true); };
+  const del = (i) => { setList(xs=>xs.filter((_,idx)=>idx!==i)); setDirty(true); };
+  const move = (i, dir) => {
+    setList(xs=>{
+      const arr = xs.slice();
+      const j = i+dir;
+      if(j<0 || j>=arr.length) return arr;
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+      return arr;
+    });
+    setDirty(true);
+  };
+  const save = async () => {
+    const merged = {...content, testimonials:list};
+    const rows = Object.entries(merged).map(([key, value])=>({ key, value }));
+    const { error } = await sb.from("gf_content").upsert(rows, { onConflict:"key" });
+    if(error){ toast("Error: "+error.message); return; }
+    setDirty(false);
+    toast("Testimonios guardados");
+    if(persist) {} // persist is optional: data is already saved above
+  };
+
+  const visible = list.filter(t=>t.visible!==false).length;
+
+  return (
+    <>
+      <div className="strip">
+        <div>
+          <div className="sec-label" style={{color:"rgba(250,247,239,.6)"}}>Reseñas · Landing</div>
+          <h2 className="mt-2">Lo que dicen <em>quienes pasaron.</em></h2>
+          <p>Los primeros 3 visibles aparecen en la landing, rotando en la sección "Lo que dicen quienes pasaron".</p>
+        </div>
+        <div className="kpis">
+          <div className="kpi"><div className="lb">Visibles</div><div className="v">{visible}</div></div>
+          <div className="kpi"><div className="lb">Total</div><div className="v">{list.length}</div></div>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3 mb-5">
+        <button className="btn btn-pr" onClick={add}><Icon name="plus"/> Nuevo testimonio</button>
+        <div style={{flex:1}}/>
+        {dirty && <span className="mono" style={{fontSize:11,color:"var(--warn,#c4822e)",letterSpacing:".12em",textTransform:"uppercase"}}>Cambios sin guardar</span>}
+        <button className="btn btn-sc" disabled={!dirty} onClick={save}>Guardar</button>
+      </div>
+
+      {list.length===0 ? (
+        <EmptyState icon="chart" title="Sin testimonios" desc="Agregá reseñas reales para que aparezcan en la landing." action={<button className="btn btn-pr" onClick={add}><Icon name="plus"/> Nuevo testimonio</button>}/>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {list.map((t,i)=>(
+            <div key={i} className="card" style={{opacity:t.visible===false?.55:1}}>
+              <div className="card-bd flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                  <Toggle checked={t.visible!==false} onChange={v=>update(i,{visible:v})} label="Visible"/>
+                  <div className="flex gap-1">
+                    <button className="btn btn-sc btn-sm" onClick={()=>move(i,-1)} disabled={i===0} title="Subir"><Icon name="chevron" size={12} style={{transform:"rotate(90deg)"}}/></button>
+                    <button className="btn btn-sc btn-sm" onClick={()=>move(i,1)} disabled={i===list.length-1} title="Bajar"><Icon name="chevron" size={12} style={{transform:"rotate(-90deg)"}}/></button>
+                    <button className="btn btn-dg btn-sm" onClick={()=>del(i)}><Icon name="trash" size={12}/></button>
+                  </div>
+                </div>
+                <Field label="Nombre"><input className="inp" value={t.name||""} onChange={e=>update(i,{name:e.target.value})}/></Field>
+                <Field label="Servicio"><input className="inp" value={t.svc||""} onChange={e=>update(i,{svc:e.target.value})}/></Field>
+                <Field label="Texto"><textarea className="inp" rows="4" value={t.text||""} onChange={e=>update(i,{text:e.target.value})}/></Field>
+                <Field label="Calificación">
+                  <div className="flex gap-1">
+                    {[1,2,3,4,5].map(n=>(
+                      <button key={n} type="button" onClick={()=>update(i,{rating:n})} style={{border:"none",background:"none",cursor:"pointer",fontSize:20,color:n<=(t.rating||0)?"var(--olive)":"var(--border-strong)"}}>★</button>
+                    ))}
+                  </div>
+                </Field>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  );
+};
+
+/* ============ FICHA TAB (config preguntas + historial de fichas) ============ */
+const EMPTY_Q = { id:null, question:"", hint:"", category:"general", type:"text", options:[], display_order:0, required:false, active:true };
+
+const FichaTab = ({questions, fichas, services, refetch}) => {
+  const [sub, setSub] = useState("preguntas");
+  const [editingQ, setEditingQ] = useState(null);
+  const [editingF, setEditingF] = useState(null);
+
+  const sortedQ = useMemo(()=>(questions||[]).slice().sort((a,b)=>(a.display_order||0)-(b.display_order||0)), [questions]);
+  const sortedF = useMemo(()=>(fichas||[]).slice().sort((a,b)=>(b.created_at||"").localeCompare(a.created_at||"")), [fichas]);
+
+  const saveQ = async (data) => {
+    if(!data.question?.trim()){ toast("La pregunta no puede estar vacía"); return; }
+    const payload = {
+      question: data.question.trim(),
+      hint: data.hint||null,
+      category: data.category||"general",
+      type: data.type||"text",
+      options: data.options||[],
+      display_order: data.display_order||0,
+      required: !!data.required,
+      active: !!data.active,
+    };
+    let error;
+    if(data.id) ({ error } = await sb.from("gf_ficha_questions").update(payload).eq("id", data.id));
+    else ({ error } = await sb.from("gf_ficha_questions").insert(payload));
+    if(error){ toast("Error: "+error.message); return; }
+    setEditingQ(null); refetch(); toast(data.id?"Pregunta actualizada":"Pregunta agregada");
+  };
+  const delQ = async (id) => {
+    if(!confirm("¿Eliminar esta pregunta? Las respuestas previas se conservan en las fichas.")) return;
+    const { error } = await sb.from("gf_ficha_questions").delete().eq("id", id);
+    if(error){ toast("Error: "+error.message); return; }
+    setEditingQ(null); refetch(); toast("Pregunta eliminada");
+  };
+  const toggleQ = async (q,v)=>{ await sb.from("gf_ficha_questions").update({active:v}).eq("id", q.id); refetch(); };
+  const moveQ = async (i, dir) => {
+    const arr = sortedQ;
+    const curr = arr[i]; const target = arr[i+dir];
+    if(!curr || !target) return;
+    const [ord1, ord2] = [curr.display_order||0, target.display_order||0];
+    await Promise.all([
+      sb.from("gf_ficha_questions").update({display_order:ord2}).eq("id", curr.id),
+      sb.from("gf_ficha_questions").update({display_order:ord1}).eq("id", target.id),
+    ]);
+    refetch();
+  };
+
+  const saveF = async (data) => {
+    const payload = {
+      client_phone: data.client_phone||"",
+      client_name: data.client_name||"",
+      responses: data.responses||{},
+      professional_notes: data.professional_notes||"",
+      updated_at: new Date().toISOString(),
+    };
+    let error;
+    if(data.id) ({ error } = await sb.from("gf_fichas").update(payload).eq("id", data.id));
+    else ({ error } = await sb.from("gf_fichas").insert(payload));
+    if(error){ toast("Error: "+error.message); return; }
+    setEditingF(null); refetch(); toast(data.id?"Ficha actualizada":"Ficha guardada");
+  };
+  const delF = async (id) => {
+    if(!confirm("¿Eliminar esta ficha?")) return;
+    const { error } = await sb.from("gf_fichas").delete().eq("id", id);
+    if(error){ toast("Error: "+error.message); return; }
+    setEditingF(null); refetch(); toast("Ficha eliminada");
+  };
+
+  return (
+    <>
+      <div className="strip">
+        <div>
+          <div className="sec-label" style={{color:"rgba(250,247,239,.6)"}}>Formulario · Ficha</div>
+          <h2 className="mt-2">La ficha de <em>cada clienta.</em></h2>
+          <p>Armá el cuestionario que usás en la primera cita (hábitos, piel, salud). Después, desde cada clienta, podés cargar su ficha completa.</p>
+        </div>
+        <div className="kpis">
+          <div className="kpi"><div className="lb">Preguntas</div><div className="v">{sortedQ.filter(q=>q.active).length}</div></div>
+          <div className="kpi"><div className="lb">Fichas</div><div className="v">{sortedF.length}</div></div>
+        </div>
+      </div>
+
+      <div className="mb-5">
+        <Tabs value={sub} onChange={setSub} options={[{v:"preguntas",l:"Preguntas"},{v:"historial",l:"Historial"}]}/>
+      </div>
+
+      {sub==="preguntas" && (
+        <>
+          <div className="flex items-center gap-3 mb-4">
+            <div style={{flex:1}}/>
+            <button className="btn btn-pr" onClick={()=>setEditingQ({...EMPTY_Q, display_order:(sortedQ.length+1)*10})}><Icon name="plus"/> Nueva pregunta</button>
+          </div>
+          {sortedQ.length===0 ? (
+            <EmptyState icon="edit" title="Sin preguntas" desc="Agregá las preguntas que hacés en la primera cita." action={<button className="btn btn-pr" onClick={()=>setEditingQ({...EMPTY_Q})}><Icon name="plus"/> Primera pregunta</button>}/>
+          ) : (
+            <div className="card">
+              <table className="tbl">
+                <thead><tr><th style={{width:50}}>#</th><th>Pregunta</th><th>Tipo</th><th>Categoría</th><th>Req.</th><th style={{width:160}}></th></tr></thead>
+                <tbody>
+                  {sortedQ.map((q,i)=>(
+                    <tr key={q.id} style={{opacity:q.active?1:.5}}>
+                      <td className="mono" style={{color:"var(--muted)"}}>{String(i+1).padStart(2,'0')}</td>
+                      <td><div style={{fontWeight:500}}>{q.question}</div>{q.hint && <div style={{fontSize:11.5,color:"var(--muted)",marginTop:2}}>{q.hint}</div>}</td>
+                      <td><span className="chip dk">{q.type}</span></td>
+                      <td className="mono" style={{fontSize:11,color:"var(--muted)",textTransform:"uppercase",letterSpacing:".1em"}}>{q.category}</td>
+                      <td>{q.required ? <span className="chip dk">sí</span> : "—"}</td>
+                      <td>
+                        <div className="flex gap-1 justify-end">
+                          <button className="btn btn-sc btn-sm" onClick={()=>moveQ(i,-1)} disabled={i===0} title="Subir"><Icon name="chevron" size={11} style={{transform:"rotate(90deg)"}}/></button>
+                          <button className="btn btn-sc btn-sm" onClick={()=>moveQ(i,1)} disabled={i===sortedQ.length-1} title="Bajar"><Icon name="chevron" size={11} style={{transform:"rotate(-90deg)"}}/></button>
+                          <span onClick={()=>toggleQ(q,!q.active)}><Toggle checked={q.active} onChange={()=>{}}/></span>
+                          <button className="btn btn-sc btn-sm" onClick={()=>setEditingQ(q)}><Icon name="edit" size={11}/></button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
+
+      {sub==="historial" && (
+        <>
+          <div className="flex items-center gap-3 mb-4">
+            <div style={{flex:1}}/>
+            <button className="btn btn-pr" onClick={()=>setEditingF({id:null, client_phone:"", client_name:"", responses:{}, professional_notes:""})}><Icon name="plus"/> Nueva ficha</button>
+          </div>
+          {sortedF.length===0 ? (
+            <EmptyState icon="edit" title="Sin fichas" desc="Cargá la primera ficha desde acá o desde el drawer de Clientes."/>
+          ) : (
+            <div className="card">
+              <table className="tbl">
+                <thead><tr><th>Fecha</th><th>Clienta</th><th>Teléfono</th><th>Respuestas</th><th>Notas</th><th style={{width:80}}></th></tr></thead>
+                <tbody>
+                  {sortedF.map(f=>(
+                    <tr key={f.id} style={{cursor:"pointer"}} onClick={()=>setEditingF(f)}>
+                      <td className="mono" style={{fontSize:11.5,color:"var(--muted)"}}>{fDate((f.created_at||"").slice(0,10))}</td>
+                      <td style={{fontWeight:500}}>{f.client_name||"—"}</td>
+                      <td className="mono" style={{fontSize:11.5}}>{f.client_phone||"—"}</td>
+                      <td>{Object.keys(f.responses||{}).length}</td>
+                      <td style={{fontSize:12,color:"var(--muted)",maxWidth:260,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{f.professional_notes||""}</td>
+                      <td><button className="btn btn-sc btn-sm" onClick={e=>{e.stopPropagation();setEditingF(f);}}><Icon name="edit" size={11}/></button></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
+
+      <Drawer open={!!editingQ} onClose={()=>setEditingQ(null)}
+        subtitle={editingQ?.id?"Pregunta · Editar":"Pregunta · Nueva"}
+        title={editingQ?.id?`Editar <em>pregunta</em>`:`Nueva <em>pregunta</em>`}
+        footer={editingQ && (
+          <>
+            <div>{editingQ.id && <button className="btn btn-dg" onClick={()=>delQ(editingQ.id)}><Icon name="trash" size={13}/> Eliminar</button>}</div>
+            <div className="flex gap-2">
+              <button className="btn btn-sc" onClick={()=>setEditingQ(null)}>Cancelar</button>
+              <button className="btn btn-pr" onClick={()=>saveQ(editingQ)}>Guardar</button>
+            </div>
+          </>
+        )}>
+        {editingQ && <QuestionEditor q={editingQ} onChange={setEditingQ}/>}
+      </Drawer>
+
+      <Drawer open={!!editingF} onClose={()=>setEditingF(null)}
+        subtitle={editingF?.id?"Ficha · Editar":"Ficha · Nueva"}
+        title={editingF?.id?`Ficha <em>${editingF.client_name||""}</em>`:`Nueva <em>ficha</em>`}
+        footer={editingF && (
+          <>
+            <div>{editingF.id && <button className="btn btn-dg" onClick={()=>delF(editingF.id)}><Icon name="trash" size={13}/> Eliminar</button>}</div>
+            <div className="flex gap-2">
+              <button className="btn btn-sc" onClick={()=>setEditingF(null)}>Cancelar</button>
+              <button className="btn btn-pr" onClick={()=>saveF(editingF)}>Guardar</button>
+            </div>
+          </>
+        )}>
+        {editingF && <FichaEditor ficha={editingF} onChange={setEditingF} questions={questions}/>}
+      </Drawer>
+    </>
+  );
+};
+
+const QuestionEditor = ({q, onChange}) => {
+  const u = (k,v) => onChange({...q,[k]:v});
+  const needsOptions = q.type==="select";
+  return (
+    <div className="flex flex-col gap-5">
+      <div className="flex items-center gap-3 p-4" style={{background:"var(--cream)",border:"1px solid var(--border)",borderRadius:2}}>
+        <Toggle checked={q.active} onChange={v=>u("active",v)}/>
+        <div>
+          <div style={{fontSize:13,fontWeight:500}}>{q.active?"Activa":"Oculta"}</div>
+          <div style={{fontSize:11.5,color:"var(--muted)",marginTop:2}}>{q.active?"Aparece en la ficha de clientas nuevas":"No aparece, pero se mantienen las respuestas previas"}</div>
+        </div>
+      </div>
+      <Field label="Pregunta" hint="Lo que va a leer la clienta (o vos al cargarla)"><input className="inp" value={q.question||""} onChange={e=>u("question",e.target.value)} placeholder="¿Cuánta agua tomás por día?"/></Field>
+      <Field label="Ayuda" hint="Texto secundario debajo de la pregunta (opcional)"><input className="inp" value={q.hint||""} onChange={e=>u("hint",e.target.value)} placeholder="Aprox. en litros o vasos"/></Field>
+      <div className="flex gap-3">
+        <Field label="Tipo de respuesta" grow>
+          <select className="inp" value={q.type||"text"} onChange={e=>u("type",e.target.value)}>
+            <option value="text">Texto corto</option>
+            <option value="textarea">Texto largo</option>
+            <option value="number">Número</option>
+            <option value="select">Opciones</option>
+            <option value="scale">Escala 1 a 5</option>
+            <option value="boolean">Sí / No</option>
+          </select>
+        </Field>
+        <Field label="Categoría" grow>
+          <input className="inp" list="q-cat" value={q.category||"general"} onChange={e=>u("category",e.target.value)}/>
+          <datalist id="q-cat">
+            <option value="habitos"/><option value="piel"/><option value="salud"/><option value="rutina"/><option value="notas"/><option value="general"/>
+          </datalist>
+        </Field>
+      </div>
+      {needsOptions && (
+        <Field label="Opciones" hint="Una por línea">
+          <textarea className="inp" rows="4" value={(q.options||[]).join("\n")} onChange={e=>u("options", e.target.value.split("\n").map(s=>s.trim()).filter(Boolean))}/>
+        </Field>
+      )}
+      <div className="flex gap-3">
+        <Field label="Orden" grow><input className="inp num" type="number" value={q.display_order||0} onChange={e=>u("display_order",Number(e.target.value)||0)}/></Field>
+        <div style={{flex:1,display:"flex",alignItems:"flex-end",padding:"10px 12px",background:"var(--cream)",border:"1px solid var(--border)",borderRadius:2}}>
+          <label className="flex items-center gap-2" style={{cursor:"pointer",fontSize:13}}>
+            <input type="checkbox" checked={!!q.required} onChange={e=>u("required",e.target.checked)}/>
+            Obligatoria
+          </label>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 /* ============ APP ROOT ============ */
 const App = () => {
   const [auth, setAuth] = useState(()=>sessionStorage.getItem("gf_auth")==="1");
@@ -2760,6 +3345,9 @@ const App = () => {
   const [coupons, setCoupons] = useState([]);
   const [appts, setAppts] = useState([]);
   const [blocks, setBlocks] = useState([]);
+  const [gallery, setGallery] = useState([]);
+  const [fichaQuestions, setFichaQuestions] = useState([]);
+  const [fichas, setFichas] = useState([]);
   const [content, setContent] = useState(DEFAULT_CONTENT);
   const [settings, setSettings] = useState(()=>{
     try {
@@ -2796,19 +3384,25 @@ const App = () => {
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
-    const [svcRes, pkRes, apRes, blRes, cpRes, cnRes] = await Promise.all([
+    const [svcRes, pkRes, apRes, blRes, cpRes, cnRes, glRes, fqRes, fhRes] = await Promise.all([
       sb.from("gf_services").select("*"),
       sb.from("gf_packs").select("*").then(r=>r, ()=>({data:[]})),
       sb.from("gf_appointments").select("*").order("appointment_date",{ascending:true}).order("time_slot",{ascending:true}),
       sb.from("gf_blocked_slots").select("*"),
       sb.from("gf_coupons").select("*").then(r=>r, ()=>({data:[]})),
       sb.from("gf_content").select("*").then(r=>r, ()=>({data:[]})),
+      sb.from("gf_gallery").select("*").order("display_order",{ascending:true}).then(r=>r, ()=>({data:[]})),
+      sb.from("gf_ficha_questions").select("*").order("display_order",{ascending:true}).then(r=>r, ()=>({data:[]})),
+      sb.from("gf_fichas").select("*").order("created_at",{ascending:false}).then(r=>r, ()=>({data:[]})),
     ]);
     setServices((svcRes.data||[]).map(normSvc));
     setPacks((pkRes.data||[]).map(normPack));
     setAppts(apRes.data||[]);
     setBlocks((blRes.data||[]).map(normBlock));
     setCoupons((cpRes.data||[]).map(normCoupon));
+    setGallery(glRes.data||[]);
+    setFichaQuestions(fqRes.data||[]);
+    setFichas(fhRes.data||[]);
     if(cnRes.data && cnRes.data.length){
       const merged = {...DEFAULT_CONTENT};
       for(const row of cnRes.data){ if(row.value) merged[row.key] = row.value; }
@@ -2833,6 +3427,9 @@ const App = () => {
       .on("postgres_changes",{event:"*",schema:"public",table:"gf_services"}, debouncedFetch)
       .on("postgres_changes",{event:"*",schema:"public",table:"gf_packs"}, debouncedFetch)
       .on("postgres_changes",{event:"*",schema:"public",table:"gf_coupons"}, debouncedFetch)
+      .on("postgres_changes",{event:"*",schema:"public",table:"gf_gallery"}, debouncedFetch)
+      .on("postgres_changes",{event:"*",schema:"public",table:"gf_ficha_questions"}, debouncedFetch)
+      .on("postgres_changes",{event:"*",schema:"public",table:"gf_fichas"}, debouncedFetch)
       .subscribe();
     return ()=>{ sb.removeChannel(channel); clearTimeout(fetchTimeout.current); };
   }, [auth, debouncedFetch]);
@@ -2874,8 +3471,11 @@ const App = () => {
   const titles = {
     turnos:     {c:"Agenda",      t:"Turnos <em>y reservas</em>"},
     clientes:   {c:"Cartera",     t:"Clientes <em>de la casa</em>"},
+    ficha:      {c:"Formulario",  t:"Ficha <em>de clienta</em>"},
     servicios:  {c:"Carta",       t:"Servicios <em>de la casa</em>"},
     packs:      {c:"Combos",      t:"Packs <em>configurables</em>"},
+    galeria:    {c:"Trabajos",    t:"Galería <em>de fotos</em>"},
+    testimonios:{c:"Reseñas",     t:"Testimonios <em>de clientas</em>"},
     cupones:    {c:"Campañas",    t:"Cupones <em>de descuento</em>"},
     contenido:  {c:"Landing",     t:"Contenido <em>editable</em>"},
     bloqueos:   {c:"Calendario",  t:"Agenda <em>visual</em>"},
@@ -2904,9 +3504,12 @@ const App = () => {
         <div className="content">
           {loading && appts.length===0 && <div className="card"><div className="card-empty">Cargando…</div></div>}
           {tab==="turnos"     && <TurnosTab appts={appts} services={services} blocks={blocks} settings={settings} refetch={fetchAll}/>}
-          {tab==="clientes"   && <ClientesTab appts={appts} services={services}/>}
+          {tab==="clientes"   && <ClientesTab appts={appts} services={services} fichaQuestions={fichaQuestions} fichas={fichas} refetch={fetchAll}/>}
+          {tab==="ficha"      && <FichaTab questions={fichaQuestions} fichas={fichas} services={services} refetch={fetchAll}/>}
           {tab==="servicios"  && <ServiciosTab services={services} refetch={fetchAll}/>}
           {tab==="packs"      && <PacksTab packs={packs} services={services} refetch={fetchAll}/>}
+          {tab==="galeria"    && <GaleriaTab gallery={gallery} services={services} refetch={fetchAll}/>}
+          {tab==="testimonios"&& <TestimoniosTab content={content} persist={persistContent}/>}
           {tab==="cupones"    && <CuponesTab coupons={coupons} services={services} packs={packs} refetch={fetchAll}/>}
           {tab==="contenido"  && <ContenidoTab content={content} setContent={setContent} persist={persistContent}/>}
           {tab==="bloqueos"   && <BloqueosTab blocks={blocks} setBlocks={setBlocks} appts={appts} services={services} settings={settings} setSettings={setSettings} persistSettings={persistSettings} refetch={fetchAll}/>}
