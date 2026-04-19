@@ -346,6 +346,22 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xm
   .tbl th,.tbl td{padding:8px 10px}
   .mobile-stack-filters{flex-direction:column!important}
   .mobile-stack-filters>*{width:100%!important;min-width:0!important}
+  /* Global mobile: stack all flex rows with fields inside cards */
+  .card-bd .flex.gap-3{flex-wrap:wrap}
+  .card-bd .flex.gap-3>.fld{min-width:0!important;flex-basis:100%!important}
+  .fld[style*="minWidth"]{min-width:0!important;flex-basis:100%!important}
+  /* Prevent any card content from overflowing */
+  .card{max-width:100%;overflow:hidden}
+  .card-bd{overflow-x:auto;max-width:100%}
+  .card-hd{overflow:hidden;text-overflow:ellipsis}
+  /* Drawer fields must also stack */
+  .drawer-bd .flex.gap-3{flex-wrap:wrap}
+  .drawer-bd .flex.gap-3>.fld{min-width:0!important;flex-basis:100%!important}
+  /* Strip section: stack kpis */
+  .strip{overflow:hidden;max-width:100%}
+  .strip .kpis{flex-wrap:wrap}
+  /* Preview grid in contenido */
+  .card-bd .grid.grid-cols-2{grid-template-columns:1fr!important}
 }
 
 /* Login screen */
@@ -495,7 +511,7 @@ const Chip = ({children, tone="neutral"}) => {
 };
 
 const Field = ({label, hint, children, grow}) => (
-  <div className="fld" style={grow?{flex:1,minWidth:180}:undefined}>
+  <div className="fld" style={grow?{flex:"1 1 0%",minWidth:0}:undefined}>
     {label && <label>{label}</label>}
     {children}
     {hint && <span className="hint">{hint}</span>}
