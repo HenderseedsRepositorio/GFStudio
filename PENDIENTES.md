@@ -1,11 +1,21 @@
 # GF Studio — Pendientes post semi-final
 
-**Estado al 18/04/2026:** versión semi-final desplegada en `https://gf-studio.vercel.app`.
-Landing + admin operativos con datos reales, mobile fix aplicado, formato de duración humano.
+**Estado al 20/04/2026:** versión hardening desplegada en `https://gf-studio.vercel.app`.
+Fase D completa (Auth + RLS real), CI con secret-scan, staging branch, tech debt limpio.
 
 ---
 
-## Hecho en esta ronda (18/04)
+## Hecho en esta ronda (20/04) — hardening
+
+- **Supabase Auth** reemplaza `ADMIN_PASS` hardcoded — admin.html usa `signInWithPassword` contra `guadalupefernandez016@gmail.com`.
+- **RLS lockdown** con policies reales por rol (anon vs authenticated). View `gf_appointments_slots` expone solo id/fecha/hora/servicio/status para chequeo de colisión sin PII. Source: `20260420_rls_lockdown.sql`.
+- **Edge Function `bump-coupon-usage`** con `service_role` para que anon no necesite UPDATE sobre `gf_coupons`. Valida active + valid_from/to + max_uses antes de bumpear.
+- **Tokens fuera de docs versionadas** — CLAUDE.md con sección "Secrets: público vs privado" (3 niveles), checklist de rotación, secretos reales solo en `~/.bashrc` / Supabase secrets.
+- **GitHub Actions CI** con 3 jobs — secret-scan (patrones `sbp_`, `"role":"service_role"`, `re_`, `APP_USR-`, `TEST-`), HTML tag balance, smoke post-deploy (200 + títulos).
+- **Tech debt**: drop columna legacy `gf_services.duration`, cleanup root (5 archivos dead-weight borrados), assets/logo committed, skills-lock.json gitignored.
+- **Staging branch** con deploy automático en Vercel — flujo documentado en CLAUDE.md.
+
+## Hecho en rondas anteriores (18-19/04)
 
 - **Fotos editoriales SVG** (`EditorialArt`) reemplazan placeholders de Gallery (9 items) + About — son arte vectorial custom con la paleta oliva/arena/crema. Placeholder hasta que Guada mande fotos reales.
 - **Alertas de clientas dormidas** en tab Clientes: banner con cantidad de dormidas (31–90 días) e inactivas (>90 días), filtro "Dormidas", botón WA del drawer con mensaje contextual según tag (Dormida / Inactiva / Nueva / Recurrente).
@@ -27,25 +37,25 @@ Commits: `32433f2` + `f1aaea6` en `main`.
 
 ## Pendientes operativos (próxima iteración)
 
-5. **Supabase Auth** → reemplazar `ADMIN_PASS="guada"` hardcodeado en [admin.html:~265](admin.html).
-6. **Cerrar RLS** con políticas por usuario auth (hoy `USING (true)` en todas las tablas).
-   > **Riesgo alto confirmado (19/04/2026):** la anon key permite `INSERT/UPDATE/DELETE` sobre `gf_services`, `gf_appointments`, `gf_blocked_slots`, `gf_packs` desde cualquier cliente. La única barrera hoy es que nadie conoce las URLs de admin. Prioridad alta cuando el link esté público.
+5. ~~**Supabase Auth**~~ ✅ Hecho (20/04) — `signInWithPassword` con email.
+6. ~~**Cerrar RLS**~~ ✅ Hecho (20/04) — policies reales por rol, ver `20260420_rls_lockdown.sql`.
 7. **MercadoPago seña** — Activar `MP_ACCESS_TOKEN` en Supabase secrets **solo si** en el primer mes real `no-shows > 10%`. Las clientas recurrentes no pagan seña. El Edge Function `create-mp-preference` ya está deployado con fallback `{configured:false}`.
 8. **Recordatorio WA automático** día anterior — cron Edge Function en Supabase.
-9. **Reagendar desde admin** sin cancelar (hoy solo cambio de status + notas).
+9. ~~**Reagendar desde admin**~~ ✅ Hecho (20/04) — commit `350329d`.
 10. **Buscador** por nombre/teléfono en tab Turnos (hoy solo filtros por fecha/estado).
-11. **Notificación sonora** al entrar turno nuevo (realtime ya está, solo falta alert sound + badge visual).
-12. **Export CSV** desde tab Resultados.
+11. ~~**Notificación sonora**~~ ✅ Hecho (20/04) — commit `2141017`.
+12. ~~**Export CSV**~~ ✅ Hecho (20/04) — commit `2141017`.
 13. **Templates WA editables** desde admin (hoy hardcodeados en `confirmAndWA` / `cancelAndNotify`).
+14. **Sentry (errors + performance)** — diferido: falta DSN. Cuando lo tengamos, meter el script en index.html/admin.html + env var en Vercel.
 
 ## Nice to have (backlog)
 
-14. **Lista de espera** cuando el día está completo.
-15. **Programa de fidelidad** (cada N turnos, descuento automático como cupón generado).
-16. **Encuesta post-turno** automática para generar Google Reviews.
-17. **Tag VIP automático** en tab Clientes para `appts.length >= 5` (hoy existe visualmente como "Recurrente" pero no como tag en DB).
-18. **Calendario ICS** en página de confirmación (botón "Agregar al calendario").
-19. **JSON-LD LocalBusiness** en el head del index para SEO local.
+15. **Lista de espera** cuando el día está completo.
+16. **Programa de fidelidad** (cada N turnos, descuento automático como cupón generado).
+17. **Encuesta post-turno** automática para generar Google Reviews.
+18. **Tag VIP automático** en tab Clientes para `appts.length >= 5` (hoy existe visualmente como "Recurrente" pero no como tag en DB).
+19. **Calendario ICS** en página de confirmación (botón "Agregar al calendario").
+20. ~~**JSON-LD LocalBusiness**~~ ✅ Hecho (20/04) — commit `2141017` (SEO canonical + JSON-LD).
 
 ---
 
