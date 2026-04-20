@@ -450,7 +450,7 @@ async function runTests() {
   }
 
   // Meta tags security
-  if (indexContent && indexContent.includes('content-security-policy')) {
+  if (indexContent && indexContent.toLowerCase().includes('content-security-policy')) {
     log.success(`Content Security Policy presente`);
     results.passed++;
   } else {

@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light only">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://ibikdnjuctopdkmtmgdd.supabase.co wss://ibikdnjuctopdkmtmgdd.supabase.co; base-uri 'self'; form-action 'self'">
 <title>GF Studio · Panel</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -573,7 +575,7 @@ const Drawer = ({open, onClose, title, subtitle, footer, children, width}) => {
         <div className="drawer-hd">
           <div>
             {subtitle && <div className="mono" style={{fontSize:10,letterSpacing:".22em",textTransform:"uppercase",color:"var(--muted)",marginBottom:6}}>{subtitle}</div>}
-            <h2 dangerouslySetInnerHTML={{__html:title||""}}/>
+            <h2>{title||""}</h2>
           </div>
           <button onClick={onClose} className="btn btn-gh" aria-label="Cerrar"><Icon name="x"/></button>
         </div>
@@ -779,7 +781,7 @@ const Topbar = ({crumb, title, actions, onMenuClick}) => (
     {onMenuClick && <button className="menu-btn" onClick={onMenuClick} aria-label="Abrir menú"><Icon name="menu" size={18}/></button>}
     <div style={{minWidth:0,flex:1}}>
       <div className="crumb">{crumb}</div>
-      <h1 dangerouslySetInnerHTML={{__html:title}}/>
+      <h1>{title}</h1>
     </div>
     <div className="flex items-center gap-2">{actions}</div>
   </header>
@@ -1412,7 +1414,7 @@ const ClientesTab = ({appts, services, fichaQuestions, fichas, refetch}) => {
 
       <Drawer open={!!editingClient} onClose={()=>setEditingClient(null)}
         subtitle="Clienta · Editar"
-        title={`Editar <em>clienta</em>`}
+        title={<>Editar <em>clienta</em></>}
         footer={editingClient && (
           <>
             <div style={{fontSize:11.5,color:"var(--muted)",flex:1}}>Se actualiza en <strong>todos</strong> los turnos y fichas con el teléfono actual.</div>
@@ -1447,7 +1449,7 @@ const ClientesTab = ({appts, services, fichaQuestions, fichas, refetch}) => {
 
       <Drawer open={!!mergingClient} onClose={()=>setMergingClient(null)}
         subtitle="Clienta · Fusionar"
-        title={`Fusionar <em>con otra clienta</em>`}
+        title={<>Fusionar <em>con otra clienta</em></>}
         footer={mergingClient && (
           <>
             <div style={{fontSize:11.5,color:"var(--muted)",flex:1}}>Mueve todos los turnos y fichas de <strong>{mergingClient.source.name}</strong> a la clienta destino.</div>
@@ -1483,7 +1485,7 @@ const ClientesTab = ({appts, services, fichaQuestions, fichas, refetch}) => {
 
       <Drawer open={!!fichaEditing} onClose={()=>setFichaEditing(null)}
         subtitle={fichaEditing?.id ? "Ficha · Editar":"Ficha · Nueva"}
-        title={fichaEditing?.id ? `Editar <em>ficha</em>`:`Nueva <em>ficha</em>`}
+        title={fichaEditing?.id ? <>Editar <em>ficha</em></> : <>Nueva <em>ficha</em></>}
         footer={fichaEditing && (
           <>
             <div>{fichaEditing.id && <button className="btn btn-dg" onClick={async()=>{
@@ -1856,7 +1858,7 @@ const ServiciosTab = ({services, refetch}) => {
 
       <Drawer open={!!editing} onClose={()=>setEditing(null)}
         subtitle={editing?.id ? `Servicio · N.º ${String(editing.order||0).padStart(2,'0')}`:"Nuevo"}
-        title={editing?.id ? `Editar <em>${editing.name||""}</em>`:"Nuevo <em>servicio</em>"}
+        title={editing?.id ? <>Editar <em>{editing.name||""}</em></> : <>Nuevo <em>servicio</em></>}
         footer={editing && (
           <>
             <div>{editing.id && <button className="btn btn-dg" onClick={()=>del(editing.id)}><Icon name="trash" size={14}/> Eliminar</button>}</div>
@@ -1993,7 +1995,7 @@ const PacksTab = ({packs, services, refetch}) => {
 
       <Drawer open={!!editing} onClose={()=>setEditing(null)} width={640}
         subtitle={editing?.id?"Editar pack":"Nuevo pack"}
-        title={editing?.id ? `<em>${editing.name||"Pack"}</em>` : "Nuevo <em>pack</em>"}
+        title={editing?.id ? <em>{editing.name||"Pack"}</em> : <>Nuevo <em>pack</em></>}
         footer={editing && (
           <>
             <div>{editing.id && <button className="btn btn-dg" onClick={()=>del(editing.id)}><Icon name="trash" size={14}/> Eliminar</button>}</div>
@@ -2217,7 +2219,7 @@ const CuponesTab = ({coupons, services, packs, refetch}) => {
 
       <Drawer open={!!editing} onClose={()=>setEditing(null)} width={640}
         subtitle={editing?.id?"Editar cupón":"Nuevo cupón"}
-        title={editing?.code ? `<em>${editing.code}</em>`:"Nuevo <em>cupón</em>"}
+        title={editing?.code ? <em>{editing.code}</em> : <>Nuevo <em>cupón</em></>}
         footer={editing && (
           <>
             <div>{editing.id && <button className="btn btn-dg" onClick={()=>del(editing.id)}><Icon name="trash" size={14}/> Eliminar</button>}</div>
@@ -2738,7 +2740,7 @@ const BloqueosTab = ({blocks, setBlocks, appts, services, settings, setSettings,
 
       {view==="settings" && <AjustesHorario settings={settings} setSettings={setSettings} persist={persistSettings}/>}
 
-      <Drawer open={!!editing} onClose={()=>setEditing(null)} subtitle={editing?.id?"Editar bloqueo":"Nuevo bloqueo"} title="Bloqueo de <em>agenda</em>"
+      <Drawer open={!!editing} onClose={()=>setEditing(null)} subtitle={editing?.id?"Editar bloqueo":"Nuevo bloqueo"} title={<>Bloqueo de <em>agenda</em></>}
         footer={editing && (<>
           <div>{editing.id && <button className="btn btn-dg" onClick={async()=>{await deleteBlock(editing.id);setEditing(null);}}><Icon name="trash" size={14}/> Eliminar</button>}</div>
           <div className="flex gap-2">
@@ -3148,7 +3150,7 @@ const GaleriaTab = ({gallery, services, refetch}) => {
 
       <Drawer open={!!editing} onClose={()=>setEditing(null)}
         subtitle={editing?.id?"Foto · Editar":"Foto · Nueva"}
-        title={editing?.id?`Editar <em>${editing.title||"foto"}</em>`:"Nueva <em>foto</em>"}
+        title={editing?.id ? <>Editar <em>{editing.title||"foto"}</em></> : <>Nueva <em>foto</em></>}
         footer={editing && (
           <>
             <div>{editing.id && <button className="btn btn-dg" onClick={()=>del(editing.id)}><Icon name="trash" size={13}/> Eliminar</button>}</div>
@@ -3446,7 +3448,7 @@ const FichaTab = ({questions, fichas, services, refetch}) => {
 
       <Drawer open={!!editingQ} onClose={()=>setEditingQ(null)}
         subtitle={editingQ?.id?"Pregunta · Editar":"Pregunta · Nueva"}
-        title={editingQ?.id?`Editar <em>pregunta</em>`:`Nueva <em>pregunta</em>`}
+        title={editingQ?.id ? <>Editar <em>pregunta</em></> : <>Nueva <em>pregunta</em></>}
         footer={editingQ && (
           <>
             <div>{editingQ.id && <button className="btn btn-dg" onClick={()=>delQ(editingQ.id)}><Icon name="trash" size={13}/> Eliminar</button>}</div>
@@ -3461,7 +3463,7 @@ const FichaTab = ({questions, fichas, services, refetch}) => {
 
       <Drawer open={!!editingF} onClose={()=>setEditingF(null)}
         subtitle={editingF?.id?"Ficha · Editar":"Ficha · Nueva"}
-        title={editingF?.id?`Ficha <em>${editingF.client_name||""}</em>`:`Nueva <em>ficha</em>`}
+        title={editingF?.id ? <>Ficha <em>{editingF.client_name||""}</em></> : <>Nueva <em>ficha</em></>}
         footer={editingF && (
           <>
             <div>{editingF.id && <button className="btn btn-dg" onClick={()=>delF(editingF.id)}><Icon name="trash" size={13}/> Eliminar</button>}</div>
@@ -3663,17 +3665,17 @@ const App = () => {
   }
 
   const titles = {
-    turnos:     {c:"Agenda",      t:"Turnos <em>y reservas</em>"},
-    clientes:   {c:"Cartera",     t:"Clientes <em>de la casa</em>"},
-    ficha:      {c:"Formulario",  t:"Ficha <em>de clienta</em>"},
-    servicios:  {c:"Carta",       t:"Servicios <em>de la casa</em>"},
-    packs:      {c:"Combos",      t:"Packs <em>configurables</em>"},
-    galeria:    {c:"Trabajos",    t:"Galería <em>de fotos</em>"},
-    testimonios:{c:"Reseñas",     t:"Testimonios <em>de clientas</em>"},
-    cupones:    {c:"Campañas",    t:"Cupones <em>de descuento</em>"},
-    contenido:  {c:"Landing",     t:"Contenido <em>editable</em>"},
-    bloqueos:   {c:"Calendario",  t:"Agenda <em>visual</em>"},
-    resultados: {c:"Métricas",    t:"Resultados <em>del período</em>"},
+    turnos:     {c:"Agenda",      t:<>Turnos <em>y reservas</em></>},
+    clientes:   {c:"Cartera",     t:<>Clientes <em>de la casa</em></>},
+    ficha:      {c:"Formulario",  t:<>Ficha <em>de clienta</em></>},
+    servicios:  {c:"Carta",       t:<>Servicios <em>de la casa</em></>},
+    packs:      {c:"Combos",      t:<>Packs <em>configurables</em></>},
+    galeria:    {c:"Trabajos",    t:<>Galería <em>de fotos</em></>},
+    testimonios:{c:"Reseñas",     t:<>Testimonios <em>de clientas</em></>},
+    cupones:    {c:"Campañas",    t:<>Cupones <em>de descuento</em></>},
+    contenido:  {c:"Landing",     t:<>Contenido <em>editable</em></>},
+    bloqueos:   {c:"Calendario",  t:<>Agenda <em>visual</em></>},
+    resultados: {c:"Métricas",    t:<>Resultados <em>del período</em></>},
   };
   const meta = titles[tab] || titles.turnos;
 
