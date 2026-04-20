@@ -1,0 +1,102 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  secret-scan:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Buscar patterns de secrets
+        run: |
+          set -e
+          # Patterns críticos: si matchea cualquiera en archivos trackeados, falla.
+          # - sbp_...  → Supabase access token (CLI)
+          # - service_role en JWT (rol administrativo)
+          # - re_...   → Resend API key
+          # - APP_USR-...  → MercadoPago access token (producción)
+          # - TEST-...-APP_USR...  → MP tokens sandbox
+          # Nota: 'role:service_role' (sin comillas) se omite porque matchea prosa
+          # en docs (ej. CLAUDE.md). El quoted matchea payloads JSON decodificados.
+          patterns=(
+            'sbp_[A-Za-z0-9]{20,}'
+            '"role":"service_role"'
+            're_[A-Za-z0-9_]{20,}'
+            'APP_USR-[0-9]+'
+            'TEST-[0-9]+-[0-9]+'
+          )
+          found=0
+          for p in "${patterns[@]}"; do
+            if git grep -nIE "$p" -- ':!*.lock' ':!skills-lock.json' > /tmp/hits.txt 2>/dev/null; then
+              echo "::error::Secret pattern detectado: $p"
+              cat /tmp/hits.txt
+              found=1
+            fi
+          done
+          if [ "$found" -ne 0 ]; then
+            echo "::error::Hay al menos un secret leakeado en el repo. Rotá y remové antes de mergear."
+            exit 1
+          fi
+          echo "Secret scan OK."
+
+  html-basic-check:
+    name: HTML tags balanced
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check index.html y admin.html
+        run: |
+          set -e
+          for f in index.html admin.html; do
+            opens=$(grep -oE '<(html|head|body|script|div|section|header|footer|nav|main)[ >]' "$f" | wc -l)
+            closes=$(grep -oE '</(html|head|body|script|div|section|header|footer|nav|main)>' "$f" | wc -l)
+            echo "$f: opens=$opens closes=$closes"
+            if [ "$opens" -lt 5 ] || [ "$closes" -lt 5 ]; then
+              echo "::error::$f parece estar vacío o roto."
+              exit 1
+            fi
+          done
+
+  smoke-prod:
+    name: Smoke prod (post-deploy)
+    runs-on: ubuntu-latest
+    needs: [secret-scan, html-basic-check]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Esperar Vercel deploy (~60s)
+        run: sleep 60
+      - name: GET landing
+        run: |
+          set -e
+          out=$(curl -sSL -o /tmp/landing.html -w "%{http_code}" https://gf-studio.vercel.app/)
+          echo "status=$out"
+          if [ "$out" != "200" ]; then
+            echo "::error::Landing devolvió HTTP $out"
+            exit 1
+          fi
+          if ! grep -q "GF Studio" /tmp/landing.html; then
+            echo "::error::Landing no contiene 'GF Studio' en el body."
+            exit 1
+          fi
+          echo "Landing OK (200 + contiene 'GF Studio')"
+      - name: GET admin
+        run: |
+          set -e
+          out=$(curl -sSL -o /tmp/admin.html -w "%{http_code}" https://gf-studio.vercel.app/admin.html)
+          echo "status=$out"
+          if [ "$out" != "200" ]; then
+            echo "::error::Admin devolvió HTTP $out"
+            exit 1
+          fi
+          # 'PANEL · ADMIN' se renderiza por React tras cargar JS; en el HTML
+          # estático sólo está el <title>. Usamos el title como heurística.
+          if ! grep -q "GF Studio · Panel" /tmp/admin.html; then
+            echo "::error::Admin no contiene el <title> esperado."
+            exit 1
+          fi
+          echo "Admin OK (200 + title correcto)"
