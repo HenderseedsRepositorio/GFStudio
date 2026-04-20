@@ -540,7 +540,7 @@ const Icon = ({name, size=16}) => {
     download: <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></>,
   };
   return (
-    <svg className="ic" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg aria-hidden="true" className="ic" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       {paths[name] || <circle cx="12" cy="12" r="10"/>}
     </svg>
   );
@@ -2387,7 +2387,7 @@ const PackEditor = ({pack, onChange, services, svcMap}) => {
                     <button className="btn btn-gh btn-sm" style={{padding:"4px 8px"}} onClick={()=>updLine(i,{qty:(ln.qty||1)+1})}>+</button>
                   </div>
                   <div className="num" style={{width:90,textAlign:"right",fontSize:13.5}}>{fP((svc?.price||0)*ln.qty)}</div>
-                  <button className="btn btn-gh btn-sm" onClick={()=>delLine(i)}><Icon name="x" size={13}/></button>
+                  <button className="btn btn-gh btn-sm" onClick={()=>delLine(i)} aria-label="Quitar servicio del pack"><Icon name="x" size={13}/></button>
                 </div>
               );
             })}
@@ -2789,7 +2789,7 @@ const FAQEditor = ({data, onUpdate}) => {
                   <Field label="Pregunta"><input className="inp" value={f.q} onChange={e=>upd(i,{q:e.target.value})}/></Field>
                   <Field label="Respuesta"><textarea className="inp" rows="2" value={f.a} onChange={e=>upd(i,{a:e.target.value})}/></Field>
                 </div>
-                <button className="btn btn-dg btn-sm" onClick={()=>del(i)}><Icon name="trash" size={13}/></button>
+                <button className="btn btn-dg btn-sm" onClick={()=>del(i)} aria-label="Eliminar pregunta"><Icon name="trash" size={13}/></button>
               </div>
             </div>
           </div>
@@ -2812,7 +2812,7 @@ const TestimonialsEditor = ({data, onUpdate}) => {
             <div className="card-bd flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <Toggle checked={t.visible} onChange={v=>upd(i,{visible:v})} label="Visible"/>
-                <button className="btn btn-dg btn-sm" onClick={()=>del(i)}><Icon name="trash" size={13}/></button>
+                <button className="btn btn-dg btn-sm" onClick={()=>del(i)} aria-label="Eliminar testimonio"><Icon name="trash" size={13}/></button>
               </div>
               <Field label="Nombre"><input className="inp" value={t.name} onChange={e=>upd(i,{name:e.target.value})}/></Field>
               <Field label="Servicio"><input className="inp" value={t.svc} onChange={e=>upd(i,{svc:e.target.value})}/></Field>
@@ -3625,9 +3625,9 @@ const TestimoniosTab = ({content, persist}) => {
                 <div className="flex items-center justify-between">
                   <Toggle checked={t.visible!==false} onChange={v=>update(i,{visible:v})} label="Visible"/>
                   <div className="flex gap-1">
-                    <button className="btn btn-sc btn-sm" onClick={()=>move(i,-1)} disabled={i===0} title="Subir"><Icon name="chevron" size={12} style={{transform:"rotate(90deg)"}}/></button>
-                    <button className="btn btn-sc btn-sm" onClick={()=>move(i,1)} disabled={i===list.length-1} title="Bajar"><Icon name="chevron" size={12} style={{transform:"rotate(-90deg)"}}/></button>
-                    <button className="btn btn-dg btn-sm" onClick={()=>del(i)}><Icon name="trash" size={12}/></button>
+                    <button className="btn btn-sc btn-sm" onClick={()=>move(i,-1)} disabled={i===0} title="Subir" aria-label="Subir testimonio"><Icon name="chevron" size={12} style={{transform:"rotate(90deg)"}}/></button>
+                    <button className="btn btn-sc btn-sm" onClick={()=>move(i,1)} disabled={i===list.length-1} title="Bajar" aria-label="Bajar testimonio"><Icon name="chevron" size={12} style={{transform:"rotate(-90deg)"}}/></button>
+                    <button className="btn btn-dg btn-sm" onClick={()=>del(i)} aria-label="Eliminar testimonio"><Icon name="trash" size={12}/></button>
                   </div>
                 </div>
                 <Field label="Nombre"><input className="inp" value={t.name||""} onChange={e=>update(i,{name:e.target.value})}/></Field>
@@ -3763,7 +3763,7 @@ const FichaTab = ({questions, fichas, services, refetch}) => {
                             <button className="svc-ord-btn" style={{padding:"2px 6px"}} onClick={()=>moveQ(i,1)} disabled={i===sortedQ.length-1} title="Bajar" aria-label="Bajar"><Icon name="caret-down" size={12}/></button>
                           </div>
                           <span onClick={()=>toggleQ(q,!q.active)}><Toggle checked={q.active} onChange={()=>{}}/></span>
-                          <button className="btn btn-sc btn-sm" onClick={()=>setEditingQ(q)} title="Editar"><Icon name="edit" size={11}/></button>
+                          <button className="btn btn-sc btn-sm" onClick={()=>setEditingQ(q)} title="Editar" aria-label="Editar pregunta"><Icon name="edit" size={11}/></button>
                         </div>
                       </td>
                     </tr>
@@ -3795,7 +3795,7 @@ const FichaTab = ({questions, fichas, services, refetch}) => {
                       <td className="mono" style={{fontSize:11.5}}>{f.client_phone||"—"}</td>
                       <td>{Object.keys(f.responses||{}).length}</td>
                       <td style={{fontSize:12,color:"var(--muted)",maxWidth:260,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{f.professional_notes||""}</td>
-                      <td><button className="btn btn-sc btn-sm" onClick={e=>{e.stopPropagation();setEditingF(f);}}><Icon name="edit" size={11}/></button></td>
+                      <td><button className="btn btn-sc btn-sm" onClick={e=>{e.stopPropagation();setEditingF(f);}} aria-label="Editar ficha"><Icon name="edit" size={11}/></button></td>
                     </tr>
                   ))}
                 </tbody>
@@ -4041,6 +4041,15 @@ const App = () => {
     if(error){ toast("Contraseña incorrecta"); setPass(""); }
     else { setPass(""); /* onAuthStateChange setea auth=true */ }
   };
+  const forgotPassword = async () => {
+    if(loggingIn) return;
+    setLoggingIn(true);
+    const redirect = `${location.origin}/admin.html`;
+    const { error } = await sb.auth.resetPasswordForEmail(ADMIN_EMAIL, { redirectTo: redirect });
+    setLoggingIn(false);
+    if(error){ toast("No se pudo enviar el email. Probá de nuevo en un rato."); }
+    else { toast("Revisá tu email — te llegó un link para resetear."); }
+  };
   const logout = async () => { await sb.auth.signOut(); };
 
   if(auth === null){
@@ -4064,6 +4073,10 @@ const App = () => {
           </Field>
           <button type="submit" className="btn btn-pr w-full mt-4" style={{width:"100%"}} disabled={loggingIn||!pass}>
             {loggingIn ? "Entrando…" : "Entrar"}
+          </button>
+          <button type="button" onClick={forgotPassword} disabled={loggingIn}
+            style={{marginTop:14,background:"none",border:"none",color:"var(--muted)",fontSize:12,textDecoration:"underline",cursor:loggingIn?"wait":"pointer"}}>
+            ¿Olvidaste la contraseña?
           </button>
         </form>
       </div>
