@@ -179,8 +179,10 @@ button:focus-visible,a:focus-visible,[role="button"]:focus-visible{outline:2px s
 
 /* logo SVG */
 .logo-mark{display:inline-flex;align-items:center;color:var(--olive-dk);text-decoration:none}
-.logo-mark svg{display:block;height:42px;width:auto}
-@media(min-width:640px){.logo-mark svg{height:48px}}
+.logo-mark svg{display:block;height:54px;width:auto;transition:height .3s ease}
+@media(min-width:640px){.logo-mark svg{height:62px}}
+.nav-scrolled .logo-mark svg{height:46px}
+@media(min-width:640px){.nav-scrolled .logo-mark svg{height:52px}}
 .dot-live{width:6px;height:6px;border-radius:50%;background:#5E6B2E;position:relative}
 .dot-live::after{content:'';position:absolute;inset:-4px;border-radius:50%;background:rgba(94,107,46,.25);animation:pulse 2s ease-in-out infinite}
 @keyframes pulse{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.6);opacity:0}}
@@ -1019,10 +1021,10 @@ const Nav=({scrolled,mobileNav,setMobileNav,onBook,onGallery})=>{
   <nav className={"fixed top-0 left-0 right-0 z-40 transition-all duration-500 "+(scrolled?"nav-scrolled":"")}>
     <div className="max-w-[1280px] mx-auto px-5 sm:px-10 flex items-center justify-between h-[72px]">
       <a href="#top" className="logo-mark" aria-label="GF Studio">
-        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <text x="50" y="58" textAnchor="middle" fontFamily="Fraunces, 'Playfair Display', Georgia, serif" fontSize="48" fontWeight="500" letterSpacing="-2" fill="currentColor">GF</text>
-          <line x1="16" y1="68" x2="84" y2="68" stroke="currentColor" strokeWidth="1" opacity="0.22"/>
-          <text x="50" y="84" textAnchor="middle" fontFamily="ui-monospace, Menlo, Consolas, monospace" fontSize="10" letterSpacing="6" fill="currentColor" opacity="0.55">STUDIO</text>
+        <svg viewBox="0 10 100 80" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <text x="50" y="60" textAnchor="middle" fontFamily="Fraunces, 'Playfair Display', Georgia, serif" fontSize="56" fontWeight="550" letterSpacing="-2.5" fill="currentColor">GF</text>
+          <line x1="14" y1="72" x2="86" y2="72" stroke="currentColor" strokeWidth="1" opacity="0.22"/>
+          <text x="50" y="86" textAnchor="middle" fontFamily="ui-monospace, Menlo, Consolas, monospace" fontSize="9" letterSpacing="7" fill="currentColor" opacity="0.6">STUDIO</text>
         </svg>
       </a>
       <div className="hidden md:flex items-center gap-10">
