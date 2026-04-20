@@ -205,6 +205,9 @@ button:focus-visible,a:focus-visible,[role="button"]:focus-visible{outline:2px s
 .bk-step-body{animation:bkSlide .25s cubic-bezier(.22,1,.36,1) both}
 @keyframes bkSlide{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:none}}
 
+/* Honeypot anti-spam: input que solo los bots ven */
+.hp-field{position:absolute !important;left:-10000px !important;top:auto;width:1px;height:1px;overflow:hidden}
+
 /* Usuarios con vestibular issues / preferencia de menos animación */
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{
@@ -393,7 +396,7 @@ const BookingWizard=({open,onClose,svcs,blocks,initialSvcId,coupons,payment})=>{
       const saved=JSON.parse(localStorage.getItem("gf_client_data"));
       if(saved&&saved.n) return {n:saved.n,em:saved.em||"",ph:saved.ph||"",country:saved.country||"AR"};
     }catch(_){}
-    return {n:"",em:"",ph:"",country:"AR"};
+    return {n:"",em:"",ph:"",country:"AR",hp:""};
   });
   const[couponInput,setCouponInput]=useState("");
   const[couponApplied,setCouponApplied]=useState(null); // {code,discount}
@@ -505,7 +508,15 @@ const BookingWizard=({open,onClose,svcs,blocks,initialSvcId,coupons,payment})=>{
 
   const handleSubmit=async(e)=>{
     e.preventDefault();setSubmitError("");
-    const{n,em,ph,country}=fm;
+    const{n,em,ph,country,hp}=fm;
+    // Honeypot: humanos no ven el campo .hp-field, bots sí lo completan.
+    // Simulamos éxito para no revelar la detección — el turno NO se crea.
+    if(hp){
+      console.warn("[booking] honeypot hit — bot filtered");
+      setSentData({svcName:selSvc?.name||"",date:selDate,time:selTime,name:n,finalPrice:0,whatsapp:""});
+      setStep("exito");
+      return;
+    }
     if(!n||!em||!ph||!selSvc||!selDate||!selTime){setSubmitError("Completá todos los campos.");return}
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.trim())){setSubmitError("Ingresá un email válido.");return}
     const digits=ph.replace(/\D/g,'');
@@ -942,6 +953,13 @@ const StepData=({selSvc,selDate,selTime,fm,setFm,emailSugg,setEmailSugg,couponIn
                 inputMode="numeric" autoComplete="tel-national" maxLength={20}
                 value={fm.ph} onChange={e=>setFm(p=>({...p,ph:e.target.value.replace(/[^\d\s\-]/g,'')}))}/>
             </div>
+          </div>
+
+          {/* Honeypot anti-spam: no visible para humanos, bots lo completan → rebota como "éxito" sin insertar el turno */}
+          <div className="hp-field" aria-hidden="true">
+            <label>No llenar este campo</label>
+            <input tabIndex={-1} autoComplete="off" type="text" name="website"
+              value={fm.hp} onChange={e=>setFm(p=>({...p,hp:e.target.value}))}/>
           </div>
 
           {!couponApplied&&(
