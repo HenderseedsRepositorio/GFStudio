@@ -216,7 +216,7 @@ const WA_GUADA="5492314555856";
 let sb;
 try{ sb=window.supabase.createClient(SB_URL,SB_KEY); }catch(e){ sb=null; }
 
-const SLOT_START=9*60, SLOT_END=18*60, SLOT_STEP=30;
+let SLOT_START=9*60, SLOT_END=18*60, SLOT_STEP=30, BREAK_START=0, BREAK_END=0;
 
 /* ═══════════ HELPERS ═══════════ */
 const{useState,useEffect,useCallback,useRef,useMemo}=React;
@@ -237,7 +237,7 @@ const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
 const mondayOf=d=>{const x=new Date(d);const dow=x.getDay();const diff=dow===0?-6:1-dow;x.setDate(x.getDate()+diff);x.setHours(12,0,0,0);return x};
 const weekDaysFrom=monday=>Array.from({length:6},(_,i)=>addDays(monday,i));
 
-const genSlots=dur=>{const s=[];for(let t=SLOT_START;t+dur<=SLOT_END;t+=SLOT_STEP)s.push(toHHMM(t));return s};
+const genSlots=dur=>{const s=[];for(let t=SLOT_START;t+dur<=SLOT_END;t+=SLOT_STEP){if(BREAK_START>0&&BREAK_END>BREAK_START&&t<BREAK_END&&t+dur>BREAK_START)continue;s.push(toHHMM(t))}return s};
 
 const blockCoversSlot=(block,date,sMin,eMin)=>{
   const dow=new Date(date+"T12:00:00").getDay();
@@ -375,7 +375,13 @@ const BookingWizard=({open,onClose,svcs,blocks,initialSvcId,coupons,payment})=>{
   const[selTime,setSelTime]=useState("");
   const[takenSlots,setTakenSlots]=useState([]);
   const[loadingSlots,setLoadingSlots]=useState(false);
-  const[fm,setFm]=useState({n:"",em:"",ph:"",country:"AR"});
+  const[fm,setFm]=useState(()=>{
+    try{
+      const saved=JSON.parse(localStorage.getItem("gf_client_data"));
+      if(saved&&saved.n) return {n:saved.n,em:saved.em||"",ph:saved.ph||"",country:saved.country||"AR"};
+    }catch(_){}
+    return {n:"",em:"",ph:"",country:"AR"};
+  });
   const[couponInput,setCouponInput]=useState("");
   const[couponApplied,setCouponApplied]=useState(null); // {code,discount}
   const[couponError,setCouponError]=useState("");
@@ -565,6 +571,8 @@ const BookingWizard=({open,onClose,svcs,blocks,initialSvcId,coupons,payment})=>{
           body:JSON.stringify({nombre:n.trim(),email:em.trim(),telefono:phoneFmt,servicio:selSvc.name,fecha:df,horario:selTime,precio:fP(finalPrice)})
         });
       }catch(_){}
+      // Persistir datos del cliente para próximas reservas
+      try{localStorage.setItem("gf_client_data",JSON.stringify({n:n.trim(),em:em.trim(),ph:ph,country}));}catch(_){}
       setSentData({appointment_id:apptId||null,nombre:n.trim(),email:em.trim(),servicio:selSvc.name,fecha:df,horario:selTime,precio:fP(finalPrice),final_price:finalPrice,fecha_raw:selDate,dur_min:selSvc.duration_minutes||60,coupon:couponApplied?.code||null,discount:couponApplied?.discount||0});
       setSubmitting(false);setStep("exito");
     }catch(err){
@@ -1860,7 +1868,18 @@ const App=()=>{
       const{data}=await sb.from("gf_content").select("*");
       if(data&&data.length){
         const map={...DEFAULT_CONTENT};
-        data.forEach(r=>{map[r.key]=r.value});
+        data.forEach(r=>{
+          if(r.key==="schedule"){
+            try{
+              const sch=typeof r.value==="string"?JSON.parse(r.value):r.value;
+              if(sch.open_min) SLOT_START=sch.open_min;
+              if(sch.close_min) SLOT_END=sch.close_min;
+              if(sch.slot_step) SLOT_STEP=sch.slot_step;
+              if(sch.break_start) BREAK_START=sch.break_start;
+              if(sch.break_end) BREAK_END=sch.break_end;
+            }catch(_){}
+          } else { map[r.key]=r.value; }
+        });
         setContent(map);
       }
     }catch(_){/* fallback to defaults */}

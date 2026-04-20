@@ -468,7 +468,7 @@ const PAY_LABELS = { efectivo:"Efectivo", transferencia:"Transferencia", tarjeta
 const DOW_LABELS = ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
 const DOW_FULL = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
 
-const DEFAULT_SETTINGS = { open_min:9*60, close_min:20*60, slot_step:30, open_days:[0,1,2,3,4,5] };
+const DEFAULT_SETTINGS = { open_min:9*60, close_min:20*60, slot_step:30, open_days:[0,1,2,3,4,5], break_start:0, break_end:0 };
 const DEFAULT_CONTENT = {
   hero:{ tag:"Reservando turnos", title_a:"El arte", title_b:"de cuidarte", quote:"Técnica profesional, espacio relajado y resultados que se sostienen en el tiempo.", quote_attr:"Desde 2026 en Henderson", sticker:"Primer\nturno\n10% off", stat_a_v:"+400", stat_a_l:"Clientas", stat_b_v:"4.9★", stat_b_l:"Google" },
   about:{ title_a:"Un espacio pensado", title_b:"desde el detalle", body_main:"Soy Guada. GF Studio nació en Henderson para ofrecer tratamientos de belleza que respeten tu tiempo y tu piel — sin atajos, con técnica profesional.", body_sec:"Me especializo en cejas, faciales y terapias combinadas. Cada sesión arranca con una consulta breve.", stat_a_v:"3+", stat_a_l:"Años de experiencia", stat_b_v:"12", stat_b_l:"Tratamientos en carta", stat_c_v:"1:1", stat_c_l:"Atención personalizada" },
@@ -1039,6 +1039,20 @@ const TurnosTab = ({appts, services, blocks, settings, refetch}) => {
 
 const NewApptDrawer = ({open, onClose, services, appts, blocks, settings, onCreated}) => {
   const [form, setForm] = useState(null);
+  const [clientSuggestions, setClientSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  // Build unique client list from appts for autocomplete
+  const knownClients = useMemo(()=>{
+    const map = new Map();
+    for(const a of appts){
+      const phone = (a.client_phone||"").replace(/\s/g,"");
+      if(!phone || map.has(phone)) continue;
+      map.set(phone, { name:a.client_name||"", phone:a.client_phone||"", email:a.client_email||"" });
+    }
+    return Array.from(map.values());
+  }, [appts]);
+
   useEffect(()=>{
     if(open){
       setForm({
@@ -1051,8 +1065,23 @@ const NewApptDrawer = ({open, onClose, services, appts, blocks, settings, onCrea
         notes: "",
         status: "confirmed",
       });
+      setClientSuggestions([]);
+      setShowSuggestions(false);
     }
   }, [open]);
+
+  const searchClients = (query) => {
+    if(!query || query.length<2){ setClientSuggestions([]); setShowSuggestions(false); return; }
+    const q = query.toLowerCase();
+    const matches = knownClients.filter(c => c.name.toLowerCase().includes(q) || c.phone.includes(q)).slice(0,5);
+    setClientSuggestions(matches);
+    setShowSuggestions(matches.length>0);
+  };
+
+  const pickClient = (c) => {
+    setForm(f=>({...f, client_name:c.name, client_phone:c.phone, client_email:c.email}));
+    setShowSuggestions(false);
+  };
 
   const u = (k,v) => setForm(f=>({...f,[k]:v}));
   const svc = useMemo(()=> services.find(s=>s.id===form?.service_id) || null, [services, form?.service_id]);
@@ -1061,7 +1090,10 @@ const NewApptDrawer = ({open, onClose, services, appts, blocks, settings, onCrea
     if(!form || !svc) return [];
     const dur = svc.duration_minutes||60;
     const out = [];
+    const brkS = settings.break_start||0, brkE = settings.break_end||0;
     for(let m=settings.open_min; m+dur<=settings.close_min; m+=settings.slot_step){
+      // Skip slots that overlap with break
+      if(brkS>0 && brkE>brkS && m<brkE && m+dur>brkS) continue;
       const t = toHHMM(m);
       const ok = slotAvailable(t, dur, appts, services, blocks, form.appointment_date);
       out.push({ t, ok });
@@ -1142,7 +1174,19 @@ const NewApptDrawer = ({open, onClose, services, appts, blocks, settings, onCrea
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
             <Field label="Nombre del cliente" grow>
-              <input className="inp" type="text" value={form.client_name} onChange={e=>u("client_name", e.target.value)} placeholder="Nombre y apellido"/>
+              <div style={{position:"relative"}}>
+                <input className="inp" type="text" value={form.client_name} onChange={e=>{u("client_name",e.target.value);searchClients(e.target.value)}} onFocus={()=>{if(clientSuggestions.length)setShowSuggestions(true)}} placeholder="Nombre y apellido" autoComplete="off"/>
+                {showSuggestions && clientSuggestions.length>0 && (
+                  <div style={{position:"absolute",top:"100%",left:0,right:0,zIndex:20,background:"var(--cream)",border:"1px solid var(--border-strong)",borderRadius:2,boxShadow:"0 4px 12px rgba(0,0,0,.1)",maxHeight:180,overflowY:"auto"}}>
+                    {clientSuggestions.map((c,i)=>(
+                      <div key={i} onClick={()=>pickClient(c)} style={{padding:"8px 12px",cursor:"pointer",borderBottom:"1px solid var(--border)",fontSize:13}} onMouseOver={e=>e.currentTarget.style.background="var(--bone)"} onMouseOut={e=>e.currentTarget.style.background="transparent"}>
+                        <div style={{fontWeight:500}}>{c.name}</div>
+                        <div className="mono" style={{fontSize:10.5,color:"var(--muted)"}}>{c.phone}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </Field>
             <Field label="Teléfono" grow>
               <input className="inp" type="tel" value={form.client_phone} onChange={e=>{
@@ -1171,7 +1215,10 @@ const NewApptDrawer = ({open, onClose, services, appts, blocks, settings, onCrea
   );
 };
 
+const CASH_DISCOUNT = 0.10; // 10% descuento efectivo
+
 const ApptDetail = ({a, svc, onUpdate}) => {
+  const listPrice = svc?.price || 0;
   const [draft, setDraft] = useState({
     client_name: a.client_name||"",
     client_phone: a.client_phone||"",
@@ -1195,7 +1242,21 @@ const ApptDetail = ({a, svc, onUpdate}) => {
     });
   },[a.id]);
 
-  const u = (k,v) => setDraft(d=>({...d,[k]:v}));
+  const u = (k,v) => {
+    setDraft(d=>{
+      const next = {...d,[k]:v};
+      // Auto-apply 10% discount when switching to efectivo
+      if(k==="payment_method" && v==="efectivo" && listPrice>0){
+        next.charged_price = Math.round(listPrice * (1 - CASH_DISCOUNT));
+      }
+      // Clear discount if switching away from efectivo and price was auto-set
+      if(k==="payment_method" && v!=="efectivo" && d.payment_method==="efectivo" && Number(d.charged_price)===Math.round(listPrice*(1-CASH_DISCOUNT))){
+        next.charged_price = "";
+      }
+      return next;
+    });
+  };
+
   const save = () => {
     const patch = {
       client_name: draft.client_name.trim(),
@@ -1223,79 +1284,75 @@ const ApptDetail = ({a, svc, onUpdate}) => {
     window.open(url,"_blank");
   };
 
+  const isCashDiscount = draft.payment_method==="efectivo" && listPrice>0;
+
   return (
-    <div className="flex flex-col gap-6">
-      <div className="card">
-        <div className="card-bd">
-          <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
-            <div className="flex flex-col gap-1" style={{minWidth:0}}>
-              <span className="sec-label">Resumen</span>
-              {a.created_at && <span className="mono" style={{fontSize:10.5,color:"var(--muted)",letterSpacing:".08em"}} title={`Creado: ${new Date(a.created_at).toLocaleString("es-AR")}`}>Reservado {fDateTime(a.created_at)} · {relDays((a.created_at||"").slice(0,10))}</span>}
-            </div>
-            <Chip tone={STATUS_TONES[a.status]||"neutral"}>{STATUS_LABELS[a.status]||a.status}</Chip>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <div className="mono" style={{fontSize:10,letterSpacing:".18em",textTransform:"uppercase",color:"var(--muted)"}}>Servicio</div>
-              <div className="serif" style={{fontSize:18,marginTop:4}}>{svc?.name||"—"}</div>
-              <div className="mono" style={{fontSize:11,color:"var(--muted)",marginTop:4}}>{svc?.duration_minutes ? fDur(svc.duration_minutes) : "—"}</div>
-            </div>
-            <div>
-              <div className="mono" style={{fontSize:10,letterSpacing:".18em",textTransform:"uppercase",color:"var(--muted)"}}>Cuándo</div>
-              <div className="serif" style={{fontSize:18,marginTop:4}}>{fDate(a.appointment_date)}</div>
-              <div className="mono" style={{fontSize:11,color:"var(--muted)",marginTop:4}}>{a.time_slot} hs</div>
-            </div>
-          </div>
-          {a.client_phone && (
-            <div className="flex gap-2 mt-4 flex-wrap">
-              {a.status!=="confirmed" && <button className="btn btn-pr btn-sm" onClick={waConfirm}><Icon name="check" size={13}/> Confirmar + WhatsApp</button>}
-              {a.status!=="cancelled" && <button className="btn btn-sc btn-sm" onClick={waCancel}><Icon name="x" size={13}/> Cancelar + WhatsApp</button>}
-              <a className="btn btn-wa btn-sm" target="_blank" href={`https://wa.me/${waTel(a.client_phone)}`}><Icon name="phone" size={13}/> Abrir chat</a>
-            </div>
-          )}
+    <div className="flex flex-col gap-4">
+      {/* Resumen compacto */}
+      <div className="flex items-start justify-between gap-3 py-3 px-4 rounded" style={{background:"rgba(94,107,46,.06)",border:"1px solid var(--border)"}}>
+        <div style={{minWidth:0,flex:1}}>
+          <div className="serif" style={{fontSize:16,lineHeight:1.3}}>{svc?.name||"—"}</div>
+          <div className="mono" style={{fontSize:11,color:"var(--muted)",marginTop:2}}>{fDate(a.appointment_date)} · {a.time_slot} hs · {svc?.duration_minutes ? fDur(svc.duration_minutes) : "—"}</div>
+          {a.created_at && <div className="mono" style={{fontSize:10,color:"var(--muted)",marginTop:2}}>Reservado {fDateTime(a.created_at)}</div>}
+        </div>
+        <Chip tone={STATUS_TONES[a.status]||"neutral"}>{STATUS_LABELS[a.status]||a.status}</Chip>
+      </div>
+
+      {/* Acciones rápidas */}
+      {a.client_phone && (
+        <div className="flex gap-2 flex-wrap">
+          {a.status!=="confirmed" && <button className="btn btn-pr btn-sm" onClick={waConfirm}><Icon name="check" size={13}/> Confirmar + WA</button>}
+          {a.status!=="cancelled" && <button className="btn btn-sc btn-sm" onClick={waCancel}><Icon name="x" size={13}/> Cancelar + WA</button>}
+          <a className="btn btn-wa btn-sm" target="_blank" href={`https://wa.me/${waTel(a.client_phone)}`}><Icon name="phone" size={13}/> Chat</a>
+        </div>
+      )}
+
+      {/* Cliente */}
+      <div className="flex flex-col gap-3">
+        <div className="sec-label">Cliente</div>
+        <Field label="Nombre"><input className="inp" value={draft.client_name} onChange={e=>u("client_name",e.target.value)}/></Field>
+        <div className="flex gap-3">
+          <Field label="Teléfono" grow><input className="inp" value={draft.client_phone} onChange={e=>u("client_phone",e.target.value)}/></Field>
+          <Field label="Email" grow><input className="inp" value={draft.client_email} onChange={e=>u("client_email",e.target.value)} placeholder="opcional"/></Field>
         </div>
       </div>
 
-      <div>
-        <div className="sec-label mb-3">Cliente</div>
-        <div className="flex flex-col gap-3">
-          <Field label="Nombre"><input className="inp" value={draft.client_name} onChange={e=>u("client_name",e.target.value)}/></Field>
-          <div className="flex gap-3">
-            <Field label="Teléfono" grow><input className="inp" value={draft.client_phone} onChange={e=>u("client_phone",e.target.value)}/></Field>
-            <Field label="Email" grow><input className="inp" value={draft.client_email} onChange={e=>u("client_email",e.target.value)} placeholder="opcional"/></Field>
-          </div>
+      {/* Estado y cobro */}
+      <div className="flex flex-col gap-3">
+        <div className="sec-label">Estado y cobro</div>
+        <div className="flex gap-3">
+          <Field label="Estado" grow>
+            <select className="inp" value={draft.status} onChange={e=>u("status",e.target.value)}>
+              {Object.entries(STATUS_LABELS).map(([k,v])=><option key={k} value={k}>{v}</option>)}
+            </select>
+          </Field>
+          <Field label="Medio de pago" grow>
+            <select className="inp" value={draft.payment_method} onChange={e=>u("payment_method",e.target.value)}>
+              <option value="">—</option>
+              {Object.entries(PAY_LABELS).map(([k,v])=><option key={k} value={k}>{v}</option>)}
+            </select>
+          </Field>
         </div>
+        {/* Precio de lista + monto cobrado */}
+        <div className="flex gap-3 items-end">
+          <div style={{flex:"0 0 auto"}}>
+            <div className="mono" style={{fontSize:10,letterSpacing:".15em",textTransform:"uppercase",color:"var(--muted)",marginBottom:4}}>Lista</div>
+            <div className="mono" style={{fontSize:14,color:"var(--ink)",fontWeight:600}}>{fP(listPrice)}</div>
+          </div>
+          <Field label={isCashDiscount ? `Cobrado (−${CASH_DISCOUNT*100}% efvo)` : "Monto cobrado"} grow>
+            <input className="inp num" type="number" value={draft.charged_price} onChange={e=>setDraft(d=>({...d,charged_price:e.target.value}))} placeholder={listPrice?String(listPrice):""}/>
+          </Field>
+        </div>
+        {isCashDiscount && Number(draft.charged_price)===Math.round(listPrice*(1-CASH_DISCOUNT)) && (
+          <div className="mono" style={{fontSize:10.5,color:"var(--success)",padding:"4px 0"}}>Descuento efectivo aplicado: {fP(listPrice)} → {fP(draft.charged_price)}</div>
+        )}
+        <Field label="Cupón" grow>
+          <input className="inp mono" value={draft.coupon_code} onChange={e=>u("coupon_code",e.target.value.toUpperCase())} placeholder="sin cupón"/>
+        </Field>
       </div>
 
-      <div>
-        <div className="sec-label mb-3">Estado y cobro</div>
-        <div className="flex flex-col gap-3">
-          <div className="flex gap-3">
-            <Field label="Estado" grow>
-              <select className="inp" value={draft.status} onChange={e=>u("status",e.target.value)}>
-                {Object.entries(STATUS_LABELS).map(([k,v])=><option key={k} value={k}>{v}</option>)}
-              </select>
-            </Field>
-            <Field label="Medio de pago" grow>
-              <select className="inp" value={draft.payment_method} onChange={e=>u("payment_method",e.target.value)}>
-                <option value="">—</option>
-                {Object.entries(PAY_LABELS).map(([k,v])=><option key={k} value={k}>{v}</option>)}
-              </select>
-            </Field>
-          </div>
-          <div className="flex gap-3">
-            <Field label="Monto cobrado" grow>
-              <input className="inp num" type="number" value={draft.charged_price} onChange={e=>u("charged_price",e.target.value)}/>
-            </Field>
-            <Field label="Código de cupón" grow>
-              <input className="inp mono" value={draft.coupon_code} onChange={e=>u("coupon_code",e.target.value.toUpperCase())} placeholder="sin cupón"/>
-            </Field>
-          </div>
-        </div>
-      </div>
-
-      <Field label="Notas internas" hint="No visibles para el cliente">
-        <textarea className="inp" value={draft.notes} onChange={e=>u("notes",e.target.value)}/>
+      <Field label="Notas" hint="Internas">
+        <textarea className="inp" rows={2} value={draft.notes} onChange={e=>u("notes",e.target.value)}/>
       </Field>
 
       <button className="btn btn-pr" onClick={save}>Guardar cambios</button>
@@ -3088,6 +3145,11 @@ const AjustesHorario = ({settings, setSettings, persist}) => {
             <Field label="Apertura" grow><input className="inp" type="time" value={toHHMM(settings.open_min)} onChange={e=>u("open_min",toMin(e.target.value))}/></Field>
             <Field label="Cierre" grow><input className="inp" type="time" value={toHHMM(settings.close_min)} onChange={e=>u("close_min",toMin(e.target.value))}/></Field>
           </div>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Field label="Descanso desde" hint="Ej: mediodía" grow><input className="inp" type="time" value={settings.break_start?toHHMM(settings.break_start):""} onChange={e=>u("break_start",e.target.value?toMin(e.target.value):0)}/></Field>
+            <Field label="Descanso hasta" hint="Ej: 14:00" grow><input className="inp" type="time" value={settings.break_end?toHHMM(settings.break_end):""} onChange={e=>u("break_end",e.target.value?toMin(e.target.value):0)}/></Field>
+          </div>
+          {settings.break_start>0 && settings.break_end>settings.break_start && <div className="text-xs px-3 py-2 rounded" style={{background:"rgba(94,107,46,.08)",color:"var(--olive-dk)"}}>Mañana: {toHHMM(settings.open_min)} — {toHHMM(settings.break_start)} · Tarde: {toHHMM(settings.break_end)} — {toHHMM(settings.close_min)}</div>}
           <Field label="Días de atención">
             <div className="flex gap-2 flex-wrap">
               {DOW_FULL.map((d,i)=>(
@@ -3104,10 +3166,18 @@ const AjustesHorario = ({settings, setSettings, persist}) => {
             <div className="mono" style={{fontSize:10,letterSpacing:".2em",textTransform:"uppercase",color:"var(--muted)",marginBottom:8}}>Horarios visibles en la landing</div>
             <div className="serif" style={{fontSize:20,lineHeight:1.4,color:"var(--ink)"}}>
               {settings.open_days.length===7 ? "Todos los días" : settings.open_days.length===6 && !settings.open_days.includes(6) ? "Lunes a sábado" : settings.open_days.length===5 && !settings.open_days.includes(5) && !settings.open_days.includes(6) ? "Lunes a viernes" : settings.open_days.map(d=>DOW_LABELS[d]).join(", ")}<br/>
-              <span style={{color:"var(--olive)"}}>{toHHMM(settings.open_min)} — {toHHMM(settings.close_min)} hs</span>
+              {settings.break_start>0 && settings.break_end>settings.break_start ? (
+                <><span style={{color:"var(--olive)"}}>{toHHMM(settings.open_min)} — {toHHMM(settings.break_start)} hs</span><br/><span style={{color:"var(--olive)"}}>{toHHMM(settings.break_end)} — {toHHMM(settings.close_min)} hs</span></>
+              ) : (
+                <span style={{color:"var(--olive)"}}>{toHHMM(settings.open_min)} — {toHHMM(settings.close_min)} hs</span>
+              )}
             </div>
             <div className="mono" style={{fontSize:10,letterSpacing:".2em",textTransform:"uppercase",color:"var(--muted)",marginTop:16}}>Slots generados por día</div>
-            <div className="serif num" style={{fontSize:24,color:"var(--olive-dk)",marginTop:4}}>{Math.floor((settings.close_min-settings.open_min)/settings.slot_step)} turnos</div>
+            {(()=>{
+              const brkS=settings.break_start||0, brkE=settings.break_end||0;
+              const totalMin = (settings.close_min-settings.open_min) - (brkS>0&&brkE>brkS ? brkE-brkS : 0);
+              return <div className="serif num" style={{fontSize:24,color:"var(--olive-dk)",marginTop:4}}>{Math.floor(totalMin/settings.slot_step)} turnos</div>;
+            })()}
           </div>
         </div>
       </div>
@@ -3857,9 +3927,13 @@ const App = () => {
     else toast("Contenido guardado");
   };
 
-  const persistSettings = () => {
+  const persistSettings = async () => {
     localStorage.setItem("gf_admin_settings", JSON.stringify(settings));
-    toast("Ajustes guardados localmente");
+    // Also persist to DB so landing page reads schedule
+    try{
+      await sb.from("gf_content").upsert({key:"schedule",value:JSON.stringify({open_min:settings.open_min,close_min:settings.close_min,slot_step:settings.slot_step,break_start:settings.break_start||0,break_end:settings.break_end||0,open_days:settings.open_days})});
+    }catch(_){}
+    toast("Ajustes guardados");
   };
 
   useEffect(()=>{
