@@ -30,9 +30,14 @@ jobs:
             'APP_USR-[0-9]+'
             'TEST-[0-9]+-[0-9]+'
           )
+          # Excluimos archivos meta que describen los propios patterns (CI + PENDIENTES)
+          # para evitar falsos positivos cuando documentan qué busca el scan.
           found=0
           for p in "${patterns[@]}"; do
-            if git grep -nIE "$p" -- ':!*.lock' ':!skills-lock.json' > /tmp/hits.txt 2>/dev/null; then
+            if git grep -nIE "$p" \
+                -- ':!*.lock' ':!skills-lock.json' \
+                ':!.github/workflows/ci.yml' ':!PENDIENTES.md' \
+                > /tmp/hits.txt 2>/dev/null; then
               echo "::error::Secret pattern detectado: $p"
               cat /tmp/hits.txt
               found=1
