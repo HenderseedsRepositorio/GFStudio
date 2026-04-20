@@ -1029,7 +1029,7 @@ const TurnosTab = ({appts, services, blocks, settings, refetch}) => {
             </div>
           </>
         )}>
-        {selected && <ApptDetail a={selected} svc={svcMap[selected.service_id]} onUpdate={p=>updateAppt(selected.id,p)}/>}
+        {selected && <ApptDetail a={selected} svc={svcMap[selected.service_id]} onUpdate={p=>updateAppt(selected.id,p)} services={services} appts={appts} blocks={blocks} settings={settings}/>}
       </Drawer>
 
       <NewApptDrawer open={creating} onClose={()=>setCreating(false)} services={services} appts={appts} blocks={blocks} settings={settings} onCreated={()=>{ setCreating(false); refetch(); toast("Turno creado"); }}/>
@@ -1217,8 +1217,15 @@ const NewApptDrawer = ({open, onClose, services, appts, blocks, settings, onCrea
 
 const CASH_DISCOUNT = 0.10; // 10% descuento efectivo
 
-const ApptDetail = ({a, svc, onUpdate}) => {
+const ApptDetail = ({a, svc, onUpdate, services, appts, blocks, settings}) => {
   const listPrice = svc?.price || 0;
+  const saveTimer = useRef(null);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [reschedule, setReschedule] = useState(false);
+  const [newDate, setNewDate] = useState(a.appointment_date);
+  const [newTime, setNewTime] = useState(a.time_slot);
+
   const [draft, setDraft] = useState({
     client_name: a.client_name||"",
     client_phone: a.client_phone||"",
@@ -1240,35 +1247,82 @@ const ApptDetail = ({a, svc, onUpdate}) => {
       coupon_code: a.coupon_code||"",
       status: a.status,
     });
+    setNewDate(a.appointment_date);
+    setNewTime(a.time_slot);
+    setReschedule(false);
   },[a.id]);
+
+  // Auto-save with debounce
+  const autoSave = useCallback((nextDraft) => {
+    if(saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(()=>{
+      const patch = {
+        client_name: nextDraft.client_name.trim(),
+        client_phone: nextDraft.client_phone.trim(),
+        client_email: nextDraft.client_email.trim()||null,
+        notes: nextDraft.notes.trim()||null,
+        charged_price: nextDraft.charged_price===""?null:Number(nextDraft.charged_price),
+        payment_method: nextDraft.payment_method||null,
+        coupon_code: nextDraft.coupon_code.trim()||null,
+        status: nextDraft.status,
+      };
+      setSaving(true);
+      onUpdate(patch);
+      setSaving(false);
+      setSaved(true);
+      setTimeout(()=>setSaved(false), 1500);
+    }, 800);
+  }, [onUpdate]);
+
+  // Cleanup timer on unmount
+  useEffect(()=>()=>{ if(saveTimer.current) clearTimeout(saveTimer.current); },[]);
 
   const u = (k,v) => {
     setDraft(d=>{
       const next = {...d,[k]:v};
-      // Auto-apply 10% discount when switching to efectivo
       if(k==="payment_method" && v==="efectivo" && listPrice>0){
         next.charged_price = Math.round(listPrice * (1 - CASH_DISCOUNT));
       }
-      // Clear discount if switching away from efectivo and price was auto-set
       if(k==="payment_method" && v!=="efectivo" && d.payment_method==="efectivo" && Number(d.charged_price)===Math.round(listPrice*(1-CASH_DISCOUNT))){
         next.charged_price = "";
       }
+      autoSave(next);
       return next;
     });
   };
 
-  const save = () => {
-    const patch = {
-      client_name: draft.client_name.trim(),
-      client_phone: draft.client_phone.trim(),
-      client_email: draft.client_email.trim()||null,
-      notes: draft.notes.trim()||null,
-      charged_price: draft.charged_price===""?null:Number(draft.charged_price),
-      payment_method: draft.payment_method||null,
-      coupon_code: draft.coupon_code.trim()||null,
-      status: draft.status,
-    };
-    onUpdate(patch);
+  // Reschedule: available time slots for new date
+  const rescheduleSlots = useMemo(()=>{
+    if(!reschedule || !svc) return [];
+    const dur = svc.duration_minutes||60;
+    const brkS = settings.break_start||0, brkE = settings.break_end||0;
+    const out = [];
+    for(let m=settings.open_min; m+dur<=settings.close_min; m+=settings.slot_step){
+      if(brkS>0 && brkE>brkS && m<brkE && m+dur>brkS) continue;
+      const t = toHHMM(m);
+      // Check availability (exclude current appointment from collision check)
+      const ok = slotAvailable(t, dur, appts.filter(x=>x.id!==a.id), services, blocks, newDate);
+      out.push({t, ok});
+    }
+    return out;
+  }, [reschedule, newDate, svc, appts, services, blocks, settings, a.id]);
+
+  const doReschedule = async () => {
+    if(!newTime || (newDate===a.appointment_date && newTime===a.time_slot)){ setReschedule(false); return; }
+    // Verify no collision with fresh data
+    const dur = svc?.duration_minutes||60;
+    const{data:fresh} = await sb.from("gf_appointments").select("id,time_slot,service_id,status").eq("appointment_date",newDate);
+    const sMin = toMin(newTime), eMin = sMin+dur;
+    const collision = (fresh||[]).some(r=>{
+      if(r.id===a.id || r.status==="cancelled") return false;
+      const aMin = toMin(r.time_slot);
+      const aDur = (services.find(s=>s.id===r.service_id)?.duration_minutes)||60;
+      return aMin<eMin && (aMin+aDur)>sMin;
+    });
+    if(collision){ toast("Ese horario está ocupado"); return; }
+    onUpdate({appointment_date:newDate, time_slot:newTime});
+    setReschedule(false);
+    toast("Turno movido");
   };
 
   const waConfirm = () => {
@@ -1295,25 +1349,51 @@ const ApptDetail = ({a, svc, onUpdate}) => {
           <div className="mono" style={{fontSize:11,color:"var(--muted)",marginTop:2}}>{fDate(a.appointment_date)} · {a.time_slot} hs · {svc?.duration_minutes ? fDur(svc.duration_minutes) : "—"}</div>
           {a.created_at && <div className="mono" style={{fontSize:10,color:"var(--muted)",marginTop:2}}>Reservado {fDateTime(a.created_at)}</div>}
         </div>
-        <Chip tone={STATUS_TONES[a.status]||"neutral"}>{STATUS_LABELS[a.status]||a.status}</Chip>
+        <div className="flex items-center gap-2">
+          {saved && <span className="mono" style={{fontSize:10,color:"var(--success)"}}>Guardado</span>}
+          {saving && <span className="mono" style={{fontSize:10,color:"var(--muted)"}}>Guardando…</span>}
+          <Chip tone={STATUS_TONES[a.status]||"neutral"}>{STATUS_LABELS[a.status]||a.status}</Chip>
+        </div>
       </div>
 
       {/* Acciones rápidas */}
-      {a.client_phone && (
-        <div className="flex gap-2 flex-wrap">
-          {a.status!=="confirmed" && <button className="btn btn-pr btn-sm" onClick={waConfirm}><Icon name="check" size={13}/> Confirmar + WA</button>}
-          {a.status!=="cancelled" && <button className="btn btn-sc btn-sm" onClick={waCancel}><Icon name="x" size={13}/> Cancelar + WA</button>}
-          <a className="btn btn-wa btn-sm" target="_blank" href={`https://wa.me/${waTel(a.client_phone)}`}><Icon name="phone" size={13}/> Chat</a>
+      <div className="flex gap-2 flex-wrap">
+        {a.client_phone && a.status!=="confirmed" && <button className="btn btn-pr btn-sm" onClick={waConfirm}><Icon name="check" size={13}/> Confirmar + WA</button>}
+        {a.client_phone && a.status!=="cancelled" && <button className="btn btn-sc btn-sm" onClick={waCancel}><Icon name="x" size={13}/> Cancelar + WA</button>}
+        {a.client_phone && <a className="btn btn-wa btn-sm" target="_blank" href={`https://wa.me/${waTel(a.client_phone)}`}><Icon name="phone" size={13}/> Chat</a>}
+        <button className="btn btn-sc btn-sm" onClick={()=>setReschedule(!reschedule)}><Icon name="calendar" size={13}/> {reschedule?"Cancelar":"Mover turno"}</button>
+      </div>
+
+      {/* Reagendar */}
+      {reschedule && (
+        <div className="flex flex-col gap-3 py-3 px-4 rounded" style={{background:"rgba(94,107,46,.04)",border:"1px dashed var(--olive-soft)"}}>
+          <div className="sec-label">Mover turno</div>
+          <div className="flex gap-3">
+            <Field label="Nueva fecha" grow>
+              <input className="inp" type="date" value={newDate} onChange={e=>{setNewDate(e.target.value);setNewTime("")}} min={toISO(TODAY)}/>
+            </Field>
+            <Field label="Nuevo horario" grow>
+              <select className="inp" value={newTime} onChange={e=>setNewTime(e.target.value)}>
+                <option value="">Elegí…</option>
+                {rescheduleSlots.map(o=>(
+                  <option key={o.t} value={o.t} disabled={!o.ok}>{o.t}{o.ok?"":" — ocupado"}</option>
+                ))}
+              </select>
+            </Field>
+          </div>
+          <button className="btn btn-pr btn-sm" disabled={!newTime || (newDate===a.appointment_date && newTime===a.time_slot)} onClick={doReschedule}>
+            <Icon name="check" size={13}/> Confirmar cambio
+          </button>
         </div>
       )}
 
       {/* Cliente */}
       <div className="flex flex-col gap-3">
         <div className="sec-label">Cliente</div>
-        <Field label="Nombre"><input className="inp" value={draft.client_name} onChange={e=>u("client_name",e.target.value)}/></Field>
+        <Field label="Nombre"><input className="inp" value={draft.client_name} onBlur={()=>autoSave(draft)} onChange={e=>u("client_name",e.target.value)}/></Field>
         <div className="flex gap-3">
-          <Field label="Teléfono" grow><input className="inp" value={draft.client_phone} onChange={e=>u("client_phone",e.target.value)}/></Field>
-          <Field label="Email" grow><input className="inp" value={draft.client_email} onChange={e=>u("client_email",e.target.value)} placeholder="opcional"/></Field>
+          <Field label="Teléfono" grow><input className="inp" value={draft.client_phone} onBlur={()=>autoSave(draft)} onChange={e=>u("client_phone",e.target.value)}/></Field>
+          <Field label="Email" grow><input className="inp" value={draft.client_email} onBlur={()=>autoSave(draft)} onChange={e=>u("client_email",e.target.value)} placeholder="opcional"/></Field>
         </div>
       </div>
 
@@ -1333,14 +1413,13 @@ const ApptDetail = ({a, svc, onUpdate}) => {
             </select>
           </Field>
         </div>
-        {/* Precio de lista + monto cobrado */}
         <div className="flex gap-3 items-end">
           <div style={{flex:"0 0 auto"}}>
             <div className="mono" style={{fontSize:10,letterSpacing:".15em",textTransform:"uppercase",color:"var(--muted)",marginBottom:4}}>Lista</div>
             <div className="mono" style={{fontSize:14,color:"var(--ink)",fontWeight:600}}>{fP(listPrice)}</div>
           </div>
           <Field label={isCashDiscount ? `Cobrado (−${CASH_DISCOUNT*100}% efvo)` : "Monto cobrado"} grow>
-            <input className="inp num" type="number" value={draft.charged_price} onChange={e=>setDraft(d=>({...d,charged_price:e.target.value}))} placeholder={listPrice?String(listPrice):""}/>
+            <input className="inp num" type="number" value={draft.charged_price} onChange={e=>{setDraft(d=>({...d,charged_price:e.target.value}));autoSave({...draft,charged_price:e.target.value})}} placeholder={listPrice?String(listPrice):""}/>
           </Field>
         </div>
         {isCashDiscount && Number(draft.charged_price)===Math.round(listPrice*(1-CASH_DISCOUNT)) && (
@@ -1352,10 +1431,8 @@ const ApptDetail = ({a, svc, onUpdate}) => {
       </div>
 
       <Field label="Notas" hint="Internas">
-        <textarea className="inp" rows={2} value={draft.notes} onChange={e=>u("notes",e.target.value)}/>
+        <textarea className="inp" rows={2} value={draft.notes} onBlur={()=>autoSave(draft)} onChange={e=>u("notes",e.target.value)}/>
       </Field>
-
-      <button className="btn btn-pr" onClick={save}>Guardar cambios</button>
     </div>
   );
 };
