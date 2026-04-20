@@ -389,6 +389,17 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xm
 .toast.show{opacity:1;transform:translateX(-50%) translateY(-8px)}
 @media(max-width:900px){.toast{bottom:80px}}
 @media(max-width:640px){.toast{bottom:20px;left:10px;right:10px;transform:none;font-size:12px;padding:10px 16px}.toast.show{transform:translateY(-6px)}}
+
+/* Usuarios con vestibular issues / preferencia de menos animación */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+    scroll-behavior:auto !important;
+  }
+  .chip.live::before{animation:none !important}
+}
 </style>
 </head>
 <body>

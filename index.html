@@ -204,6 +204,19 @@ button:focus-visible,a:focus-visible,[role="button"]:focus-visible{outline:2px s
 @keyframes bkSlideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
 .bk-step-body{animation:bkSlide .25s cubic-bezier(.22,1,.36,1) both}
 @keyframes bkSlide{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:none}}
+
+/* Usuarios con vestibular issues / preferencia de menos animación */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+    scroll-behavior:auto !important;
+  }
+  .reveal{opacity:1 !important;transform:none !important}
+  .ticker{animation:none !important}
+  .dot-live::after{animation:none !important}
+}
 </style>
 </head>
 <body>
