@@ -47,6 +47,7 @@ Commits: `32433f2` + `f1aaea6` en `main`.
 12. ~~**Export CSV**~~ ✅ Hecho (20/04) — commit `2141017`.
 13. **Templates WA editables** desde admin (hoy hardcodeados en `confirmAndWA` / `cancelAndNotify`).
 14. **Sentry (errors + performance)** — diferido: falta DSN. Cuando lo tengamos, meter el script en index.html/admin.html + env var en Vercel.
+15. **Bump `actions/checkout@v4` → v5 o Node 24** — warning de deprecación en CI (Node.js 20 se saca el 16/09/2026, forzado a Node 24 el 02/06/2026). Editar `.github/workflows/ci.yml` y subir la action. No bloqueante hasta junio.
 
 ## Nice to have (backlog)
 
