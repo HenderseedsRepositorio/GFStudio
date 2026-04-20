@@ -411,7 +411,7 @@ const BookingWizard=({open,onClose,svcs,blocks,initialSvcId,coupons,payment})=>{
     setSelTime("");
     let cancelled=false;
     setLoadingSlots(true);
-    sb.from("gf_appointments").select("time_slot,service_id,status")
+    sb.from("gf_appointments_slots").select("time_slot,service_id,status")
       .eq("appointment_date",selDate)
       .then(({data})=>{if(!cancelled){setTakenSlots(data||[]);setLoadingSlots(false)}},
             ()=>{if(!cancelled){setTakenSlots([]);setLoadingSlots(false)}});
@@ -495,7 +495,7 @@ const BookingWizard=({open,onClose,svcs,blocks,initialSvcId,coupons,payment})=>{
     setSubmitting(true);
     try{
       // Re-check collision with fresh data
-      const{data:freshSlots}=await sb.from("gf_appointments").select("time_slot,service_id,status").eq("appointment_date",selDate);
+      const{data:freshSlots}=await sb.from("gf_appointments_slots").select("time_slot,service_id,status").eq("appointment_date",selDate);
       const dur=selSvc.duration_minutes||60;
       const sMin=toMin(selTime),eMin=sMin+dur;
       const collision=freshSlots&&freshSlots.some(r=>{
@@ -510,7 +510,10 @@ const BookingWizard=({open,onClose,svcs,blocks,initialSvcId,coupons,payment})=>{
         setSubmitting(false);setStep("fecha");return;
       }
       const phoneFmt=normPhoneByCountry(ph,country);
+      // UUID generado en cliente: evita necesidad de SELECT policy para leer el insert con RETURNING.
+      const apptId=(crypto.randomUUID?crypto.randomUUID():null);
       const apptInsert={
+        ...(apptId?{id:apptId}:{}),
         client_name:n.trim(),client_email:em.trim(),client_phone:phoneFmt,
         service_id:selSvc.id,appointment_date:selDate,time_slot:selTime,status:"pending"
       };
@@ -520,13 +523,13 @@ const BookingWizard=({open,onClose,svcs,blocks,initialSvcId,coupons,payment})=>{
         apptInsert.discount_amount=couponApplied.discount;
         apptInsert.final_price=finalPrice;
       }
-      let{data:inserted,error}=await sb.from("gf_appointments").insert(apptInsert).select().single();
+      let {error}=await sb.from("gf_appointments").insert(apptInsert);
       if(error&&(error.message||"").includes("column")){
         // Fallback: insert without new columns
         const fallback={...apptInsert};
         delete fallback.coupon_code;delete fallback.discount_amount;delete fallback.final_price;
-        const r=await sb.from("gf_appointments").insert(fallback).select().single();
-        error=r.error;inserted=r.data;
+        const r=await sb.from("gf_appointments").insert(fallback);
+        error=r.error;
       }
       if(error){
         if(error.code==="23505"){
@@ -538,9 +541,10 @@ const BookingWizard=({open,onClose,svcs,blocks,initialSvcId,coupons,payment})=>{
         }
         setSubmitting(false);return;
       }
-      // Upsert client (idempotent by phone)
+      // Upsert client (idempotent by phone) — ignoreDuplicates:true evita UPDATE,
+      // que no está permitido para anon bajo RLS. El admin puede editar desde el panel.
       try{
-        await sb.from("gf_clients").upsert({name:n.trim(),phone:phoneFmt,email:em.trim()},{onConflict:"phone",ignoreDuplicates:false});
+        await sb.from("gf_clients").upsert({name:n.trim(),phone:phoneFmt,email:em.trim()},{onConflict:"phone",ignoreDuplicates:true});
       }catch(_){/* tabla puede no existir aún */}
       // Bump coupon usage
       if(couponApplied){
@@ -556,7 +560,7 @@ const BookingWizard=({open,onClose,svcs,blocks,initialSvcId,coupons,payment})=>{
           body:JSON.stringify({nombre:n.trim(),email:em.trim(),telefono:phoneFmt,servicio:selSvc.name,fecha:df,horario:selTime,precio:fP(finalPrice)})
         });
       }catch(_){}
-      setSentData({appointment_id:inserted?.id||null,nombre:n.trim(),email:em.trim(),servicio:selSvc.name,fecha:df,horario:selTime,precio:fP(finalPrice),final_price:finalPrice,fecha_raw:selDate,dur_min:selSvc.duration_minutes||60,coupon:couponApplied?.code||null,discount:couponApplied?.discount||0});
+      setSentData({appointment_id:apptId||null,nombre:n.trim(),email:em.trim(),servicio:selSvc.name,fecha:df,horario:selTime,precio:fP(finalPrice),final_price:finalPrice,fecha_raw:selDate,dur_min:selSvc.duration_minutes||60,coupon:couponApplied?.code||null,discount:couponApplied?.discount||0});
       setSubmitting(false);setStep("exito");
     }catch(err){
       setSubmitError("Error de conexión. Intentá de nuevo.");setSubmitting(false);
