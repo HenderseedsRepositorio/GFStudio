@@ -1010,7 +1010,7 @@ const NewApptDrawer = ({open, onClose, services, appts, blocks, settings, onCrea
   };
 
   return (
-    <Drawer open={open} onClose={onClose} subtitle="Turno manual" title="Nuevo <em>turno</em>"
+    <Drawer open={open} onClose={onClose} subtitle="Turno manual" title={<>Nuevo <em>turno</em></>}
       footer={form && (
         <>
           <div/>
@@ -1217,6 +1217,7 @@ const buildClientes = (appts, services) => {
         no_show: a.status==="no_show"?1:0,
         coupons: a.coupon_code?[a.coupon_code]:[],
         notes: a.notes?[{date:a.appointment_date,text:a.notes}]:[],
+        aliases: [],
       });
     } else {
       ex.appts.push(a);
@@ -1229,11 +1230,29 @@ const buildClientes = (appts, services) => {
       if(a.coupon_code && !ex.coupons.includes(a.coupon_code)) ex.coupons.push(a.coupon_code);
       if(a.notes) ex.notes.push({date:a.appointment_date,text:a.notes});
       if(!ex.email && a.client_email) ex.email = a.client_email;
+      // Track silent merges: different name/phone normalized to same key
+      const nameDiff = (a.client_name||"").trim().toLowerCase() !== (ex.name||"").trim().toLowerCase();
+      const phoneDiff = (a.client_phone||"") !== (ex.phone||"");
+      if((nameDiff && a.client_name) || (phoneDiff && a.client_phone)){
+        const aliasKey = `${a.client_name||""}|${a.client_phone||""}`;
+        if(!ex.aliases.some(x=>`${x.name}|${x.phone}`===aliasKey)) {
+          ex.aliases.push({name:a.client_name||"", phone:a.client_phone||""});
+        }
+      }
     }
   }
   return Array.from(map.values()).sort((a,b)=>(b.lastDate||"").localeCompare(a.lastDate||""));
 };
 const daysAgo = iso => Math.floor((TODAY - new Date(iso+"T12:00:00"))/86400000);
+const relDays = iso => {
+  if(!iso) return "";
+  const d = daysAgo(iso);
+  if(d===0) return "hoy";
+  if(d===1) return "ayer";
+  if(d===-1) return "mañana";
+  if(d>0) return `hace ${d} días`;
+  return `en ${-d} días`;
+};
 const clientTag = c => {
   const d = daysAgo(c.lastDate);
   if(d>90) return {tone:"err",label:"Inactiva"};
@@ -1353,7 +1372,7 @@ const ClientesTab = ({appts, services, fichaQuestions, fichas, refetch}) => {
         <div className="card">
           <table className="tbl">
             <thead>
-              <tr><th>Cliente</th><th>Contacto</th><th>Turnos</th><th>Última visita</th><th>Total gastado</th><th></th></tr>
+              <tr><th>Cliente</th><th>Contacto</th><th>Turnos</th><th>Últ./próx. turno</th><th>Total gastado</th><th></th></tr>
             </thead>
             <tbody>
               {filtered.map(c=>{
@@ -1365,7 +1384,7 @@ const ClientesTab = ({appts, services, fichaQuestions, fichas, refetch}) => {
                         <div style={{width:36,height:36,flex:"0 0 36px",aspectRatio:"1",borderRadius:"50%",background:"var(--olive)",color:"var(--cream)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Fraunces',serif",fontSize:15}}>{(c.name||"?").trim()[0].toUpperCase()}</div>
                         <div>
                           <div className="t-name">{c.name}</div>
-                          <Chip tone={tag.tone}>{tag.label}</Chip>
+                          <div className="flex items-center gap-1 flex-wrap"><Chip tone={tag.tone}>{tag.label}</Chip>{c.aliases && c.aliases.length>0 && <span title={c.aliases.map(a=>`${a.name||'—'} (${a.phone||'—'})`).join('\n')} style={{fontSize:10,letterSpacing:".08em",textTransform:"uppercase",color:"var(--olive-dk)",cursor:"help"}}>+{c.aliases.length} alias</span>}</div>
                         </div>
                       </div>
                     </td>
@@ -1376,7 +1395,7 @@ const ClientesTab = ({appts, services, fichaQuestions, fichas, refetch}) => {
                     </td>
                     <td>
                       <div className="t-name">{fDate(c.lastDate)}</div>
-                      <div className="t-sub">hace {daysAgo(c.lastDate)} días</div>
+                      <div className="t-sub">{relDays(c.lastDate)}</div>
                     </td>
                     <td className="num"><strong>{fP(c.total)}</strong></td>
                     <td style={{color:"var(--muted)"}}><Icon name="chevron" size={14}/></td>
@@ -1619,6 +1638,21 @@ const ClienteDetail = ({c, svcMap, fichas, questions, onEditFicha}) => {
           <div className="flex items-center gap-3"><Icon name="mail" size={14}/> <span>{c.email||"sin email"}</span></div>
         </div>
       </div>
+
+      {c.aliases && c.aliases.length>0 && (
+        <div>
+          <div className="sec-label mb-3" style={{color:"var(--warn,var(--olive-dk))"}}>⚠ También reservó como</div>
+          <div className="flex flex-col gap-2" style={{fontSize:12.5}}>
+            {c.aliases.map((a,i)=>(
+              <div key={i} className="flex items-center gap-2 flex-wrap" style={{padding:"6px 10px",background:"rgba(163,59,42,.05)",border:"1px solid var(--border)",borderRadius:2}}>
+                <span style={{fontWeight:500}}>{a.name||"(sin nombre)"}</span>
+                <span className="mono" style={{fontSize:11,color:"var(--muted)"}}>{a.phone||"—"}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{fontSize:11,color:"var(--muted)",marginTop:6,lineHeight:1.4}}>Estos turnos se fusionaron automáticamente porque el teléfono normaliza igual. Editá si el nombre oficial debería cambiar.</div>
+        </div>
+      )}
 
       {c.coupons.length>0 && (
         <div>
@@ -2387,7 +2421,7 @@ const ContenidoTab = ({content, setContent, persist}) => {
 
       <div className="flex gap-3 mb-5 flex-wrap">
         <Tabs value={section} onChange={setSection} options={[
-          {v:"hero",l:"Hero"},{v:"about",l:"Sobre Guada"},{v:"faq",l:"FAQ"},{v:"testimonials",l:"Testimonios"},{v:"contact",l:"Contacto"}
+          {v:"hero",l:"Hero"},{v:"about",l:"Sobre Guada"},{v:"faq",l:"FAQ"},{v:"contact",l:"Contacto"}
         ]}/>
         <div className="flex-1"/>
         <a className="btn btn-sc" href="/" target="_blank"><Icon name="eye" size={14}/> Ver landing</a>
@@ -2396,7 +2430,6 @@ const ContenidoTab = ({content, setContent, persist}) => {
       {section==="hero" && <HeroEditor data={content.hero} onUpdate={v=>u("hero",v)}/>}
       {section==="about" && <AboutEditor data={content.about} onUpdate={v=>u("about",v)}/>}
       {section==="faq" && <FAQEditor data={content.faq||[]} onUpdate={v=>u("faq",v)}/>}
-      {section==="testimonials" && <TestimonialsEditor data={content.testimonials||[]} onUpdate={v=>u("testimonials",v)}/>}
       {section==="contact" && <ContactEditor data={content.contact} onUpdate={v=>u("contact",v)}/>}
     </>
   );
@@ -2586,7 +2619,12 @@ const ContactEditor = ({data, onUpdate}) => {
 /* ============ BLOQUEOS TAB ============ */
 const BloqueosTab = ({blocks, setBlocks, appts, services, settings, setSettings, persistSettings, refetch}) => {
   const [view, setView] = useState("calendar");
-  const [weekStart, setWeekStart] = useState(()=>mondayOf(TODAY));
+  // Si hoy es domingo, mostrar la semana que arranca mañana (no la que ya pasó)
+  const [weekStart, setWeekStart] = useState(()=>{
+    const m = mondayOf(TODAY);
+    if(TODAY.getDay()===0){ m.setDate(m.getDate()+7); }
+    return m;
+  });
   const [editing, setEditing] = useState(null);
 
   const weekDays = useMemo(()=>{
@@ -2695,7 +2733,7 @@ const BloqueosTab = ({blocks, setBlocks, appts, services, settings, setSettings,
         <Tabs value={view} onChange={setView} options={[{v:"calendar",l:"Calendario"},{v:"list",l:"Lista"},{v:"settings",l:"Ajustes"}]}/>
         <div className="flex-1"/>
         {view==="calendar" && <>
-          <button className="btn btn-gh btn-sm" onClick={()=>setWeekStart(mondayOf(TODAY))}>Hoy</button>
+          <button className="btn btn-gh btn-sm" onClick={()=>{const m=mondayOf(TODAY); if(TODAY.getDay()===0){ m.setDate(m.getDate()+7); } setWeekStart(m);}}>Hoy</button>
           <div className="flex items-center gap-1 sm:gap-2" style={{whiteSpace:"nowrap"}}>
             <button className="btn btn-sc btn-sm" onClick={()=>navWeek(-1)}>←</button>
             <span className="mono hidden sm:inline" style={{fontSize:11,color:"var(--muted)",letterSpacing:".15em",textTransform:"uppercase",padding:"0 4px"}}>
@@ -3571,6 +3609,13 @@ const App = () => {
   useEffect(()=>{
     document.body.style.overflow = drawerOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
+  },[drawerOpen]);
+  // Escape cierra el sidebar mobile
+  useEffect(()=>{
+    if(!drawerOpen) return;
+    const h = e => { if(e.key==="Escape") setDrawerOpen(false); };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
   },[drawerOpen]);
 
   const handleNav = useCallback((id) => {
