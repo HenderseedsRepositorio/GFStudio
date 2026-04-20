@@ -39,6 +39,34 @@ npx supabase db query --linked "SQL aquí;"
 
 URLs: `https://gf-studio.vercel.app` (landing) · `https://gf-studio.vercel.app/admin.html` (admin, login con email + contraseña via Supabase Auth)
 
+### Staging vs prod
+
+Hay dos branches con deploy automático en Vercel:
+
+| branch | URL | cuándo |
+|---|---|---|
+| `main` | `https://gf-studio.vercel.app` | prod — lo que ven las clientas |
+| `staging` | `https://gf-studio-git-staging-alvaros-projects-XXX.vercel.app` (URL exacta la da Vercel al primer deploy) | pre-prod — probar cambios grandes |
+
+Flujo recomendado para cambios no triviales (UX grande, migrations, cambios de RLS):
+
+```bash
+# 1. Salir de main, ir a staging
+git checkout staging && git pull
+
+# 2. Merge main en staging si hay drift (o rebase)
+git merge main
+
+# 3. Traer tu rama o editar directo y pushear
+git push origin staging   # Vercel deploya la URL de staging en ~1 min
+
+# 4. Probar en la URL de staging (misma DB que prod — ojo con inserts reales)
+# 5. Cuando quede OK, volver a main y mergear
+git checkout main && git merge staging && git push origin main
+```
+
+> **Importante:** staging y prod apuntan a la **misma** instancia de Supabase. Si necesitás aislamiento de datos (ej. testing de migrations destructivas), creá un proyecto Supabase paralelo y cambiá `SB_URL`/`SB_KEY` en la branch staging. Hoy no lo tenemos — el uso principal de staging es probar cambios de UI/UX contra datos reales sin exponerlos en la URL pública.
+
 ## Secrets: público vs privado
 
 Hay tres niveles de credenciales — mezclarlos es la mayor fuente de leaks.
