@@ -400,8 +400,12 @@ const { useState, useEffect, useRef, useMemo, useCallback } = React;
 /* ============ CONFIG ============ */
 const SB_URL = "https://ibikdnjuctopdkmtmgdd.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImliaWtkbmp1Y3RvcGRrbXRtZ2RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1MjEwOTMsImV4cCI6MjA5MTA5NzA5M30.Tzsi0ZbcdohuJLFTut4z8h2vf5yi1dv_KfA_6m6COBI";
-const sb = window.supabase.createClient(SB_URL, SB_KEY);
-const ADMIN_PASS = "guada";
+const sb = window.supabase.createClient(SB_URL, SB_KEY, {
+  auth: { persistSession: true, autoRefreshToken: true, storageKey: "gf-studio-admin-auth" }
+});
+// Email hardcoded = identificador técnico del único usuario admin en Supabase Auth.
+// Guada solo ingresa password — el email nunca se le muestra.
+const ADMIN_EMAIL = "guadalupefernandez016@gmail.com";
 const WA_GUADA = "5492314555856";
 const WA_TEST = "5492314573218";
 
@@ -3728,8 +3732,9 @@ const QuestionEditor = ({q, onChange}) => {
 
 /* ============ APP ROOT ============ */
 const App = () => {
-  const [auth, setAuth] = useState(()=>sessionStorage.getItem("gf_auth")==="1");
+  const [auth, setAuth] = useState(null); // null = cargando sesión, true = autenticado, false = sin sesión
   const [pass, setPass] = useState("");
+  const [loggingIn, setLoggingIn] = useState(false);
   const [tab, setTab] = useState(()=>localStorage.getItem("gf_admin_tab")||"turnos");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(()=>typeof window!=="undefined" && window.innerWidth <= 900);
@@ -3857,13 +3862,38 @@ const App = () => {
     toast("Ajustes guardados localmente");
   };
 
-  const login = (e) => {
-    e.preventDefault();
-    if(pass===ADMIN_PASS){ sessionStorage.setItem("gf_auth","1"); setAuth(true); }
-    else { toast("Contraseña incorrecta"); setPass(""); }
-  };
-  const logout = () => { sessionStorage.removeItem("gf_auth"); setAuth(false); };
+  useEffect(()=>{
+    let mounted = true;
+    sb.auth.getSession().then(({data})=>{
+      if(mounted) setAuth(!!data?.session);
+    }).catch(()=>{ if(mounted) setAuth(false); });
+    const { data: sub } = sb.auth.onAuthStateChange((_e, session)=>{
+      if(mounted) setAuth(!!session);
+    });
+    return ()=>{ mounted = false; sub?.subscription?.unsubscribe?.(); };
+  }, []);
 
+  const login = async (e) => {
+    e.preventDefault();
+    if(loggingIn || !pass) return;
+    setLoggingIn(true);
+    const { error } = await sb.auth.signInWithPassword({ email: ADMIN_EMAIL, password: pass });
+    setLoggingIn(false);
+    if(error){ toast("Contraseña incorrecta"); setPass(""); }
+    else { setPass(""); /* onAuthStateChange setea auth=true */ }
+  };
+  const logout = async () => { await sb.auth.signOut(); };
+
+  if(auth === null){
+    return (
+      <div className="login-wrap">
+        <div className="login-card">
+          <h1>GF <em>Studio</em></h1>
+          <p>Cargando sesión…</p>
+        </div>
+      </div>
+    );
+  }
   if(!auth){
     return (
       <div className="login-wrap">
@@ -3871,9 +3901,11 @@ const App = () => {
           <h1>GF <em>Studio</em></h1>
           <p>Panel de administración</p>
           <Field label="Contraseña">
-            <input className="inp" type="password" value={pass} onChange={e=>setPass(e.target.value)} autoFocus/>
+            <input className="inp" type="password" value={pass} onChange={e=>setPass(e.target.value)} autoFocus disabled={loggingIn}/>
           </Field>
-          <button type="submit" className="btn btn-pr w-full mt-4" style={{width:"100%"}}>Entrar</button>
+          <button type="submit" className="btn btn-pr w-full mt-4" style={{width:"100%"}} disabled={loggingIn||!pass}>
+            {loggingIn ? "Entrando…" : "Entrar"}
+          </button>
         </form>
       </div>
     );
