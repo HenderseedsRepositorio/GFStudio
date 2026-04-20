@@ -510,6 +510,8 @@ const Icon = ({name, size=16}) => {
     tag: <><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1.5"/></>,
     menu: <><path d="M3 6h18M3 12h18M3 18h18"/></>,
     bell: <><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></>,
+    bellOff: <><path d="M18 8a6 6 0 0 0-9.5-4.9"/><path d="M6 8c0 7-3 9-3 9h18s-1-.7-1.9-2.6"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M3 3l18 18"/></>,
+    download: <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></>,
   };
   return (
     <svg className="ic" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -600,6 +602,69 @@ const toast = (msg) => {
   el.classList.add("show");
   clearTimeout(toastTimer);
   toastTimer = setTimeout(()=>el.classList.remove("show"), 2400);
+};
+
+/* ============ CSV EXPORT ============ */
+const STATUS_LABELS_ES = { pending:"Pendiente", confirmed:"Confirmado", completed:"Completado", cancelled:"Cancelado", no_show:"No-show" };
+const csvEscape = (v) => {
+  if(v===null || v===undefined) return "";
+  const s = String(v);
+  return /[",;\n\r]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
+};
+const exportApptsCSV = (rows, svcMap, period="period") => {
+  const headers = ["Fecha","Horario","Cliente","Teléfono","Email","Servicio","Duración","Estado","Precio","Cupón","Método de pago","Notas"];
+  const lines = [headers.join(";")];
+  rows.forEach(a=>{
+    const svc = svcMap[a.service_id];
+    lines.push([
+      a.appointment_date,
+      a.time_slot,
+      a.client_name||"",
+      a.client_phone||"",
+      a.client_email||"",
+      svc?.name||"",
+      svc?.duration_minutes ? svc.duration_minutes+" min" : "",
+      STATUS_LABELS_ES[a.status]||a.status||"",
+      a.charged_price || svc?.price || 0,
+      a.coupon_code||"",
+      a.payment_method||"",
+      (a.notes||"").replace(/\r?\n/g," "),
+    ].map(csvEscape).join(";"));
+  });
+  const blob = new Blob(["\ufeff"+lines.join("\r\n")], {type:"text/csv;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  const today = new Date().toISOString().slice(0,10);
+  link.href = url;
+  link.download = `gf-studio_turnos_${period}_${today}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(()=>URL.revokeObjectURL(url), 2000);
+  toast(`CSV descargado (${rows.length} turnos)`);
+};
+
+/* ============ BEEP (alert sonoro nuevo turno) ============ */
+const isSoundMuted = () => localStorage.getItem("gf_sound_muted")==="1";
+const setSoundMuted = (v) => localStorage.setItem("gf_sound_muted", v?"1":"0");
+const beep = () => {
+  if(isSoundMuted()) return;
+  try{
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if(!Ctx) return;
+    const ctx = new Ctx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.setValueAtTime(1320, ctx.currentTime+0.12);
+    gain.gain.setValueAtTime(0.14, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.4);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime+0.4);
+    setTimeout(()=>ctx.close().catch(()=>{}), 500);
+  }catch(_){}
 };
 
 /* ============ NORMALIZERS ============ */
@@ -710,6 +775,22 @@ const denormCoupon = c => ({
 });
 
 /* ============ SHELL ============ */
+const SoundToggle = () => {
+  const [muted, setMuted] = useState(isSoundMuted());
+  const onClick = () => {
+    const next = !muted;
+    setSoundMuted(next);
+    setMuted(next);
+    if(!next){ beep(); toast("Sonido activado"); } else { toast("Sonido silenciado"); }
+  };
+  return (
+    <a className="logout" onClick={onClick} title={muted?"Activar sonido de turnos nuevos":"Silenciar sonido de turnos nuevos"}>
+      <Icon name={muted?"bellOff":"bell"} size={14}/>
+      <span>{muted?"Sonido silenciado":"Sonido activado"}</span>
+    </a>
+  );
+};
+
 const Sidebar = ({current, onNav, appts, onLogout, isMobile, drawerOpen}) => {
   const todayISO = toISO(TODAY);
   const pending = appts.filter(a=>a.status==="pending").length;
@@ -772,6 +853,7 @@ const Sidebar = ({current, onNav, appts, onLogout, isMobile, drawerOpen}) => {
             <div className="r">Propietaria</div>
           </div>
         </div>
+        <SoundToggle/>
         <a className="logout" onClick={onLogout}>
           <Icon name="logout" size={14}/>
           <span>Cerrar sesión</span>
@@ -3032,8 +3114,11 @@ const ResultadosTab = ({appts, services, coupons}) => {
           {deltaPct!==null && <div className="kpi"><div className="lb">vs. anterior</div><div className="v" style={{color:deltaPct>0?"var(--success)":deltaPct<0?"var(--danger)":"var(--muted)"}}>{dTotal.arrow} {Math.abs(deltaPct)}%</div></div>}
         </div>
       </div>
-      <div className="flex gap-3 mb-5">
+      <div className="flex gap-3 mb-5 items-center flex-wrap">
         <Tabs value={period} onChange={setPeriod} options={[{v:"week",l:"7 días"},{v:"month",l:"30 días"},{v:"90",l:"90 días"}]}/>
+        <button className="btn btn-gh btn-sm" onClick={()=>exportApptsCSV(filtered, svcMap, period)} title="Descargar como CSV">
+          <Icon name="download" size={13}/> Exportar CSV
+        </button>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
         <Stat label="Ingresos" value={fP(total)} delta={dTotal.text} tone={dTotal.tone}/>
@@ -3667,7 +3752,18 @@ const App = () => {
   useEffect(()=>{
     if(!auth) return;
     const channel = sb.channel("admin-all")
-      .on("postgres_changes",{event:"*",schema:"public",table:"gf_appointments"}, debouncedFetch)
+      .on("postgres_changes",{event:"INSERT",schema:"public",table:"gf_appointments"}, (payload)=>{
+        const row = payload?.new;
+        if(row){
+          const hm = (row.time_slot||"").slice(0,5);
+          const name = (row.client_name||"").split(" ")[0] || "Clienta";
+          toast(`Nuevo turno: ${name} · ${hm}`);
+          beep();
+        }
+        debouncedFetch();
+      })
+      .on("postgres_changes",{event:"UPDATE",schema:"public",table:"gf_appointments"}, debouncedFetch)
+      .on("postgres_changes",{event:"DELETE",schema:"public",table:"gf_appointments"}, debouncedFetch)
       .on("postgres_changes",{event:"*",schema:"public",table:"gf_blocked_slots"}, debouncedFetch)
       .on("postgres_changes",{event:"*",schema:"public",table:"gf_services"}, debouncedFetch)
       .on("postgres_changes",{event:"*",schema:"public",table:"gf_packs"}, debouncedFetch)

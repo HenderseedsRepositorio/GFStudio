@@ -16,6 +16,8 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://gf-studio.vercel.app/">
+<meta name="theme-color" content="#3D4A18">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%233D4A18'/%3E%3Ctext x='16' y='23' text-anchor='middle' font-family='Georgia%2Cserif' font-size='15' font-weight='700' fill='white'%3EGF%3C/text%3E%3C/svg%3E">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BeautySalon","name":"GF Studio","url":"https://gf-studio.vercel.app","telephone":"+5492314555856","address":{"@type":"PostalAddress","streetAddress":"Hipólito Yrigoyen 229","addressLocality":"Henderson","addressRegion":"Buenos Aires","addressCountry":"AR"},"openingHoursSpecification":{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],"opens":"09:00","closes":"18:00"}}
@@ -422,7 +424,7 @@ const BookingWizard=({open,onClose,svcs,blocks,initialSvcId,coupons})=>{
     resetWizard();onClose();
   };
 
-  const applyCoupon=()=>{
+  const applyCoupon=async()=>{
     setCouponError("");
     const code=(couponInput||"").trim().toUpperCase();
     if(!code){setCouponError("Ingresá un código.");return}
@@ -439,6 +441,29 @@ const BookingWizard=({open,onClose,svcs,blocks,initialSvcId,coupons})=>{
     if(c.applies_to==="packs"){setCouponError("Este cupón es para packs, no servicios.");return}
     const price=Number(selSvc?.price)||0;
     if(c.min_amount&&price<Number(c.min_amount)){setCouponError(`Mínimo ${fP(c.min_amount)} para usar este cupón.`);return}
+    // Validaciones por-cliente: requieren email cargado
+    const needsClientCheck = c.first_visit_only || (c.max_per_client && c.max_per_client>0);
+    if(needsClientCheck){
+      const email=(fm.em||"").trim().toLowerCase();
+      if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+        setCouponError("Ingresá tu email primero para validar el cupón.");return;
+      }
+      try{
+        const{data:prev}=await sb.from("gf_appointments")
+          .select("id,coupon_code,status")
+          .ilike("client_email",email);
+        const effective=(prev||[]).filter(r=>r.status!=="cancelled");
+        if(c.first_visit_only && effective.length>0){
+          setCouponError("Este cupón es solo para el primer turno.");return;
+        }
+        if(c.max_per_client && c.max_per_client>0){
+          const used=effective.filter(r=>(r.coupon_code||"").toUpperCase()===c.code.toUpperCase()).length;
+          if(used>=c.max_per_client){
+            setCouponError(`Ya usaste este cupón ${used===1?"una vez":used+" veces"}.`);return;
+          }
+        }
+      }catch(_){/* si falla la consulta, dejamos que el server-side / submit vuelva a chequear */}
+    }
     const discount=c.type==="percent"?Math.round(price*Number(c.value)/100):Math.min(Number(c.value),price);
     setCouponApplied({code:c.code,discount,type:c.type,value:Number(c.value)});
   };
