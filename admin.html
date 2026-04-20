@@ -699,7 +699,6 @@ const denormSvc = s => ({
   description: s.description||null,
   price: Number(s.price)||0,
   duration_minutes: Number(s.duration_minutes)||60,
-  duration: `${Number(s.duration_minutes)||60} min`,
   active: s.active ?? true,
   display_order: s.order ?? 99,
   category: s.category || null,
