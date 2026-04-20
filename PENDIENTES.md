@@ -21,7 +21,7 @@ Commits: `32433f2` + `f1aaea6` en `main`.
 ## Pendientes críticos antes de promocionar el link a clientas
 
 1. **Fotos reales del estudio** — Reemplazar los 10 `<EditorialArt kind="X"/>` en Gallery + About con `<img src="/assets/fotos/..."/>`. Las 10 variantes de `kind` están documentadas: `duo`, `brow`, `space`, `detail`, `facial`, `tools`, `ambience`, `portrait`, `product`, `studio`.
-2. **WhatsApp de Guada** — Hoy `WA = "5492314573218"` (Alvaro, testing) en [index.html:178](index.html). Cambiar al de Guada cuando esté listo. El `WA_GUADA` ya está correcto (`"5492314555856"`) para el botón flotante y confirmaciones.
+2. ~~**WhatsApp de Guada**~~ ✅ Hecho — toda la landing usa `WA_GUADA = "5492314555856"` como único número. La constante `WA` (testing, Alvaro) ya fue eliminada.
 3. **Política de cancelación visible** — Agregar texto en StepData del booking ("Avisame con 24 hs si no podés"). Hoy no aparece.
 4. **Dominio propio + Resend verificado** — Verificar `gfstudio.com` (o similar) en Resend para que `notify-booking` pueda mandar emails reales a clientas (hoy está en sandbox, solo llega a `onboarding@resend.dev`).
 
@@ -60,7 +60,6 @@ Commits: `32433f2` + `f1aaea6` en `main`.
 ## Issues conocidos
 
 - **Emails sandbox Resend** — `notify-booking` solo puede mandar a `guadaf.studio@gmail.com`. Email a clienta no llega hasta que se verifique dominio propio.
-- **WA confirmaciones al de Alvaro** — `WA` apunta a `5492314573218` (Alvaro) en lugar del real de Guada. Cambiar en `index.html:178`.
 - **Foto hero ausente** — el hero no tiene foto, es tipografía pura. Evaluar si agregar foto de Guada al pie del hero cuando esté disponible.
 
 ---

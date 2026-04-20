@@ -99,8 +99,7 @@ Todas las tablas tienen políticas `USING (true)` para todas las operaciones. La
 
 ```js
 // index.html
-const WA_GUADA = "5492314555856";   // WhatsApp de Guada (flotante + confirmaciones)
-const WA = "5492314573218";         // número de Alvaro (testing — cambiar en Fase C)
+const WA_GUADA = "5492314555856";   // WhatsApp de Guada (único número usado en toda la landing)
 const SB_URL = "https://ibikdnjuctopdkmtmgdd.supabase.co";
 const SLOT_START = 9 * 60;          // 09:00
 const SLOT_END = 18 * 60;           // 18:00
@@ -127,5 +126,4 @@ const ADMIN_PASS = "guada";
 1. Dominio propio (`gfstudio.com`) + verificación en Resend para emails reales a clientes
 2. Supabase Auth reemplaza `ADMIN_PASS` hardcodeado
 3. Cerrar RLS (políticas por usuario autenticado)
-4. Cambiar `WA` (número de Alvaro) al número definitivo de Guada
-5. Análisis MercadoPago para cobrar seña
+4. Activar `MP_ACCESS_TOKEN` en Supabase secrets para habilitar seña por MercadoPago (toggle en admin ya listo)
