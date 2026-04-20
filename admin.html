@@ -184,6 +184,9 @@ body::before{
   transition:border-color .2s,background .2s;width:100%;
 }
 .inp:focus{outline:none;border-color:var(--olive);background:#fff}
+/* a11y: focus visible para teclado en botones/links (WCAG 2.4.7) */
+button:focus-visible,a:focus-visible,[role="button"]:focus-visible{outline:2px solid var(--olive);outline-offset:2px;border-radius:4px}
+.inp:focus-visible{outline:2px solid var(--olive);outline-offset:1px}
 textarea.inp{resize:vertical;min-height:88px;line-height:1.5;font-family:inherit}
 select.inp{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B6650' stroke-width='1.5'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 12px center;background-size:14px;padding-right:36px}
 

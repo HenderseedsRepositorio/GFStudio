@@ -29,6 +29,7 @@ Commits: `32433f2` + `f1aaea6` en `main`.
 
 5. **Supabase Auth** → reemplazar `ADMIN_PASS="guada"` hardcodeado en [admin.html:~265](admin.html).
 6. **Cerrar RLS** con políticas por usuario auth (hoy `USING (true)` en todas las tablas).
+   > **Riesgo alto confirmado (19/04/2026):** la anon key permite `INSERT/UPDATE/DELETE` sobre `gf_services`, `gf_appointments`, `gf_blocked_slots`, `gf_packs` desde cualquier cliente. La única barrera hoy es que nadie conoce las URLs de admin. Prioridad alta cuando el link esté público.
 7. **MercadoPago seña** — Activar `MP_ACCESS_TOKEN` en Supabase secrets **solo si** en el primer mes real `no-shows > 10%`. Las clientas recurrentes no pagan seña. El Edge Function `create-mp-preference` ya está deployado con fallback `{configured:false}`.
 8. **Recordatorio WA automático** día anterior — cron Edge Function en Supabase.
 9. **Reagendar desde admin** sin cancelar (hoy solo cambio de status + notas).
