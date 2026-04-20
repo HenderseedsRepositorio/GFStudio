@@ -12,6 +12,7 @@ supabase/.branches/
 .claude/
 .agents/
 .superpowers/
+skills-lock.json
 
 # OS / editores
 .DS_Store

@@ -75,13 +75,16 @@ Regla: si un secret termina en JWT con `role:service_role` o arranca con `sbp_` 
 **No hay build step.** `index.html` y `admin.html` son SPAs auto-contenidas: React 18 UMD + Babel standalone transpilan JSX en el browser en runtime. Todo el código de cada página vive en un único `<script type="text/babel">`.
 
 ```
-index.html     → landing pública (servicios, booking, contacto)
-admin.html     → panel privado (turnos, servicios CRUD, bloqueos, resultados)
-logos.js       → librería de 48 variantes SVG del logo (actualmente no usada)
-og-image.png   → 1200×630 para previews de WhatsApp/redes
+index.html         → landing pública (servicios, booking, contacto)
+admin.html         → panel privado (turnos, servicios CRUD, bloqueos, resultados)
+og-image.png       → 1200×630 para previews de WhatsApp/redes
+assets/logo/       → SVG (negro/blanco/color) + export-png.html
 supabase/
-  functions/notify-booking/   → Edge Function Deno que envía emails vía Resend
-  migrations/                 → SQL migrations (push manual con CLI)
+  functions/bump-coupon-usage/   → Edge Function que bumpeo uses_count con service_role
+  functions/create-mp-preference/→ MercadoPago preference (seña, gated por MP_ACCESS_TOKEN)
+  functions/mp-webhook/          → Webhook de MP para confirmar pagos
+  functions/notify-booking/      → Emails via Resend (sandbox hasta dominio propio)
+  migrations/                    → SQL migrations (push manual con CLI)
 ```
 
 ### Flujo de datos
@@ -108,9 +111,11 @@ Cuando un tab del admin necesita variables locales dentro del JSX, se usa IIFE:
 | id | integer | secuencia `gf_services_id_seq`, arranca en 15 |
 | name | text | |
 | price | numeric | en pesos ARS sin decimales |
-| duration | text | legacy ("60 min") — mantener sincronizado |
-| duration_minutes | int | DEFAULT 60 — el que usa el frontend |
+| duration_minutes | int | DEFAULT 60 — source of truth de duración |
 | description | text | nullable |
+| active | bool | `COALESCE(active, true)` en la landing |
+| display_order | int | orden en la landing (ASC) |
+| category | text | nullable |
 
 ### `gf_appointments`
 | columna | tipo | notas |
@@ -162,8 +167,6 @@ const ADMIN_EMAIL = "guadalupefernandez016@gmail.com"; // identificador técnico
 ## Quirks importantes
 
 **Day-of-week:** JavaScript `getDay()` devuelve 0=Domingo. La DB almacena 0=Lunes. Conversión: `mb = dow===0 ? 6 : dow-1`.
-
-**Duration duality:** `gf_services` tiene `duration` (text legacy) y `duration_minutes` (int). Al crear/editar un servicio desde el admin, el `saveSvc` escribe ambos campos (`duration: \`${n} min\``). No romper esta sincronía.
 
 **IntersectionObserver y datos async:** El observer `.reveal` corre en `useEffect([], [])` — antes de que Supabase devuelva datos. Hay un segundo `useEffect([svcs])` que re-observa `.reveal:not(.vis)` cuando cargan los servicios. No eliminar ese segundo efecto o los cards de servicios quedan en opacity 0.
 

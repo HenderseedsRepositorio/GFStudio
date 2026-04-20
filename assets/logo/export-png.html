@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<title>GF Studio · Export Logo PNG</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Figtree:wght@400&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{--olive-dk:#3D4A18;--sand:#D9D1BF;--ink:#1A1A1A}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,sans-serif;background:#f4f2ec;color:var(--ink);padding:32px;max-width:1100px;margin-inline:auto}
+  h1{font-family:'Playfair Display',serif;font-weight:700;margin:0 0 4px}
+  .sub{color:#666;margin:0 0 24px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+  .card{background:#fff;border:1px solid #e4e1d6;border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:12px}
+  .card.dark{background:var(--olive-dk)}
+  .card.sand{background:var(--sand)}
+  .title{font-weight:600;font-size:13px;letter-spacing:.5px;text-transform:uppercase;color:#666}
+  .card.dark .title{color:#cfc7b3}
+  .preview{aspect-ratio:1;display:grid;place-items:center;overflow:hidden;border-radius:8px}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+  button{flex:1;min-width:90px;border:1px solid var(--olive-dk);background:#fff;color:var(--olive-dk);padding:10px 12px;border-radius:8px;cursor:pointer;font-weight:600;font-size:13px;font-family:inherit}
+  button:hover{background:var(--olive-dk);color:#fff}
+  .card.dark button{background:transparent;color:#fff;border-color:#fff}
+  .card.dark button:hover{background:#fff;color:var(--olive-dk)}
+  select{padding:8px;border-radius:8px;border:1px solid #ccc;font-family:inherit;font-size:13px}
+  .controls{display:flex;gap:12px;align-items:center;margin-bottom:24px;flex-wrap:wrap}
+  label{font-size:13px;color:#666;font-weight:600}
+  .hint{background:#fffbe6;border:1px solid #f1e5a0;border-radius:8px;padding:12px 14px;font-size:13px;color:#7a5d00;margin-bottom:20px}
+  code{background:#00000010;padding:2px 6px;border-radius:4px;font-size:12px}
+</style>
+</head>
+<body>
+  <h1>Exportar Logo GF Studio</h1>
+  <p class="sub">Las fuentes tardan un instante en cargar. Esperá a ver el logo bien renderizado antes de exportar.</p>
+
+  <div class="hint">
+    <strong>Tip:</strong> Para Claude Design y logos en general, preferí el <code>.svg</code> (calidad infinita). Usá PNG solo cuando la plataforma no acepte SVG.
+  </div>
+
+  <div class="controls">
+    <label>Tamaño PNG:</label>
+    <select id="size">
+      <option value="512">512×512</option>
+      <option value="1024" selected>1024×1024</option>
+      <option value="2048">2048×2048</option>
+      <option value="4096">4096×4096</option>
+    </select>
+    <label>Fondo PNG:</label>
+    <select id="bg">
+      <option value="transparent" selected>Transparente</option>
+      <option value="#FFFFFF">Blanco</option>
+      <option value="#3D4A18">Olive oscuro</option>
+      <option value="#D9D1BF">Sand</option>
+      <option value="#1A1A1A">Negro</option>
+    </select>
+  </div>
+
+  <div class="grid">
+
+    <div class="card">
+      <div class="title">Oliva (principal)</div>
+      <div class="preview" id="p-olive"></div>
+      <div class="row">
+        <button onclick="exportPNG('olive')">PNG</button>
+        <button onclick="downloadSVG('olive')">SVG</button>
+      </div>
+    </div>
+
+    <div class="card sand">
+      <div class="title">Oliva sobre Sand</div>
+      <div class="preview" id="p-sand"></div>
+      <div class="row">
+        <button onclick="exportPNG('sand')">PNG</button>
+      </div>
+    </div>
+
+    <div class="card dark">
+      <div class="title">Blanco (fondo oscuro)</div>
+      <div class="preview" id="p-white"></div>
+      <div class="row">
+        <button onclick="exportPNG('white')">PNG</button>
+        <button onclick="downloadSVG('white')">SVG</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="title">Negro</div>
+      <div class="preview" id="p-black"></div>
+      <div class="row">
+        <button onclick="exportPNG('black')">PNG</button>
+        <button onclick="downloadSVG('black')">SVG</button>
+      </div>
+    </div>
+
+  </div>
+
+<script>
+const VARIANTS = {
+  olive:  { fill:'#3D4A18', lineOp:0.2, wordOp:0.5 },
+  sand:   { fill:'#3D4A18', lineOp:0.25, wordOp:0.55 },
+  white:  { fill:'#FFFFFF', lineOp:0.3,  wordOp:0.6  },
+  black:  { fill:'#1A1A1A', lineOp:0.2,  wordOp:0.5  },
+};
+
+function buildSVG(v, sizePx){
+  const { fill, lineOp, wordOp } = VARIANTS[v];
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="${sizePx}" height="${sizePx}">
+    <text x="50" y="58" text-anchor="middle" font-family="'Playfair Display', Georgia, serif" font-size="48" font-weight="700" letter-spacing="-1" fill="${fill}">GF</text>
+    <line x1="16" y1="68" x2="84" y2="68" stroke="${fill}" stroke-width="1" opacity="${lineOp}"/>
+    <text x="50" y="84" text-anchor="middle" font-family="'Figtree', Helvetica, Arial, sans-serif" font-size="12" font-weight="400" letter-spacing="7" fill="${fill}" opacity="${wordOp}">STUDIO</text>
+  </svg>`;
+}
+
+// Render previews (inline SVG uses the page's loaded fonts — what you see matches what you export)
+['olive','sand','white','black'].forEach(v=>{
+  document.getElementById('p-'+v).innerHTML = buildSVG(v, 220);
+});
+
+function downloadSVG(v){
+  // Versión standalone con @import de Google Fonts — para usar en otros entornos
+  const { fill, lineOp, wordOp } = VARIANTS[v];
+  const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="1024" height="1024">
+  <defs>
+    <style type="text/css"><![CDATA[
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Figtree:wght@400&display=swap');
+    ]]></style>
+  </defs>
+  <text x="50" y="58" text-anchor="middle" font-family="'Playfair Display', Georgia, serif" font-size="48" font-weight="700" letter-spacing="-1" fill="${fill}">GF</text>
+  <line x1="16" y1="68" x2="84" y2="68" stroke="${fill}" stroke-width="1" opacity="${lineOp}"/>
+  <text x="50" y="84" text-anchor="middle" font-family="'Figtree', Helvetica, Arial, sans-serif" font-size="12" font-weight="400" letter-spacing="7" fill="${fill}" opacity="${wordOp}">STUDIO</text>
+</svg>`;
+  const blob = new Blob([svg], {type:'image/svg+xml'});
+  trigger(blob, `gf-studio-logo-${v}.svg`);
+}
+
+async function exportPNG(v){
+  const size = parseInt(document.getElementById('size').value, 10);
+  const bg = document.getElementById('bg').value;
+
+  // Esperar a que Playfair + Figtree estén cargadas (clave para calidad)
+  await document.fonts.ready;
+
+  // Canvas con fondo opcional
+  const canvas = document.createElement('canvas');
+  canvas.width = size; canvas.height = size;
+  const ctx = canvas.getContext('2d');
+
+  if (bg !== 'transparent'){
+    ctx.fillStyle = bg;
+    ctx.fillRect(0,0,size,size);
+  }
+
+  // Dibujamos el logo usando Canvas 2D directamente (no rasterizamos SVG)
+  // — esto evita el problema de fuentes en <foreignObject> y da calidad perfecta
+  const { fill, lineOp, wordOp } = VARIANTS[v];
+  const scale = size / 100; // viewBox original = 100
+
+  // GF (Playfair Display 48, weight 700, letter-spacing -1)
+  ctx.save();
+  ctx.fillStyle = fill;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+  // letterSpacing requiere prop en ctx en navegadores modernos; fallback manual abajo
+  if ('letterSpacing' in ctx) ctx.letterSpacing = (-1 * scale) + 'px';
+  ctx.font = `700 ${48*scale}px "Playfair Display", Georgia, serif`;
+  ctx.fillText('GF', 50*scale, 58*scale);
+  ctx.restore();
+
+  // Línea divisoria
+  ctx.save();
+  ctx.globalAlpha = lineOp;
+  ctx.strokeStyle = fill;
+  ctx.lineWidth = 1 * scale;
+  ctx.beginPath();
+  ctx.moveTo(16*scale, 68*scale);
+  ctx.lineTo(84*scale, 68*scale);
+  ctx.stroke();
+  ctx.restore();
+
+  // STUDIO (Figtree 12, weight 400, letter-spacing 7)
+  ctx.save();
+  ctx.globalAlpha = wordOp;
+  ctx.fillStyle = fill;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+  if ('letterSpacing' in ctx) ctx.letterSpacing = (7 * scale) + 'px';
+  ctx.font = `400 ${12*scale}px "Figtree", Helvetica, Arial, sans-serif`;
+  // Ajustamos x porque letter-spacing empuja el ancho — centramos manualmente
+  const studioText = 'STUDIO';
+  const measured = ctx.measureText(studioText);
+  // Si el navegador no aplicó letterSpacing, lo simulamos char-a-char
+  if (!('letterSpacing' in ctx)){
+    const chars = studioText.split('');
+    let widths = chars.map(c => ctx.measureText(c).width);
+    const ls = 7 * scale;
+    const total = widths.reduce((a,b)=>a+b,0) + ls*(chars.length-1);
+    let x = 50*scale - total/2;
+    chars.forEach((c,i)=>{
+      ctx.textAlign = 'left';
+      ctx.fillText(c, x, 84*scale);
+      x += widths[i] + ls;
+    });
+  } else {
+    ctx.fillText(studioText, 50*scale, 84*scale);
+  }
+  ctx.restore();
+
+  canvas.toBlob(blob => {
+    const bgSuffix = bg==='transparent' ? 'transparent' : bg.replace('#','').toLowerCase();
+    trigger(blob, `gf-studio-logo-${v}-${size}px-${bgSuffix}.png`);
+  }, 'image/png');
+}
+
+function trigger(blob, filename){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 2000);
+}
+</script>
+</body>
+</html>
