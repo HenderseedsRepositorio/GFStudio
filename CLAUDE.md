@@ -37,7 +37,38 @@ npx supabase db push --linked --yes
 npx supabase db query --linked "SQL aquí;"
 ```
 
-URLs: `https://gf-studio.vercel.app` (landing) · `https://gf-studio.vercel.app/admin.html` (admin, login con magic link a email autorizado)
+URLs: `https://gf-studio.vercel.app` (landing) · `https://gf-studio.vercel.app/admin.html` (admin, login con email + contraseña via Supabase Auth)
+
+## Secrets: público vs privado
+
+Hay tres niveles de credenciales — mezclarlos es la mayor fuente de leaks.
+
+### Públicos (viven en index.html / admin.html, van al browser)
+
+| constante | valor | por qué está OK |
+|---|---|---|
+| `SB_URL` | `https://ibikdnjuctopdkmtmgdd.supabase.co` | URL pública del proyecto |
+| `SB_KEY` | anon key (JWT firmado con `role:anon`) | **diseñado para ir al cliente**; los permisos los da RLS |
+
+Estas claves están en HTML servido por Vercel. Cualquiera las puede leer en DevTools. La única defensa real son las policies RLS (ver `supabase/migrations/20260420_rls_lockdown.sql`).
+
+### Privados (nunca van al cliente, nunca al git)
+
+| secret | dónde vive | rota si... |
+|---|---|---|
+| `SUPABASE_ACCESS_TOKEN` (CLI) | `~/.bashrc` del dev | se lee desde tu máquina, se commitea sin querer, o lo compartís |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase Dashboard → Edge Functions env vars | **nunca** salió del dashboard; si aparece en un log/PR, rotar inmediatamente |
+| `RESEND_API_KEY` | Supabase secret (`notify-booking`) | se filtra en logs o se commitea |
+| `MP_ACCESS_TOKEN` | Supabase secret (`create-mp-preference`, `mp-webhook`) | cuando lo active, rota si sale de Supabase |
+
+Regla: si un secret termina en JWT con `role:service_role` o arranca con `sbp_` / `re_` / `APP_USR-` → **jamás** en repo, browser, logs públicos ni PR descriptions.
+
+### Qué hacer si leakeás un secret
+
+1. Revocar el viejo en el dashboard del servicio (Supabase, Resend, MP).
+2. Generar uno nuevo.
+3. Re-setear en el lugar correcto (env var, secret, `.bashrc`).
+4. Si estuvo en un commit público: aunque lo borres después, **asumí que ya fue scrapeado** y rotá igual.
 
 ## Arquitectura
 
@@ -101,8 +132,17 @@ Tipo `full_day` usa `block_date`. Tipo `datetime_range` usa `block_date + start_
 ### `gf_packs`
 Tabla para packs/bonos (tab Packs en admin). Campos: name, services_included (text descriptivo), pack_price, list_price, uses_count.
 
-### RLS
-Todas las tablas tienen políticas `USING (true)` para todas las operaciones. La única protección real es la contraseña JS hardcodeada en el admin.
+### RLS (desde 20/04/2026)
+Policies reales por rol. Source of truth: `supabase/migrations/20260420_rls_lockdown.sql`.
+
+- **anon** (landing pública con anon key):
+  - SELECT filtrado sobre `gf_services` (active), `gf_packs` (active + landing_visible), `gf_gallery` (active), `gf_coupons` (active), `gf_content`, `gf_blocked_slots`.
+  - **No** SELECT sobre `gf_appointments` ni `gf_clients` (PII). Para chequeo de colisión existe la view `gf_appointments_slots` (solo id/fecha/hora/servicio/status).
+  - INSERT controlado en `gf_appointments` (status='pending', fecha ≥ hoy) y `gf_clients`.
+  - **No** UPDATE ni DELETE en ninguna tabla. El bump de `uses_count` de cupones pasa por la Edge Function `bump-coupon-usage` (service_role).
+- **authenticated** (admin logueado con Supabase Auth): `USING(true) WITH CHECK(true)` en todas las tablas.
+
+Si agregás una tabla nueva, **enableá RLS + definí policy explícita**, o queda accesible a todos.
 
 ## Constantes clave
 
@@ -115,7 +155,8 @@ const SLOT_END = 18 * 60;           // 18:00
 const SLOT_STEP = 30;               // intervalos de 30 min
 
 // admin.html
-const ADMIN_PASS = "guada";
+const ADMIN_EMAIL = "guadalupefernandez016@gmail.com"; // identificador técnico para signInWithPassword
+// Password: lo setea Guada en Supabase Auth. No vive en el código.
 ```
 
 ## Quirks importantes
@@ -130,9 +171,9 @@ const ADMIN_PASS = "guada";
 
 **Email en sandbox:** Resend está en modo sandbox con `onboarding@resend.dev` como FROM. Los emails a clientes solo funcionarán cuando se configure un dominio propio verificado en Resend (Fase C).
 
-## Fase C pendiente (no implementado)
+## Pendientes externos (no implementado)
 
-1. Dominio propio (`gfstudio.com`) + verificación en Resend para emails reales a clientes
-2. Supabase Auth reemplaza `ADMIN_PASS` hardcodeado
-3. Cerrar RLS (políticas por usuario autenticado)
-4. Activar `MP_ACCESS_TOKEN` en Supabase secrets para habilitar seña por MercadoPago (toggle en admin ya listo)
+1. Dominio propio (`gfstudio.com`) + verificación en Resend para emails reales a clientes.
+2. Activar `MP_ACCESS_TOKEN` en Supabase secrets para habilitar seña por MercadoPago (toggle en admin ya listo).
+
+> `ADMIN_PASS` hardcodeado y RLS abierto son **Fase D (completada el 20/04/2026)**. Supabase Auth + RLS real están live.
