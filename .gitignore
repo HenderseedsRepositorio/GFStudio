@@ -2,3 +2,23 @@
 # Supabase CLI temp
 supabase/.temp/
 supabase/.branches/
+
+# Secrets / env vars — NUNCA commitear
+.env
+.env.*
+!.env.example
+
+# Claude Code & agents (contienen settings locales con tokens históricos)
+.claude/
+.agents/
+.superpowers/
+
+# OS / editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Imports históricos (copias viejas del código con secrets expuestos)
+IMPORTADO DE CLAUDE DESIGNGF Studio/
+10-CARPETA DE CONTEXTO PARA IA/

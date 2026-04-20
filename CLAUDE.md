@@ -8,27 +8,36 @@ Sistema de turnos online para **GF Studio** — estudio de belleza de Guada en H
 
 ## Deploy
 
+### Setup (una vez por terminal)
+
+```bash
+# Windows bash / Git Bash — exportar el token Supabase CLI
+export SUPABASE_ACCESS_TOKEN=sbp_...   # generar en https://supabase.com/dashboard/account/tokens
+
+# Opcional: persistir en ~/.bashrc para no tener que re-exportarlo
+echo 'export SUPABASE_ACCESS_TOKEN=sbp_...' >> ~/.bashrc
+```
+
+> **Nunca** pegues el token en este archivo, en commits, ni en PRs. Si lo necesitás ahora y no lo tenés a mano, generá uno nuevo y revocá el anterior en https://supabase.com/dashboard/account/tokens.
+
+### Comandos
+
 ```bash
 # Código (index.html / admin.html) — Vercel auto-deploya en ~1 min
 git push origin main
 
 # Edge Function (solo si se modificó supabase/functions/)
-SUPABASE_ACCESS_TOKEN=sbp_7f697f57ea6701a35b4527e1a0cdef0c33182543 \
-  npx supabase functions deploy notify-booking --no-verify-jwt \
+npx supabase functions deploy notify-booking --no-verify-jwt \
   --project-ref ibikdnjuctopdkmtmgdd
 
 # Migraciones DB
-SUPABASE_ACCESS_TOKEN=sbp_7f697f57ea6701a35b4527e1a0cdef0c33182543 \
-  npx supabase db push --linked --yes
+npx supabase db push --linked --yes
 
 # Query directa a la DB (diagnóstico / fixes urgentes sin migration)
-SUPABASE_ACCESS_TOKEN=sbp_7f697f57ea6701a35b4527e1a0cdef0c33182543 \
-  npx supabase db query --linked "SQL aquí;"
+npx supabase db query --linked "SQL aquí;"
 ```
 
-> Token CLI rotado el **18 Abr 2026** (`gf-studio-cli-abril26`) — rotar en Supabase Dashboard cuando expire. Generar nuevo en: https://supabase.com/dashboard/account/tokens
-
-URLs: `https://gf-studio.vercel.app` (landing) · `https://gf-studio.vercel.app/admin.html` (admin, pass: `guada`)
+URLs: `https://gf-studio.vercel.app` (landing) · `https://gf-studio.vercel.app/admin.html` (admin, login con magic link a email autorizado)
 
 ## Arquitectura
 
