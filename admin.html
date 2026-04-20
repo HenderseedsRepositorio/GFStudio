@@ -410,6 +410,7 @@ const fP = n => "$" + (Number(n)||0).toLocaleString("es-AR");
 const fDur = m => { const n=Number(m)||0; if(n<60) return n+" min"; const h=Math.floor(n/60), r=n%60; return r===0 ? h+" hs" : h+":"+String(r).padStart(2,'0')+" hs"; };
 const fDate = iso => { if(!iso) return ""; const d=new Date(iso+"T12:00:00"); return d.toLocaleDateString("es-AR",{weekday:"short",day:"numeric",month:"short"}); };
 const fDateLong = iso => { if(!iso) return ""; const d=new Date(iso+"T12:00:00"); return d.toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long",year:"numeric"}); };
+const fDateTime = ts => { if(!ts) return ""; const d=new Date(ts); return d.toLocaleDateString("es-AR",{weekday:"short",day:"numeric",month:"short"})+" · "+d.toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit",hourCycle:"h23"}); };
 const toISO = d => d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0');
 const addDays = (d,n) => { const x=new Date(d); x.setDate(x.getDate()+n); return x; };
 const TODAY = new Date(); TODAY.setHours(12,0,0,0);
@@ -1222,8 +1223,11 @@ const ApptDetail = ({a, svc, onUpdate}) => {
     <div className="flex flex-col gap-6">
       <div className="card">
         <div className="card-bd">
-          <div className="flex items-center justify-between mb-4">
-            <span className="sec-label">Resumen</span>
+          <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
+            <div className="flex flex-col gap-1" style={{minWidth:0}}>
+              <span className="sec-label">Resumen</span>
+              {a.created_at && <span className="mono" style={{fontSize:10.5,color:"var(--muted)",letterSpacing:".08em"}} title={`Creado: ${new Date(a.created_at).toLocaleString("es-AR")}`}>Reservado {fDateTime(a.created_at)} · {relDays((a.created_at||"").slice(0,10))}</span>}
+            </div>
             <Chip tone={STATUS_TONES[a.status]||"neutral"}>{STATUS_LABELS[a.status]||a.status}</Chip>
           </div>
           <div className="grid grid-cols-2 gap-4">
