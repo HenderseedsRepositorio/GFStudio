@@ -1330,12 +1330,10 @@ const ApptDetail = ({a, svc, onUpdate, services, appts, blocks, settings}) => {
     const url = `https://wa.me/${waTel(a.client_phone)}?text=${encodeURIComponent(waMsgConfirm(a, svc))}`;
     window.open(url,"_blank");
   };
-  const waCancel = () => {
-    const reason = prompt("Motivo (opcional):","");
-    if(reason===null) return;
+  const cancelAppt = () => {
+    if(!confirm("¿Cancelar este turno?")) return;
     onUpdate({status:"cancelled"});
-    const url = `https://wa.me/${waTel(a.client_phone)}?text=${encodeURIComponent(waMsgCancel(a, svc, reason))}`;
-    window.open(url,"_blank");
+    toast("Turno cancelado");
   };
 
   const isCashDiscount = draft.payment_method==="efectivo" && listPrice>0;
@@ -1359,7 +1357,7 @@ const ApptDetail = ({a, svc, onUpdate, services, appts, blocks, settings}) => {
       {/* Acciones rápidas */}
       <div className="flex gap-2 flex-wrap">
         {a.client_phone && a.status!=="confirmed" && <button className="btn btn-pr btn-sm" onClick={waConfirm}><Icon name="check" size={13}/> Confirmar + WA</button>}
-        {a.client_phone && a.status!=="cancelled" && <button className="btn btn-sc btn-sm" onClick={waCancel}><Icon name="x" size={13}/> Cancelar + WA</button>}
+        {a.status!=="cancelled" && <button className="btn btn-sc btn-sm" onClick={cancelAppt}><Icon name="x" size={13}/> Cancelar turno</button>}
         {a.client_phone && <a className="btn btn-wa btn-sm" target="_blank" href={`https://wa.me/${waTel(a.client_phone)}`}><Icon name="phone" size={13}/> Chat</a>}
         <button className="btn btn-sc btn-sm" onClick={()=>setReschedule(!reschedule)}><Icon name="calendar" size={13}/> {reschedule?"Cancelar":"Mover turno"}</button>
       </div>
