@@ -546,11 +546,16 @@ const BookingWizard=({open,onClose,svcs,blocks,initialSvcId,coupons,payment})=>{
       try{
         await sb.from("gf_clients").upsert({name:n.trim(),phone:phoneFmt,email:em.trim()},{onConflict:"phone",ignoreDuplicates:true});
       }catch(_){/* tabla puede no existir aún */}
-      // Bump coupon usage
+      // Bump coupon usage vía Edge Function (RLS bloquea UPDATE desde anon).
+      // Si falla el server responde { ok:false, error } y la reserva ya está
+      // hecha — no rollbackeamos para no perder el turno por un error del bump.
       if(couponApplied){
         try{
-          const c=coupons.find(x=>x.code===couponApplied.code);
-          if(c)await sb.from("gf_coupons").update({uses_count:(c.uses_count||0)+1}).eq("id",c.id);
+          await fetch(`${SB_URL}/functions/v1/bump-coupon-usage`,{
+            method:"POST",
+            headers:{"Content-Type":"application/json","apikey":SB_KEY},
+            body:JSON.stringify({code:couponApplied.code})
+          });
         }catch(_){}
       }
       const df=fromISO(selDate).toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"});
