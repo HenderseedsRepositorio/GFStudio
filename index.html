@@ -346,10 +346,20 @@ const DEFAULT_CONTENT={
     {name:"Martina T.",svc:"Radiofrecuencia facial",text:"Hice el pack de 4 y la diferencia es real. Piel más tensa y luminosa.",rating:5,visible:true},
     {name:"Carla L.",svc:"Limpieza profunda",text:"Espacio muy relajado, productos de calidad. Ya reservé la próxima.",rating:5,visible:true},
   ],
+  payment:{
+    deposit_enabled:false,
+    mp_enabled:false,
+    deposit_amount:0, // 0 = "a convenir"; >0 = monto fijo ARS
+    deposit_headline:"Realizá tu seña",
+    deposit_copy:"Por Mercado Pago o transferencia — se descuenta del total el día del turno.",
+    cbu:"",
+    alias:"",
+    holder:"", // titular de la cuenta
+  },
 };
 
 /* ═══════════ BOOKING WIZARD ═══════════ */
-const BookingWizard=({open,onClose,svcs,blocks,initialSvcId,coupons})=>{
+const BookingWizard=({open,onClose,svcs,blocks,initialSvcId,coupons,payment})=>{
   const[step,setStep]=useState("servicio"); // servicio | fecha | datos | exito
   const[selSvc,setSelSvc]=useState(null);
   const[viewMode,setViewMode]=useState("week");
@@ -510,13 +520,13 @@ const BookingWizard=({open,onClose,svcs,blocks,initialSvcId,coupons})=>{
         apptInsert.discount_amount=couponApplied.discount;
         apptInsert.final_price=finalPrice;
       }
-      let{error}=await sb.from("gf_appointments").insert(apptInsert);
+      let{data:inserted,error}=await sb.from("gf_appointments").insert(apptInsert).select().single();
       if(error&&(error.message||"").includes("column")){
         // Fallback: insert without new columns
         const fallback={...apptInsert};
         delete fallback.coupon_code;delete fallback.discount_amount;delete fallback.final_price;
-        const r=await sb.from("gf_appointments").insert(fallback);
-        error=r.error;
+        const r=await sb.from("gf_appointments").insert(fallback).select().single();
+        error=r.error;inserted=r.data;
       }
       if(error){
         if(error.code==="23505"){
@@ -546,7 +556,7 @@ const BookingWizard=({open,onClose,svcs,blocks,initialSvcId,coupons})=>{
           body:JSON.stringify({nombre:n.trim(),email:em.trim(),telefono:phoneFmt,servicio:selSvc.name,fecha:df,horario:selTime,precio:fP(finalPrice)})
         });
       }catch(_){}
-      setSentData({nombre:n.trim(),servicio:selSvc.name,fecha:df,horario:selTime,precio:fP(finalPrice),fecha_raw:selDate,dur_min:selSvc.duration_minutes||60,coupon:couponApplied?.code||null,discount:couponApplied?.discount||0});
+      setSentData({appointment_id:inserted?.id||null,nombre:n.trim(),email:em.trim(),servicio:selSvc.name,fecha:df,horario:selTime,precio:fP(finalPrice),final_price:finalPrice,fecha_raw:selDate,dur_min:selSvc.duration_minutes||60,coupon:couponApplied?.code||null,discount:couponApplied?.discount||0});
       setSubmitting(false);setStep("exito");
     }catch(err){
       setSubmitError("Error de conexión. Intentá de nuevo.");setSubmitting(false);
@@ -612,7 +622,7 @@ const BookingWizard=({open,onClose,svcs,blocks,initialSvcId,coupons})=>{
               onBack={()=>setStep("fecha")}
               onEditSvc={()=>setStep("servicio")} onEditDate={()=>setStep("fecha")}/>}
 
-            {step==="exito"&&sentData&&<StepExito data={sentData} onClose={handleClose} onNew={resetWizard}/>}
+            {step==="exito"&&sentData&&<StepExito data={sentData} payment={payment} onClose={handleClose} onNew={resetWizard}/>}
           </div>
         </div>
       </div>
@@ -948,7 +958,60 @@ const SumRow=({label,value,onEdit})=>(
 );
 
 /* ------- Step 4: Éxito ------- */
-const StepExito=({data,onClose,onNew})=>(
+const DepositBlock=({payment,data})=>{
+  const[mpUrl,setMpUrl]=useState(null);
+  const[mpLoading,setMpLoading]=useState(false);
+
+  const enabled=!!payment?.deposit_enabled;
+  const mpOn=enabled && !!payment?.mp_enabled && !!data?.appointment_id;
+  const hasTransfer=enabled && (!!payment?.cbu || !!payment?.alias);
+
+  useEffect(()=>{
+    if(!mpOn) return;
+    setMpLoading(true);
+    const amount=Number(payment.deposit_amount)>0 ? Number(payment.deposit_amount) : Math.max(1,Math.round((data.final_price||0)*0.3));
+    fetch(`${SB_URL}/functions/v1/create-mp-preference`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json","apikey":SB_KEY,"Authorization":`Bearer ${SB_KEY}`},
+      body:JSON.stringify({
+        appointment_id:data.appointment_id,
+        service_name:data.servicio,
+        amount,
+        client_name:data.nombre,
+        client_email:data.email||"",
+      }),
+    }).then(r=>r.json()).then(j=>{
+      if(j?.configured && j?.init_point) setMpUrl(j.init_point);
+    }).catch(()=>{}).finally(()=>setMpLoading(false));
+  },[mpOn]);
+
+  if(!enabled) return null;
+  if(!mpUrl && !hasTransfer && !mpLoading) return null;
+
+  const amountTxt=Number(payment.deposit_amount)>0 ? ` de ${fP(Number(payment.deposit_amount))}` : "";
+  const waMsg=`Hola Guada! Reservé ${data.servicio} el ${data.fecha} a las ${data.horario} hs y quiero dejar la seña${amountTxt} por transferencia. ¿Me pasás CBU/alias?`;
+  const waHref=`https://wa.me/${WA_GUADA}?text=${encodeURIComponent(waMsg)}`;
+
+  return(
+    <div className="text-left rounded p-4 mb-5 max-w-sm mx-auto w-full" style={{background:"rgba(94,107,46,.06)",border:"1px solid var(--border)"}}>
+      <div className="mono text-[9px] uppercase tracking-[.2em] mb-1" style={{color:"var(--muted)"}}>Seña · opcional</div>
+      <div className="text-[13px] mb-1" style={{color:"var(--ink)"}}>{payment.deposit_headline||"Realizá tu seña"}</div>
+      <div className="text-[11px] mb-3" style={{color:"var(--muted)",lineHeight:1.4}}>{payment.deposit_copy||"Por Mercado Pago o transferencia — se descuenta del total."}</div>
+      <div className="flex gap-2">
+        {mpUrl ? (
+          <a href={mpUrl} target="_blank" rel="noopener" className="btn btn-dk flex-1" style={{fontSize:12,padding:"10px 12px"}}>Mercado Pago</a>
+        ) : mpLoading ? (
+          <button disabled className="btn btn-dk flex-1" style={{fontSize:12,padding:"10px 12px",opacity:.55}}>Cargando…</button>
+        ) : null}
+        {hasTransfer && (
+          <a href={waHref} target="_blank" rel="noopener" className="btn btn-ghost flex-1" style={{fontSize:12,padding:"10px 12px"}}>Transferencia</a>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const StepExito=({data,payment,onClose,onNew})=>(
   <div className="flex flex-col h-full">
     <div className="flex-1 overflow-y-auto p-6 sm:p-8 text-center flex flex-col justify-center">
       <div className="w-14 h-14 rounded-full mx-auto mb-5 flex items-center justify-center" style={{background:"rgba(94,107,46,.1)"}}>
@@ -970,6 +1033,7 @@ const StepExito=({data,onClose,onNew})=>(
           </div>
         ))}
       </div>
+      <DepositBlock payment={payment} data={data}/>
       <div className="flex flex-col gap-2 max-w-sm mx-auto w-full">
         <button onClick={()=>downloadICS(data)} className="btn btn-dk">Agregar al calendario</button>
         <a href={`https://wa.me/${WA_GUADA}?text=${encodeURIComponent(`Hola Guada! Reservé un turno para ${data.servicio} el ${data.fecha} a las ${data.horario} hs.`)}`} target="_blank" rel="noopener" className="btn btn-ghost">Avisar por WhatsApp</a>
@@ -1845,6 +1909,7 @@ const App=()=>{
         blocks={blocks}
         coupons={coupons}
         initialSvcId={initialSvcId}
+        payment={content.payment}
       />
       <GalleryOverlay
         open={galleryOpen}
