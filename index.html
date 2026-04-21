@@ -1830,16 +1830,33 @@ const Contact=({data,onBook})=>{
             </div>
           </div>
         </div>
-        <div className="reveal mt-12 md:mt-16 rounded-sm overflow-hidden" style={{border:"1px solid rgba(250,247,239,.12)",transitionDelay:".15s"}}>
-          <iframe
-            title="Ubicación de GF Studio en Henderson"
-            src={`https://www.google.com/maps?q=${encodeURIComponent(c.address||"Hipólito Yrigoyen 229 Henderson, Buenos Aires")}&output=embed`}
-            width="100%" height="320"
-            style={{border:0,display:"block",filter:"grayscale(.3) contrast(.95)"}}
-            loading="lazy" referrerPolicy="no-referrer-when-downgrade"
-            allowFullScreen=""
-          />
-        </div>
+        {(()=>{
+          const addr=c.address||"Hipólito Yrigoyen 229 Henderson, Buenos Aires";
+          // OpenStreetMap embed — no necesita API key, no lo bloquea X-Frame-Options.
+          // bbox centrado en Henderson (Buenos Aires) con marker en la dirección aproximada.
+          const lat=-37.5597, lon=-61.7064;
+          const d=0.012;
+          const bbox=`${lon-d},${lat-d},${lon+d},${lat+d}`;
+          const osmSrc=`https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat},${lon}`;
+          const gmapsHref=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`;
+          return(
+            <div className="reveal mt-12 md:mt-16 rounded-sm overflow-hidden" style={{border:"1px solid rgba(250,247,239,.12)",transitionDelay:".15s"}}>
+              <iframe
+                title="Ubicación de GF Studio en Henderson"
+                src={osmSrc}
+                width="100%" height="320"
+                style={{border:0,display:"block",filter:"grayscale(.15) contrast(.95)"}}
+                loading="lazy" referrerPolicy="no-referrer-when-downgrade"
+              />
+              <a href={gmapsHref} target="_blank" rel="noopener"
+                 className="mono text-[11px] uppercase tracking-[.15em] flex items-center justify-between px-4 py-3"
+                 style={{background:"rgba(250,247,239,.04)",color:"var(--cream)",textDecoration:"none",borderTop:"1px solid rgba(250,247,239,.08)"}}>
+                <span>{addr}</span>
+                <span style={{color:"var(--olive-lt)"}}>Abrir en Google Maps ↗</span>
+              </a>
+            </div>
+          );
+        })()}
       </div>
     </section>
   );
