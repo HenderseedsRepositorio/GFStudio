@@ -1,11 +1,19 @@
 # GF Studio — Pendientes post semi-final
 
-**Estado al 20/04/2026:** versión hardening desplegada en `https://gf-studio.vercel.app`.
-Fase D completa (Auth + RLS real), CI con secret-scan, staging branch, tech debt limpio.
+**Estado al 20/04/2026 (noche):** versión hardening + polish desplegada en `https://gf-studio.vercel.app`.
+Fase D completa (Auth + RLS real), CI con secret-scan, staging branch, tech debt limpio, audit integral cerrado en 8/10.
 
 ---
 
-## Hecho en esta ronda (20/04) — hardening
+## Hecho en esta ronda (20/04 tarde-noche) — polish del audit integral
+
+- **Accesibilidad WCAG 2.1 AA** (`53a850e`) — aria-labels descriptivos en todos los botones sin texto (paginadores week/month del wizard de reserva, días de calendario, slots horarios, galería abrir/antes/después/cerrar, hamburguesa mobile, cerrar drawer). aria-pressed en toggles. aria-hidden en SVGs decorativos (via el componente `Icon` compartido cubre de una sola vez todo admin.html).
+- **Mapa Google en Contacto** (`53a850e`) — iframe embebido con `?q=&output=embed` (sin API key). Grayscale(.3) para respetar la paleta. Lazy loading + referrer-policy.
+- **Recuperar contraseña admin** (`53a850e`) — link "¿Olvidaste la contraseña?" en login con `sb.auth.resetPasswordForEmail` + redirect al admin. Toast éxito/error.
+- **Honeypot anti-spam** (`75120a8`) — campo offscreen `<input name="website">` en StepData del booking. Si un bot lo llena, `handleSubmit` retorna inmediatamente a la pantalla de éxito sin insertar el turno. Log en consola para tracking.
+- **`prefers-reduced-motion`** (`795a1d5`) — media query al final del `<style>` de ambos HTMLs que desactiva animaciones, transiciones, `.reveal`, ticker y dot-live cuando el SO pide movimiento reducido.
+
+## Hecho en esta ronda (20/04 mañana) — hardening
 
 - **Supabase Auth** reemplaza `ADMIN_PASS` hardcoded — admin.html usa `signInWithPassword` contra `guadalupefernandez016@gmail.com`.
 - **RLS lockdown** con policies reales por rol (anon vs authenticated). View `gf_appointments_slots` expone solo id/fecha/hora/servicio/status para chequeo de colisión sin PII. Source: `20260420_rls_lockdown.sql`.
