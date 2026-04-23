@@ -3,26 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="color-scheme" content="only light">
+<meta name="color-scheme" content="light dark">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://ibikdnjuctopdkmtmgdd.supabase.co wss://ibikdnjuctopdkmtmgdd.supabase.co; base-uri 'self'; form-action 'self'">
 <title>GF Studio · Panel</title>
-<script>
-(function(){
-  var ua = navigator.userAgent;
-  var isSamsung = /SamsungBrowser/i.test(ua);
-  var isChromeAndroid = /Chrome/.test(ua) && /Android/.test(ua) && !/SamsungBrowser/i.test(ua);
-  if(!isSamsung && !isChromeAndroid) return;
-  var mq = window.matchMedia('(prefers-color-scheme: dark)');
-  function apply(){
-    if(mq.matches){ document.documentElement.classList.add('force-light-antidark'); }
-    else{ document.documentElement.classList.remove('force-light-antidark'); }
-  }
-  apply();
-  if(mq.addEventListener) mq.addEventListener('change', apply);
-  else if(mq.addListener) mq.addListener(apply);
-})();
-</script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -49,7 +33,7 @@
   --success:#4A6B2E;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;color-scheme:only light;forced-color-adjust:none;background-color:#F2EDE0;background-image:linear-gradient(#F2EDE0,#F2EDE0)}
+html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;color-scheme:light dark;forced-color-adjust:none;background-color:#F2EDE0;background-image:linear-gradient(#F2EDE0,#F2EDE0)}
 body{
   font-family:'Inter Tight',system-ui,sans-serif;
   background-color:var(--bone);
@@ -60,15 +44,30 @@ body{
   min-height:100vh;
 }
 @media(prefers-color-scheme:dark){
-  :root{color-scheme:light!important}
-  html,body{background-color:#F2EDE0!important;background-image:linear-gradient(#F2EDE0,#F2EDE0)!important;color:#1A1810!important}
+  :root{
+    color-scheme:light!important;
+    --olive-dk:#3D4A18!important;
+    --olive:#5E6B2E!important;
+    --olive-lt:#8A9456!important;
+    --olive-soft:#B8C481!important;
+    --sand:#E8E2D4!important;
+    --bone:#F2EDE0!important;
+    --cream:#FAF7EF!important;
+    --ink:#1A1810!important;
+    --ink-sec:#3F3B2E!important;
+    --muted:#6B6650!important;
+    --border:rgba(26,24,16,.08)!important;
+    --border-strong:rgba(26,24,16,.14)!important;
+    --danger:#A33B2A!important;
+    --success:#4A6B2E!important;
+  }
+  html,body{
+    background-color:#F2EDE0!important;
+    background-image:linear-gradient(#F2EDE0,#F2EDE0)!important;
+    color:#1A1810!important;
+  }
+  img,svg,video,picture,iframe{filter:none!important}
 }
-html.force-light-antidark{filter:invert(1) hue-rotate(180deg)!important;background:#F2EDE0!important}
-html.force-light-antidark img,
-html.force-light-antidark svg,
-html.force-light-antidark video,
-html.force-light-antidark picture,
-html.force-light-antidark iframe{filter:invert(1) hue-rotate(180deg)!important}
 .serif{font-family:'Fraunces',serif;font-optical-sizing:auto}
 .mono{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums}
 .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
