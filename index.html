@@ -22,6 +22,25 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BeautySalon","name":"GF Studio","url":"https://gf-studio.vercel.app","telephone":"+5492314555856","address":{"@type":"PostalAddress","streetAddress":"Hipólito Yrigoyen 229","addressLocality":"Henderson","addressRegion":"Buenos Aires","addressCountry":"AR"},"openingHoursSpecification":{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],"opens":"09:00","closes":"18:00"}}
 </script>
+<script>
+/* Anti dark-mode overlay: Samsung Internet Night Mode + Chrome Android Auto Dark.
+   Detectamos UA + prefers-dark y aplicamos filter que contra-invierte.
+   Garantiza que el sitio se vea igual (olive/sand) sin importar el modo del browser. */
+(function(){
+  var ua = navigator.userAgent;
+  var isSamsung = /SamsungBrowser/i.test(ua);
+  var isChromeAndroid = /Chrome/.test(ua) && /Android/.test(ua) && !/SamsungBrowser/i.test(ua);
+  if(!isSamsung && !isChromeAndroid) return;
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+  function apply(){
+    if(mq.matches){ document.documentElement.classList.add('force-light-antidark'); }
+    else{ document.documentElement.classList.remove('force-light-antidark'); }
+  }
+  apply();
+  if(mq.addEventListener) mq.addEventListener('change', apply);
+  else if(mq.addListener) mq.addListener(apply);
+})();
+</script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -58,6 +77,13 @@ body{
   html,body{background-color:#F2EDE0!important;background-image:linear-gradient(#F2EDE0,#F2EDE0)!important;color:#1A1810!important}
   img,svg,video,picture,iframe{filter:none!important}
 }
+/* Contra-inversión para browsers que ignoran color-scheme:only light (Samsung Night Mode, Chrome Auto Dark). */
+html.force-light-antidark{filter:invert(1) hue-rotate(180deg)!important;background:#F2EDE0!important}
+html.force-light-antidark img,
+html.force-light-antidark svg,
+html.force-light-antidark video,
+html.force-light-antidark picture,
+html.force-light-antidark iframe{filter:invert(1) hue-rotate(180deg)!important}
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(0,0,0,.12);border-radius:9px}
 
 .serif{font-family:'Fraunces',serif;font-optical-sizing:auto}
