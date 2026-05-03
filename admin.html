@@ -930,23 +930,28 @@ const TurnosTab = ({appts, services, blocks, settings, refetch}) => {
   const svcMap = useMemo(()=>Object.fromEntries(services.map(s=>[s.id,s])), [services]);
   const todayISO = toISO(TODAY);
 
+  const getMonday = (iso) => {
+    const d = new Date(iso+"T12:00:00");
+    const dow = d.getDay();
+    const monday = new Date(d);
+    monday.setDate(d.getDate()-(dow===0?6:dow-1));
+    return toISO(monday);
+  };
+
   const [selectedDate, setSelectedDate] = useState(todayISO);
+  const [windowStart, setWindowStart] = useState(()=>getMonday(todayISO));
   const [selected, setSelected] = useState(null);
   const [creating, setCreating] = useState(false);
 
-  // Mon–Sun week containing selectedDate
+  // Sliding 7-day window starting at windowStart
   const weekDays = useMemo(()=>{
-    const d = new Date(selectedDate+"T12:00:00");
-    const dow = d.getDay();
-    const daysSinceMon = dow===0 ? 6 : dow-1;
-    const monday = new Date(d);
-    monday.setDate(d.getDate()-daysSinceMon);
+    const d = new Date(windowStart+"T12:00:00");
     return Array.from({length:7},(_,i)=>{
-      const day = new Date(monday);
-      day.setDate(monday.getDate()+i);
+      const day = new Date(d);
+      day.setDate(d.getDate()+i);
       return toISO(day);
     });
-  }, [selectedDate]);
+  }, [windowStart]);
 
   const countByDay = useMemo(()=>{
     const c={};
@@ -960,10 +965,14 @@ const TurnosTab = ({appts, services, blocks, settings, refetch}) => {
     [appts, selectedDate]
   );
 
+  // Move both selectedDate and window together
   const moveDate = (days) => {
-    const d = new Date(selectedDate+"T12:00:00");
-    d.setDate(d.getDate()+days);
-    setSelectedDate(toISO(d));
+    const sd = new Date(selectedDate+"T12:00:00");
+    sd.setDate(sd.getDate()+days);
+    const ws = new Date(windowStart+"T12:00:00");
+    ws.setDate(ws.getDate()+days);
+    setSelectedDate(toISO(sd));
+    setWindowStart(toISO(ws));
   };
 
   const updateAppt = async (id, patch) => {
@@ -1002,8 +1011,10 @@ const TurnosTab = ({appts, services, blocks, settings, refetch}) => {
       {/* ── Week date picker ── */}
       <div className="card" style={{padding:"10px 8px",marginBottom:12}}>
         <div style={{display:"flex",alignItems:"center",gap:3}}>
-          <button onClick={()=>moveDate(-7)} style={{...navBtn,width:34,height:46,fontSize:15,fontWeight:700}}>«</button>
-          <button onClick={()=>moveDate(-1)} style={{...navBtn,width:28,height:46,fontSize:19}}>‹</button>
+          <div style={{display:"flex",flexDirection:"column",gap:3,flexShrink:0}}>
+            <button onClick={()=>moveDate(-7)} style={{...navBtn,width:34,height:22,fontSize:13,fontWeight:700}}>«</button>
+            <button onClick={()=>moveDate(-1)} style={{...navBtn,width:34,height:22,fontSize:17}}>‹</button>
+          </div>
 
           <div style={{flex:1,display:"flex",gap:2}}>
             {weekDays.map(iso=>{
@@ -1036,8 +1047,10 @@ const TurnosTab = ({appts, services, blocks, settings, refetch}) => {
             })}
           </div>
 
-          <button onClick={()=>moveDate(1)} style={{...navBtn,width:28,height:46,fontSize:19}}>›</button>
-          <button onClick={()=>moveDate(7)} style={{...navBtn,width:34,height:46,fontSize:15,fontWeight:700}}>»</button>
+          <div style={{display:"flex",flexDirection:"column",gap:3,flexShrink:0}}>
+            <button onClick={()=>moveDate(7)} style={{...navBtn,width:34,height:22,fontSize:13,fontWeight:700}}>»</button>
+            <button onClick={()=>moveDate(1)} style={{...navBtn,width:34,height:22,fontSize:17}}>›</button>
+          </div>
         </div>
       </div>
 
