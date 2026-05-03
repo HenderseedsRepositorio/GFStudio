@@ -927,56 +927,63 @@ const Topbar = ({crumb, title, actions, onMenuClick}) => (
 
 /* ============ TURNOS TAB ============ */
 const TurnosTab = ({appts, services, blocks, settings, refetch}) => {
-  const [filter, setFilter] = useState("upcoming");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState(null);
-  const [creating, setCreating] = useState(false);
-
   const svcMap = useMemo(()=>Object.fromEntries(services.map(s=>[s.id,s])), [services]);
   const todayISO = toISO(TODAY);
 
-  const filtered = useMemo(()=>{
-    return appts.filter(a=>{
-      if(filter==="today" && a.appointment_date !== todayISO) return false;
-      if(filter==="upcoming" && a.appointment_date < todayISO) return false;
-      if(filter==="past" && a.appointment_date >= todayISO) return false;
-      if(statusFilter!=="all" && a.status !== statusFilter) return false;
-      if(search){
-        const q = search.toLowerCase();
-        const svc = svcMap[a.service_id];
-        if(!(a.client_name||"").toLowerCase().includes(q) && !(svc?.name||"").toLowerCase().includes(q) && !(a.client_phone||"").includes(q)) return false;
-      }
-      return true;
-    }).sort((a,b)=>{
-      const dA = a.appointment_date+"T"+a.time_slot;
-      const dB = b.appointment_date+"T"+b.time_slot;
-      return filter==="past" ? dB.localeCompare(dA) : dA.localeCompare(dB);
-    });
-  }, [appts, filter, statusFilter, search, todayISO, svcMap]);
+  const [selectedDate, setSelectedDate] = useState(todayISO);
+  const [selected, setSelected] = useState(null);
+  const [creating, setCreating] = useState(false);
 
-  const stats = useMemo(()=>{
-    const today = appts.filter(a=>a.appointment_date===todayISO && a.status!=="cancelled");
-    const week = appts.filter(a=>a.appointment_date>=todayISO && a.appointment_date<=toISO(addDays(TODAY,7)) && a.status!=="cancelled");
-    const pending = appts.filter(a=>a.status==="pending");
-    const revenueWeek = week.reduce((s,a)=>s + (a.charged_price||svcMap[a.service_id]?.price||0), 0);
-    return { today:today.length, week:week.length, pending:pending.length, revenueWeek };
-  }, [appts, todayISO, svcMap]);
+  // Mon–Sun week containing selectedDate
+  const weekDays = useMemo(()=>{
+    const d = new Date(selectedDate+"T12:00:00");
+    const dow = d.getDay();
+    const daysSinceMon = dow===0 ? 6 : dow-1;
+    const monday = new Date(d);
+    monday.setDate(d.getDate()-daysSinceMon);
+    return Array.from({length:7},(_,i)=>{
+      const day = new Date(monday);
+      day.setDate(monday.getDate()+i);
+      return toISO(day);
+    });
+  }, [selectedDate]);
+
+  const countByDay = useMemo(()=>{
+    const c={};
+    for(const a of appts) if(a.status!=="cancelled") c[a.appointment_date]=(c[a.appointment_date]||0)+1;
+    return c;
+  }, [appts]);
+
+  const dayAppts = useMemo(()=>
+    appts.filter(a=>a.appointment_date===selectedDate && a.status!=="cancelled")
+         .sort((a,b)=>a.time_slot.localeCompare(b.time_slot)),
+    [appts, selectedDate]
+  );
+
+  const moveDate = (days) => {
+    const d = new Date(selectedDate+"T12:00:00");
+    d.setDate(d.getDate()+days);
+    setSelectedDate(toISO(d));
+  };
 
   const updateAppt = async (id, patch) => {
-    const { error } = await sb.from("gf_appointments").update(patch).eq("id", id);
+    const {error} = await sb.from("gf_appointments").update(patch).eq("id",id);
     if(error){ toast("Error: "+error.message); return; }
     if(selected?.id===id) setSelected(s=>({...s,...patch}));
-    refetch();
-    toast("Cambios guardados");
+    refetch(); toast("Cambios guardados");
   };
 
   const deleteAppt = async (id) => {
     if(!confirm("¿Eliminar turno definitivamente?")) return;
-    await sb.from("gf_appointments").delete().eq("id", id);
-    setSelected(null);
-    refetch();
-    toast("Turno eliminado");
+    await sb.from("gf_appointments").delete().eq("id",id);
+    setSelected(null); refetch(); toast("Turno eliminado");
+  };
+
+  const DAY_ABBR = ["dom","lun","mar","mié","jue","vie","sáb"];
+  const navBtn = {
+    border:"1px solid var(--border)",borderRadius:8,background:"transparent",
+    cursor:"pointer",color:"var(--ink)",display:"flex",alignItems:"center",justifyContent:"center",
+    flexShrink:0,padding:0
   };
 
   return (
@@ -984,74 +991,110 @@ const TurnosTab = ({appts, services, blocks, settings, refetch}) => {
       <div className="strip">
         <div>
           <div className="sec-label" style={{color:"rgba(250,247,239,.6)"}}>Agenda · {fDateLong(todayISO)}</div>
-          <h2 className="mt-2">Hoy <em>{stats.today}</em> turnos · {stats.pending ? <em>{stats.pending} por confirmar</em> : <span style={{color:"rgba(250,247,239,.6)"}}>todo confirmado</span>}</h2>
-          <p>Filtrá, confirmá y gestioná la agenda. Los turnos pendientes aparecen primero.</p>
-        </div>
-        <div className="kpis">
-          <div className="kpi"><div className="lb">Esta semana</div><div className="v">{stats.week}</div></div>
-          <div className="kpi"><div className="lb">Ingreso estim.</div><div className="v">{fP(stats.revenueWeek)}</div></div>
+          <h2 className="mt-2">
+            {dayAppts.length>0
+              ? <>{dayAppts.length} turno{dayAppts.length!==1?"s":""} · <em>{fDate(selectedDate)}</em></>
+              : <>Sin turnos · <em>{fDate(selectedDate)}</em></>}
+          </h2>
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-3 items-center mb-5 mobile-stack-filters">
-        <Tabs value={filter} onChange={setFilter} options={[
-          {v:"upcoming",l:"Próximos"},{v:"today",l:"Hoy"},{v:"past",l:"Pasados"},{v:"all",l:"Todos"}
-        ]}/>
-        <select className="inp" style={{width:170,minWidth:0}} value={statusFilter} onChange={e=>setStatusFilter(e.target.value)}>
-          <option value="all">Todos los estados</option>
-          {Object.entries(STATUS_LABELS).map(([k,v])=><option key={k} value={k}>{v}</option>)}
-        </select>
-        <div className="relative flex-1 min-w-[120px] sm:min-w-[200px]">
-          <input className="inp" style={{paddingLeft:36}} placeholder="Buscar por cliente, teléfono o servicio…" value={search} onChange={e=>setSearch(e.target.value)}/>
-          <div style={{position:"absolute",left:12,top:"50%",transform:"translateY(-50%)",color:"var(--muted)"}}><Icon name="search" size={14}/></div>
+      {/* ── Week date picker ── */}
+      <div className="card" style={{padding:"10px 8px",marginBottom:12}}>
+        <div style={{display:"flex",alignItems:"center",gap:3}}>
+          <button onClick={()=>moveDate(-7)} style={{...navBtn,width:34,height:46,fontSize:15,fontWeight:700}}>«</button>
+          <button onClick={()=>moveDate(-1)} style={{...navBtn,width:28,height:46,fontSize:19}}>‹</button>
+
+          <div style={{flex:1,display:"flex",gap:2}}>
+            {weekDays.map(iso=>{
+              const d = new Date(iso+"T12:00:00");
+              const abbr = DAY_ABBR[d.getDay()];
+              const dayNum = d.getDate();
+              const isSel = iso===selectedDate;
+              const isToday = iso===todayISO;
+              const count = countByDay[iso]||0;
+              return (
+                <button key={iso} onClick={()=>setSelectedDate(iso)} style={{
+                  flex:1,display:"flex",flexDirection:"column",alignItems:"center",
+                  padding:"7px 2px 5px",borderRadius:10,border:"none",
+                  background:isSel?"var(--olive)":"transparent",
+                  color:isSel?"var(--cream)":isToday?"var(--olive)":"var(--ink)",
+                  cursor:"pointer",gap:2,minWidth:0
+                }}>
+                  <span style={{fontSize:9.5,fontFamily:"'JetBrains Mono',monospace",letterSpacing:".02em",opacity:.85}}>{abbr}</span>
+                  <span style={{fontSize:16,fontWeight:700,lineHeight:1.2}}>{dayNum}</span>
+                  {count>0
+                    ? <span style={{
+                        width:17,height:17,borderRadius:"50%",fontSize:10,fontWeight:700,
+                        background:isSel?"rgba(255,255,255,.25)":"var(--olive)",
+                        color:"var(--cream)",display:"flex",alignItems:"center",justifyContent:"center"
+                      }}>{count}</span>
+                    : <span style={{width:17,height:17}}/>
+                  }
+                </button>
+              );
+            })}
+          </div>
+
+          <button onClick={()=>moveDate(1)} style={{...navBtn,width:28,height:46,fontSize:19}}>›</button>
+          <button onClick={()=>moveDate(7)} style={{...navBtn,width:34,height:46,fontSize:15,fontWeight:700}}>»</button>
         </div>
-        <button className="btn btn-pr" onClick={()=>setCreating(true)}><Icon name="plus" size={13}/> Nuevo turno</button>
       </div>
 
-      <div className="card">
-        {filtered.length===0 ? (
-          <div className="card-empty">No hay turnos que coincidan.</div>
-        ) : (
-          <table className="tbl">
-            <thead>
-              <tr>
-                <th>Fecha · hora</th>
-                <th>Cliente</th>
-                <th>Servicio</th>
-                <th>Estado</th>
-                <th>Precio</th>
-                <th style={{width:40}}></th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map(a=>{
-                const svc = svcMap[a.service_id];
-                return (
-                  <tr key={a.id} onClick={()=>setSelected(a)} className={selected?.id===a.id?"active":""}>
-                    <td>
-                      <div className="t-name">{fDate(a.appointment_date)} · {a.time_slot}</div>
-                      {a.appointment_date===todayISO && <div className="t-sub" style={{color:"var(--olive)"}}>Hoy</div>}
-                    </td>
-                    <td>
-                      <div className="t-name">{a.client_name}</div>
-                      <div className="t-sub">{a.client_phone}</div>
-                    </td>
-                    <td>
-                      <div className="t-name">{svc?.name||"—"}</div>
-                      <div className="t-sub">{svc?.duration_minutes ? fDur(svc.duration_minutes) : "—"}</div>
-                    </td>
-                    <td>
-                      <Chip tone={STATUS_TONES[a.status]||"neutral"}>{STATUS_LABELS[a.status]||a.status}</Chip>
-                      {a.coupon_code && <div className="t-sub mt-1"><span className="mono" style={{color:"var(--olive)"}}>🎟 {a.coupon_code}</span></div>}
-                    </td>
-                    <td className="num"><strong>{fP(a.charged_price||svc?.price||0)}</strong></td>
-                    <td style={{color:"var(--muted)"}}><Icon name="chevron" size={14}/></td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
+      {/* ── Appointment cards ── */}
+      <div style={{marginBottom:16}}>
+        {dayAppts.length===0 ? (
+          <div className="card"><div className="card-empty">Sin turnos para este día.</div></div>
+        ) : dayAppts.map(a=>{
+          const svc = svcMap[a.service_id];
+          const initials = (a.client_name||"?").split(" ").slice(0,2).map(w=>w[0]||"").join("").toUpperCase()||"?";
+          const isPending = a.status==="pending";
+          return (
+            <div key={a.id} onClick={()=>setSelected(a)} style={{
+              display:"flex",alignItems:"center",gap:12,
+              background:"var(--cream)",borderRadius:10,padding:"12px 14px",marginBottom:8,
+              cursor:"pointer",
+              border:isPending?"1.5px solid var(--olive)":"1px solid var(--border)",
+              boxShadow:"0 1px 3px rgba(0,0,0,.04)"
+            }}>
+              <div style={{
+                width:40,height:40,borderRadius:"50%",
+                background:isPending?"var(--olive-soft)":"#d8d4c8",
+                display:"flex",alignItems:"center",justifyContent:"center",
+                fontSize:14,fontWeight:700,
+                color:isPending?"var(--cream)":"var(--muted)",
+                flexShrink:0,fontFamily:"'Fraunces',serif"
+              }}>{initials}</div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontWeight:600,fontSize:14.5,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{a.client_name||"—"}</div>
+                <div style={{fontSize:12,color:"var(--muted)",marginTop:2,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
+                  {svc?.name||"—"} <span style={{opacity:.7}}>({svc?fDur(svc.duration_minutes):"—"})</span>
+                </div>
+              </div>
+              <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:5,flexShrink:0}}>
+                <span style={{
+                  background:"var(--olive)",color:"var(--cream)",borderRadius:6,
+                  padding:"2px 8px",fontSize:11.5,fontWeight:700,fontFamily:"'JetBrains Mono',monospace"
+                }}>{a.appointment_date.slice(8,10)}/{a.appointment_date.slice(5,7)}</span>
+                <span style={{fontSize:12,color:"var(--muted)",display:"flex",alignItems:"center",gap:3}}>
+                  <Icon name="clock" size={11}/> {a.time_slot}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ── Bottom buttons ── */}
+      <div style={{display:"flex",flexDirection:"column",gap:8}}>
+        <button className="btn btn-pr" style={{width:"100%",padding:"13px 16px",fontSize:15,justifyContent:"center"}}
+          onClick={()=>setCreating(true)}>
+          Turno para cliente <strong style={{marginLeft:4}}>NUEVO</strong>
+        </button>
+        <button className="btn btn-sc" style={{width:"100%",padding:"13px 16px",fontSize:15,justifyContent:"center"}}
+          onClick={()=>setCreating(true)}>
+          Turno para cliente <strong style={{marginLeft:4}}>EXISTENTE</strong>
+        </button>
       </div>
 
       <Drawer open={!!selected} onClose={()=>setSelected(null)}
