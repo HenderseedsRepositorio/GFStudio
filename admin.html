@@ -942,6 +942,7 @@ const TurnosTab = ({appts, services, blocks, settings, refetch}) => {
   const [windowStart, setWindowStart] = useState(()=>getMonday(todayISO));
   const [selected, setSelected] = useState(null);
   const [creating, setCreating] = useState(false);
+  const [viewMode, setViewMode] = useState("upcoming"); // "upcoming" = pendientes próximos · "day" = día seleccionado
 
   // Sliding 7-day window starting at windowStart
   const weekDays = useMemo(()=>{
@@ -965,7 +966,15 @@ const TurnosTab = ({appts, services, blocks, settings, refetch}) => {
     [appts, selectedDate]
   );
 
-  // Move both selectedDate and window together
+  const upcomingPending = useMemo(()=>
+    appts.filter(a=>a.appointment_date>=todayISO && a.status==="pending")
+         .sort((a,b)=>(a.appointment_date+a.time_slot).localeCompare(b.appointment_date+b.time_slot)),
+    [appts, todayISO]
+  );
+
+  const visibleAppts = viewMode==="upcoming" ? upcomingPending : dayAppts;
+
+  // Move both selectedDate and window together — al mover, pasamos a vista "día"
   const moveDate = (days) => {
     const sd = new Date(selectedDate+"T12:00:00");
     sd.setDate(sd.getDate()+days);
@@ -973,7 +982,10 @@ const TurnosTab = ({appts, services, blocks, settings, refetch}) => {
     ws.setDate(ws.getDate()+days);
     setSelectedDate(toISO(sd));
     setWindowStart(toISO(ws));
+    setViewMode("day");
   };
+
+  const pickDate = (iso) => { setSelectedDate(iso); setViewMode("day"); };
 
   const updateAppt = async (id, patch) => {
     const {error} = await sb.from("gf_appointments").update(patch).eq("id",id);
@@ -1001,11 +1013,37 @@ const TurnosTab = ({appts, services, blocks, settings, refetch}) => {
         <div>
           <div className="sec-label" style={{color:"rgba(250,247,239,.6)"}}>Agenda · {fDateLong(todayISO)}</div>
           <h2 className="mt-2">
-            {dayAppts.length>0
-              ? <>{dayAppts.length} turno{dayAppts.length!==1?"s":""} · <em>{fDate(selectedDate)}</em></>
-              : <>Sin turnos · <em>{fDate(selectedDate)}</em></>}
+            {viewMode==="upcoming"
+              ? (upcomingPending.length>0
+                  ? <>{upcomingPending.length} pendiente{upcomingPending.length!==1?"s":""} · <em>próximos</em></>
+                  : <>Sin pendientes · <em>al día</em></>)
+              : (dayAppts.length>0
+                  ? <>{dayAppts.length} turno{dayAppts.length!==1?"s":""} · <em>{fDate(selectedDate)}</em></>
+                  : <>Sin turnos · <em>{fDate(selectedDate)}</em></>)}
           </h2>
         </div>
+      </div>
+
+      {/* ── Toggle modo: pendientes próximos vs día ── */}
+      <div className="flex gap-2 mb-3" style={{flexWrap:"wrap"}}>
+        <button
+          className={viewMode==="upcoming"?"btn btn-pr btn-sm":"btn btn-sc btn-sm"}
+          onClick={()=>setViewMode("upcoming")}
+        >
+          <Icon name="clock" size={13}/> Pendientes próximos
+          {upcomingPending.length>0 && <span style={{
+            marginLeft:6,padding:"1px 7px",borderRadius:10,
+            background:viewMode==="upcoming"?"rgba(255,255,255,.25)":"var(--olive)",
+            color:viewMode==="upcoming"?"var(--cream)":"var(--cream)",
+            fontSize:11,fontWeight:700
+          }}>{upcomingPending.length}</span>}
+        </button>
+        <button
+          className={viewMode==="day"?"btn btn-pr btn-sm":"btn btn-sc btn-sm"}
+          onClick={()=>setViewMode("day")}
+        >
+          <Icon name="calendar" size={13}/> Día seleccionado
+        </button>
       </div>
 
       {/* ── Week date picker ── */}
@@ -1025,11 +1063,11 @@ const TurnosTab = ({appts, services, blocks, settings, refetch}) => {
               const isToday = iso===todayISO;
               const count = countByDay[iso]||0;
               return (
-                <button key={iso} onClick={()=>setSelectedDate(iso)} style={{
+                <button key={iso} onClick={()=>pickDate(iso)} style={{
                   flex:1,display:"flex",flexDirection:"column",alignItems:"center",
                   padding:"7px 2px 5px",borderRadius:10,border:"none",
-                  background:isSel?"var(--olive)":"transparent",
-                  color:isSel?"var(--cream)":isToday?"var(--olive)":"var(--ink)",
+                  background:isSel&&viewMode==="day"?"var(--olive)":"transparent",
+                  color:isSel&&viewMode==="day"?"var(--cream)":isToday?"var(--olive)":"var(--ink)",
                   cursor:"pointer",gap:2,minWidth:0
                 }}>
                   <span style={{fontSize:9.5,fontFamily:"'JetBrains Mono',monospace",letterSpacing:".02em",opacity:.85}}>{abbr}</span>
@@ -1037,7 +1075,7 @@ const TurnosTab = ({appts, services, blocks, settings, refetch}) => {
                   {count>0
                     ? <span style={{
                         width:17,height:17,borderRadius:"50%",fontSize:10,fontWeight:700,
-                        background:isSel?"rgba(255,255,255,.25)":"var(--olive)",
+                        background:isSel&&viewMode==="day"?"rgba(255,255,255,.25)":"var(--olive)",
                         color:"var(--cream)",display:"flex",alignItems:"center",justifyContent:"center"
                       }}>{count}</span>
                     : <span style={{width:17,height:17}}/>
@@ -1056,9 +1094,9 @@ const TurnosTab = ({appts, services, blocks, settings, refetch}) => {
 
       {/* ── Appointment cards ── */}
       <div style={{marginBottom:16}}>
-        {dayAppts.length===0 ? (
-          <div className="card"><div className="card-empty">Sin turnos para este día.</div></div>
-        ) : dayAppts.map(a=>{
+        {visibleAppts.length===0 ? (
+          <div className="card"><div className="card-empty">{viewMode==="upcoming" ? "No hay turnos pendientes próximos." : "Sin turnos para este día."}</div></div>
+        ) : visibleAppts.map(a=>{
           const svc = svcMap[a.service_id];
           const initials = (a.client_name||"?").split(" ").slice(0,2).map(w=>w[0]||"").join("").toUpperCase()||"?";
           const isPending = a.status==="pending";
@@ -1093,6 +1131,24 @@ const TurnosTab = ({appts, services, blocks, settings, refetch}) => {
                   <Icon name="clock" size={11}/> {a.time_slot}
                 </span>
               </div>
+              {a.client_phone && (
+                <a
+                  href={`https://wa.me/${waTel(a.client_phone)}`}
+                  target="_blank"
+                  rel="noopener"
+                  onClick={e=>e.stopPropagation()}
+                  aria-label={`WhatsApp a ${a.client_name||"cliente"}`}
+                  title="Abrir chat de WhatsApp"
+                  style={{
+                    width:36,height:36,borderRadius:"50%",background:"#25D366",
+                    display:"flex",alignItems:"center",justifyContent:"center",
+                    color:"#fff",flexShrink:0,textDecoration:"none",
+                    boxShadow:"0 1px 3px rgba(0,0,0,.12)"
+                  }}
+                >
+                  <Icon name="phone" size={16}/>
+                </a>
+              )}
             </div>
           );
         })}
@@ -1417,10 +1473,9 @@ const ApptDetail = ({a, svc, onUpdate, services, appts, blocks, settings}) => {
     toast("Turno movido");
   };
 
-  const waConfirm = () => {
+  const confirmAppt = () => {
     onUpdate({status:"confirmed"});
-    const url = `https://wa.me/${waTel(a.client_phone)}?text=${encodeURIComponent(waMsgConfirm(a, svc))}`;
-    window.open(url,"_blank");
+    toast("Turno confirmado");
   };
   const cancelAppt = () => {
     if(!confirm("¿Cancelar este turno?")) return;
@@ -1448,9 +1503,10 @@ const ApptDetail = ({a, svc, onUpdate, services, appts, blocks, settings}) => {
 
       {/* Acciones rápidas */}
       <div className="flex gap-2 flex-wrap">
-        {a.client_phone && a.status!=="confirmed" && <button className="btn btn-pr btn-sm" onClick={waConfirm}><Icon name="check" size={13}/> Confirmar + WA</button>}
+        {a.status!=="confirmed" && <button className="btn btn-pr btn-sm" onClick={confirmAppt}><Icon name="check" size={13}/> Confirmar</button>}
         {a.status!=="cancelled" && <button className="btn btn-sc btn-sm" onClick={cancelAppt}><Icon name="x" size={13}/> Cancelar turno</button>}
-        {a.client_phone && <a className="btn btn-wa btn-sm" target="_blank" href={`https://wa.me/${waTel(a.client_phone)}`}><Icon name="phone" size={13}/> Chat</a>}
+        {a.client_phone && <a className="btn btn-wa btn-sm" target="_blank" rel="noopener" href={`https://wa.me/${waTel(a.client_phone)}`}><Icon name="phone" size={13}/> WhatsApp</a>}
+        {a.client_phone && <a className="btn btn-sc btn-sm" target="_blank" rel="noopener" href={`https://wa.me/${waTel(a.client_phone)}?text=${encodeURIComponent(waMsgConfirm(a, svc))}`}><Icon name="mail" size={13}/> Mensaje confirmación</a>}
         <button className="btn btn-sc btn-sm" onClick={()=>setReschedule(!reschedule)}><Icon name="calendar" size={13}/> {reschedule?"Cancelar":"Mover turno"}</button>
       </div>
 
@@ -3009,6 +3065,20 @@ const BloqueosTab = ({blocks, setBlocks, appts, services, settings, setSettings,
     return m;
   });
   const [editing, setEditing] = useState(null);
+  const [selectedAppt, setSelectedAppt] = useState(null);
+
+  const updateAppt = async (id, patch) => {
+    const {error} = await sb.from("gf_appointments").update(patch).eq("id",id);
+    if(error){ toast("Error: "+error.message); return; }
+    if(selectedAppt?.id===id) setSelectedAppt(s=>({...s,...patch}));
+    refetch(); toast("Cambios guardados");
+  };
+
+  const deleteAppt = async (id) => {
+    if(!confirm("¿Eliminar turno definitivamente?")) return;
+    await sb.from("gf_appointments").delete().eq("id",id);
+    setSelectedAppt(null); refetch(); toast("Turno eliminado");
+  };
 
   const weekDays = useMemo(()=>{
     return Array.from({length:settings.open_days.length}, (_,i)=>{
@@ -3134,7 +3204,7 @@ const BloqueosTab = ({blocks, setBlocks, appts, services, settings, setSettings,
       {view==="calendar" && (
         <div className="wkg-wrap">
           <div className="wkg">
-            <WeekGrid days={weekDays} slots={slots} settings={settings} slotState={slotState} svcMap={svcMap} onToggle={toggleSlot}/>
+            <WeekGrid days={weekDays} slots={slots} settings={settings} slotState={slotState} svcMap={svcMap} onToggle={toggleSlot} onApptClick={setSelectedAppt}/>
           </div>
         </div>
       )}
@@ -3177,11 +3247,25 @@ const BloqueosTab = ({blocks, setBlocks, appts, services, settings, setSettings,
         </>)}>
         {editing && <BlockEditor b={editing} onChange={setEditing}/>}
       </Drawer>
+
+      <Drawer open={!!selectedAppt} onClose={()=>setSelectedAppt(null)}
+        subtitle={selectedAppt ? `Turno · ${fDate(selectedAppt.appointment_date)} ${selectedAppt.time_slot}`:""}
+        title={selectedAppt ? selectedAppt.client_name : ""}
+        footer={selectedAppt && (
+          <>
+            <button className="btn btn-dg" onClick={()=>deleteAppt(selectedAppt.id)}><Icon name="trash" size={14}/> Eliminar</button>
+            <div className="flex gap-2">
+              <button className="btn btn-sc" onClick={()=>setSelectedAppt(null)}>Cerrar</button>
+            </div>
+          </>
+        )}>
+        {selectedAppt && <ApptDetail a={selectedAppt} svc={svcMap[selectedAppt.service_id]} onUpdate={p=>updateAppt(selectedAppt.id,p)} services={services} appts={appts} blocks={blocks} settings={settings}/>}
+      </Drawer>
     </>
   );
 };
 
-const WeekGrid = ({days, slots, settings, slotState, svcMap, onToggle}) => {
+const WeekGrid = ({days, slots, settings, slotState, svcMap, onToggle, onApptClick}) => {
   const todayISO = toISO(TODAY);
   return (
     <div className="card" style={{overflow:"hidden"}}>
@@ -3217,10 +3301,12 @@ const WeekGrid = ({days, slots, settings, slotState, svcMap, onToggle}) => {
                   }
                   if(st.type==="appt"){
                     const aMin = toMin(st.data.time_slot);
-                    if(min!==aMin) return <div key={d.iso+min} style={{...cellStyle,background:"rgba(94,107,46,.85)",borderLeft:"1px solid rgba(250,247,239,.08)",cursor:"default"}}/>;
+                    const apptCursor = onApptClick ? "pointer" : "default";
+                    const handleApptClick = onApptClick ? ()=>onApptClick(st.data) : undefined;
+                    if(min!==aMin) return <div key={d.iso+min} style={{...cellStyle,background:"rgba(94,107,46,.85)",borderLeft:"1px solid rgba(250,247,239,.08)",cursor:apptCursor}} onClick={handleApptClick}/>;
                     const svc = svcMap[st.data.service_id];
                     return (
-                      <div key={d.iso+min} style={{...cellStyle,background:"var(--olive)",color:"var(--cream)",padding:"5px 7px",cursor:"default"}}>
+                      <div key={d.iso+min} title="Click para editar el turno" style={{...cellStyle,background:"var(--olive)",color:"var(--cream)",padding:"5px 7px",cursor:apptCursor}} onClick={handleApptClick}>
                         <div className="mono" style={{fontSize:9,letterSpacing:".1em",opacity:.65}}>{st.data.time_slot}</div>
                         <div style={{fontSize:11.5,fontWeight:500,lineHeight:1.2,marginTop:2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{st.data.client_name}</div>
                         {svc && <div style={{fontSize:10,opacity:.7,marginTop:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{svc.name}</div>}
