@@ -29,6 +29,22 @@ window.GF_CONFIG = {
   // ── Admin ──
   adminEmail:   "guadalupefernandez016@gmail.com",  // identificador técnico en Supabase Auth
 
+  // ── CRM · cadencia de retoque ──
+  // Cada cuántas SEMANAS una clienta "vuelve" para su servicio. El panel usa esto para
+  // marcar "Para retoque" (vencida para su retoque) antes de que caiga en "Dormida".
+  //   · default: se aplica a cualquier servicio sin override. null = desactivar el signal.
+  //   · byCategory: override por categoría de servicio (clave = category, no distingue may/min).
+  // Si una clienta ya tiene 2+ visitas del mismo servicio, su ritmo REAL (mediana) pisa esto.
+  cadenceWeeks: {
+    default: 5,
+    byCategory: {
+      "cejas":       4,
+      "pestañas":    3,
+      "uñas":        3,
+      "depilación":  4,
+    },
+  },
+
   // ── Paleta de marca ── cambiar acá re-viste toda la web y el panel
   theme: {
     "olive-dk":      "#3D4A18",  // acento principal / botones / hover

@@ -448,6 +448,7 @@ const WA_GUADA = GF_CONFIG.whatsapp;
 const WA_TEST = GF_CONFIG.whatsappTest;
 const BRAND = GF_CONFIG.brandName;
 const OWNER = GF_CONFIG.ownerName;
+const CAD = (GF_CONFIG && GF_CONFIG.cadenceWeeks) || {};
 
 /* ============ HELPERS ============ */
 const fP = n => "$" + (Number(n)||0).toLocaleString("es-AR");
@@ -1587,7 +1588,42 @@ const ApptDetail = ({a, svc, onUpdate, services, appts, blocks, settings}) => {
 };
 
 /* ============ CLIENTES TAB ============ */
-const buildClientes = (appts, services) => {
+const normPh = p => (p||"").replace(/\s/g,"");
+// Cadencia de retoque de una clienta (en días): servicio dominante → override de config →
+// refinado por su ritmo real (mediana de gaps) si tiene 2+ visitas del mismo servicio.
+// Devuelve {days, svcName}. days=null si no hay señal de cadencia (config default=null).
+const cadenceDaysFor = (c, svcMap) => {
+  const done = (c.appts||[]).filter(a=>a.status==="completed"||a.status==="confirmed");
+  if(done.length===0) return {days:null, svcName:""};
+  const freq = {};
+  for(const a of done){ freq[a.service_id]=(freq[a.service_id]||0)+1; }
+  let domId=null, domCount=-1, domDate="";
+  for(const a of done){ const f=freq[a.service_id]; if(f>domCount || (f===domCount && a.appointment_date>domDate)){ domCount=f; domId=a.service_id; domDate=a.appointment_date; } }
+  const svc = svcMap[domId];
+  // baseline por config (categoría → default)
+  const cat = (svc?.category||"").toLowerCase();
+  const byCat = CAD.byCategory || {};
+  let weeks = null;
+  for(const k in byCat){ if(cat && k.toLowerCase()===cat){ weeks = Number(byCat[k]); break; } }
+  if(weeks==null && CAD.default!=null) weeks = Number(CAD.default);
+  let base = (weeks!=null && weeks>0) ? Math.round(weeks*7) : null;
+  // refinamiento: ritmo real de la clienta con el servicio dominante
+  const domVisits = done.filter(a=>a.service_id===domId).map(a=>a.appointment_date).sort();
+  if(domVisits.length>=2){
+    const gaps=[];
+    for(let i=1;i<domVisits.length;i++){ gaps.push(Math.round((new Date(domVisits[i]+"T12:00:00")-new Date(domVisits[i-1]+"T12:00:00"))/86400000)); }
+    gaps.sort((a,b)=>a-b);
+    const mid=Math.floor(gaps.length/2);
+    const med = gaps.length%2 ? gaps[mid] : Math.round((gaps[mid-1]+gaps[mid])/2);
+    if(med>=7) base = med; // el ritmo real de la clienta pisa el default (ruido <7d se ignora)
+  }
+  // El modelo de "retoque" sólo aplica a ritmos <= 90 días (antes del corte de Inactiva d>90).
+  // Un ritmo real más largo desactiva el signal (la clienta cae a Dormida/Inactiva genérica),
+  // en vez de revertir a un default corto y sobre-avisar a una clienta de baja frecuencia.
+  if(base!=null && base>90) base = null;
+  return {days: base, svcName: svc?.name||""};
+};
+const buildClientes = (appts, services, clientsRecords=[]) => {
   const svcMap = Object.fromEntries(services.map(s=>[s.id,s]));
   const map = new Map();
   for(const a of appts){
@@ -1629,7 +1665,38 @@ const buildClientes = (appts, services) => {
       }
     }
   }
-  return Array.from(map.values()).sort((a,b)=>(b.lastDate||"").localeCompare(a.lastDate||""));
+  // Mergear la ficha persistente de gf_clients (notas + etiquetas) por teléfono normalizado.
+  const byPhone = new Map();
+  for(const cl of (clientsRecords||[])){ if(cl.phone) byPhone.set(normPh(cl.phone), cl); }
+  return Array.from(map.values()).map(c=>{
+    const rec = c.phone ? byPhone.get(normPh(c.phone)) : null;
+    c.crmNotes = rec ? (rec.notes||"") : "";
+    c.crmTags  = rec && Array.isArray(rec.tags) ? rec.tags : [];
+    const cad = cadenceDaysFor(c, svcMap);
+    c.cadenceDays = cad.days;
+    c.dominantSvcName = cad.svcName;
+    return c;
+  }).sort((a,b)=>(b.lastDate||"").localeCompare(a.lastDate||""));
+};
+// Migra/mergea la ficha CRM (gf_clients: notas + tags) al cambiar el teléfono de una clienta o
+// al fusionar dos clientas. gf_clients.phone es UNIQUE: si el destino ya tiene ficha, une los tags
+// y concatena las notas, y borra la fila origen. Best-effort: nunca bloquea el flujo principal.
+const migrateClientCRM = async (fromPhone, toPhone, name) => {
+  if(!fromPhone || !toPhone || fromPhone===toPhone) return;
+  const { data, error } = await sb.from("gf_clients").select("*").in("phone", [fromPhone, toPhone]);
+  if(error) return;
+  const rows = data || [];
+  const src = rows.find(r=>r.phone===fromPhone);
+  if(!src) return; // la clienta no tenía ficha CRM: nada que migrar
+  const tgt = rows.find(r=>r.phone===toPhone);
+  if(!tgt){
+    await sb.from("gf_clients").update({ phone: toPhone, name: name||src.name }).eq("phone", fromPhone);
+    return;
+  }
+  const notes = [tgt.notes, src.notes].map(x=>(x||"").trim()).filter(Boolean).join("\n");
+  const tags = Array.from(new Set([...(Array.isArray(tgt.tags)?tgt.tags:[]), ...(Array.isArray(src.tags)?src.tags:[])]));
+  await sb.from("gf_clients").update({ notes: notes||null, tags, name: name||tgt.name }).eq("phone", toPhone);
+  await sb.from("gf_clients").delete().eq("phone", fromPhone);
 };
 const daysAgo = iso => Math.floor((TODAY - new Date(iso+"T12:00:00"))/86400000);
 const relDays = iso => {
@@ -1645,20 +1712,29 @@ const clientTag = c => {
   const d = daysAgo(c.lastDate);
   if(d>90) return {tone:"err",label:"Inactiva"};
   if(c.appts.length===1 && d<=30) return {tone:"wait",label:"Nueva"};
+  // Con cadencia conocida: "Para retoque" cuando superó su ritmo esperado (más específico que "Dormida").
+  if(c.cadenceDays){
+    if(d>=c.cadenceDays) return {tone:"warn",label:"Para retoque"};
+    if(c.appts.length>=5) return {tone:"ok",label:"Recurrente"};
+    return {tone:"neutral",label:"Regular"};
+  }
   if(d>30) return {tone:"warn",label:"Dormida"};
   if(c.appts.length>=5) return {tone:"ok",label:"Recurrente"};
   return {tone:"neutral",label:"Regular"};
 };
+const REACTIVATE_LABELS = ["Para retoque","Dormida","Inactiva"];
 const waMessageFor = (c) => {
   const firstName = ((c.name||"").trim().split(" ")[0]||"").replace(/[^\wáéíóúñÁÉÍÓÚÑ]/g,"");
   const hi = firstName ? `Hola ${firstName}!` : "Hola!";
-  const d = daysAgo(c.lastDate);
-  if(d>90) return `${hi} Soy ${OWNER} de ${BRAND} 🌿 Hace un tiempo que no nos vemos, te queríamos recordar que seguimos acá. ¿Te armo un turno?`;
-  if(d>30) return `${hi} ¿Cómo estás? Soy ${OWNER} de ${BRAND}. ¿Querés que te reserve un turno esta semana?`;
+  const label = clientTag(c).label;
+  const svc = c.dominantSvcName ? ` de ${c.dominantSvcName.toLowerCase()}` : "";
+  if(label==="Para retoque") return `${hi} Soy ${OWNER} de ${BRAND} 🌿 Ya pasó un tiempito desde tu último turno${svc} — ¿querés que te reserve para el retoque?`;
+  if(label==="Inactiva") return `${hi} Soy ${OWNER} de ${BRAND} 🌿 Hace un tiempo que no nos vemos, te queríamos recordar que seguimos acá. ¿Te armo un turno?`;
+  if(label==="Dormida") return `${hi} ¿Cómo estás? Soy ${OWNER} de ${BRAND}. ¿Querés que te reserve un turno esta semana?`;
   return `${hi} Soy ${OWNER} de ${BRAND}. `;
 };
 
-const ClientesTab = ({appts, services, fichaQuestions, fichas, refetch}) => {
+const ClientesTab = ({appts, services, fichaQuestions, fichas, clients, refetch}) => {
   const [selected, setSelected] = useState(null);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
@@ -1666,24 +1742,38 @@ const ClientesTab = ({appts, services, fichaQuestions, fichas, refetch}) => {
   const [editingClient, setEditingClient] = useState(null);
   const [mergingClient, setMergingClient] = useState(null);
 
-  const clientes = useMemo(()=>buildClientes(appts, services), [appts, services]);
+  const clientes = useMemo(()=>buildClientes(appts, services, clients), [appts, services, clients]);
   const svcMap = useMemo(()=>Object.fromEntries(services.map(s=>[s.id,s])), [services]);
+
+  // Persistencia de la ficha CRM (gf_clients): notas + etiquetas. onConflict=phone (UNIQUE).
+  const saveClientCRM = useCallback(async (c, patch) => {
+    if(!c.phone){ toast("La clienta no tiene teléfono — no se puede guardar la ficha CRM."); return false; }
+    const { error } = await sb.from("gf_clients").upsert(
+      { phone:c.phone, name:c.name||"Clienta", ...patch },
+      { onConflict:"phone" }
+    );
+    if(error){ toast("Error al guardar: "+error.message); return false; }
+    refetch();
+    return true;
+  }, [refetch]);
 
   const filtered = useMemo(()=>{
     return clientes.filter(c=>{
       const tag = clientTag(c).label;
       if(filter==="new" && tag!=="Nueva") return false;
       if(filter==="recurrent" && tag!=="Recurrente") return false;
+      if(filter==="retouch" && tag!=="Para retoque") return false;
       if(filter==="dormant" && tag!=="Dormida") return false;
       if(filter==="inactive" && tag!=="Inactiva") return false;
       if(search){
         const q = search.toLowerCase();
-        if(!(c.name||"").toLowerCase().includes(q) && !(c.phone||"").includes(q) && !(c.email||"").toLowerCase().includes(q)) return false;
+        const inTags = (c.crmTags||[]).some(t=>(t||"").toLowerCase().includes(q));
+        if(!(c.name||"").toLowerCase().includes(q) && !(c.phone||"").includes(q) && !(c.email||"").toLowerCase().includes(q) && !inTags) return false;
       }
       return true;
     }).sort((a,b)=>{
-      // Priorizar dormidas + inactivas con teléfono en tope cuando el filtro correspondiente esté activo
-      if(filter==="dormant" || filter==="inactive"){
+      // Priorizar reactivables con teléfono en tope cuando el filtro correspondiente esté activo
+      if(filter==="retouch" || filter==="dormant" || filter==="inactive"){
         return (b.phone?1:0)-(a.phone?1:0) || (a.lastDate||"").localeCompare(b.lastDate||"");
       }
       return 0;
@@ -1693,14 +1783,12 @@ const ClientesTab = ({appts, services, fichaQuestions, fichas, refetch}) => {
   const stats = useMemo(()=>{
     const tags = clientes.map(c=>clientTag(c).label);
     const recurr = tags.filter(t=>t==="Recurrente").length;
+    const retouch = tags.filter(t=>t==="Para retoque").length;
     const dormant = tags.filter(t=>t==="Dormida").length;
     const inactive = tags.filter(t=>t==="Inactiva").length;
-    const reactivable = clientes.filter(c=>{
-      const t = clientTag(c).label;
-      return (t==="Dormida" || t==="Inactiva") && c.phone;
-    }).length;
+    const reactivable = clientes.filter(c=>REACTIVATE_LABELS.includes(clientTag(c).label) && c.phone).length;
     const ltv = Math.round(clientes.reduce((s,c)=>s+c.total,0)/Math.max(1,clientes.length));
-    return { total:clientes.length, recurr, dormant, inactive, reactivable, ltv };
+    return { total:clientes.length, recurr, retouch, dormant, inactive, reactivable, ltv };
   }, [clientes]);
 
   return (
@@ -1718,7 +1806,7 @@ const ClientesTab = ({appts, services, fichaQuestions, fichas, refetch}) => {
         </div>
       </div>
 
-      {(stats.dormant>0 || stats.inactive>0) && (
+      {(stats.retouch>0 || stats.dormant>0 || stats.inactive>0) && (
         <div className="card mb-5" style={{background:"linear-gradient(135deg,rgba(196,130,46,.06),rgba(163,59,42,.04))",borderColor:"rgba(196,130,46,.18)"}}>
           <div className="card-bd" style={{padding:"18px 22px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:14,flexWrap:"wrap"}}>
             <div style={{display:"flex",alignItems:"center",gap:14,flex:"1 1 260px",minWidth:0}}>
@@ -1727,16 +1815,19 @@ const ClientesTab = ({appts, services, fichaQuestions, fichas, refetch}) => {
               </div>
               <div style={{minWidth:0}}>
                 <div style={{fontFamily:"'Fraunces',serif",fontSize:17,lineHeight:1.2,color:"var(--ink)"}}>
-                  {stats.dormant>0 && <>{stats.dormant} <em style={{fontStyle:"italic",color:"#8B5A1F"}}>dormida{stats.dormant!==1?"s":""}</em></>}
-                  {stats.dormant>0 && stats.inactive>0 && " · "}
-                  {stats.inactive>0 && <>{stats.inactive} <em style={{fontStyle:"italic",color:"var(--danger)"}}>inactiva{stats.inactive!==1?"s":""}</em></>}
+                  {[
+                    stats.retouch>0 && <span key="r">{stats.retouch} <em style={{fontStyle:"italic",color:"#8B5A1F"}}>para retoque</em></span>,
+                    stats.dormant>0 && <span key="d">{stats.dormant} <em style={{fontStyle:"italic",color:"#8B5A1F"}}>dormida{stats.dormant!==1?"s":""}</em></span>,
+                    stats.inactive>0 && <span key="i">{stats.inactive} <em style={{fontStyle:"italic",color:"var(--danger)"}}>inactiva{stats.inactive!==1?"s":""}</em></span>,
+                  ].filter(Boolean).reduce((acc,el)=> acc.length ? [...acc, <span key={"sep"+acc.length}> · </span>, el] : [el], [])}
                 </div>
                 <div style={{fontSize:12,color:"var(--muted)",marginTop:3}}>
-                  {stats.reactivable} con teléfono — mandales un WhatsApp para volver a vincularlas.
+                  {stats.reactivable} con teléfono — un toque en <Icon name="phone" size={11}/> las reactiva por WhatsApp.
                 </div>
               </div>
             </div>
-            <div style={{display:"flex",gap:8}}>
+            <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+              {stats.retouch>0 && <button className="btn btn-sm btn-sc" onClick={()=>setFilter("retouch")}>Ver para retoque</button>}
               {stats.dormant>0 && <button className="btn btn-sm btn-sc" onClick={()=>setFilter("dormant")}>Ver dormidas</button>}
               {stats.inactive>0 && <button className="btn btn-sm btn-sc" onClick={()=>setFilter("inactive")}>Ver inactivas</button>}
             </div>
@@ -1746,7 +1837,7 @@ const ClientesTab = ({appts, services, fichaQuestions, fichas, refetch}) => {
 
       <div className="flex flex-wrap gap-3 items-center mb-5">
         <Tabs value={filter} onChange={setFilter} options={[
-          {v:"all",l:"Todas"},{v:"recurrent",l:"Recurrentes"},{v:"new",l:"Nuevas"},{v:"dormant",l:"Dormidas"},{v:"inactive",l:"Inactivas"}
+          {v:"all",l:"Todas"},{v:"recurrent",l:"Recurrentes"},{v:"new",l:"Nuevas"},{v:"retouch",l:"Para retoque"},{v:"dormant",l:"Dormidas"},{v:"inactive",l:"Inactivas"}
         ]}/>
         <div className="relative flex-1 min-w-[240px]">
           <input className="inp" style={{paddingLeft:36}} placeholder="Buscar por nombre, teléfono o email…" value={search} onChange={e=>setSearch(e.target.value)}/>
@@ -1772,7 +1863,7 @@ const ClientesTab = ({appts, services, fichaQuestions, fichas, refetch}) => {
                         <div style={{width:36,height:36,flex:"0 0 36px",aspectRatio:"1",borderRadius:"50%",background:"var(--olive)",color:"var(--cream)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Fraunces',serif",fontSize:15}}>{(c.name||"?").trim()[0].toUpperCase()}</div>
                         <div>
                           <div className="t-name">{c.name}</div>
-                          <div className="flex items-center gap-1 flex-wrap"><Chip tone={tag.tone}>{tag.label}</Chip>{c.aliases && c.aliases.length>0 && <span title={c.aliases.map(a=>`${a.name||'—'} (${a.phone||'—'})`).join('\n')} style={{fontSize:10,letterSpacing:".08em",textTransform:"uppercase",color:"var(--olive-dk)",cursor:"help"}}>+{c.aliases.length} alias</span>}</div>
+                          <div className="flex items-center gap-1 flex-wrap"><Chip tone={tag.tone}>{tag.label}</Chip>{c.aliases && c.aliases.length>0 && <span title={c.aliases.map(a=>`${a.name||'—'} (${a.phone||'—'})`).join('\n')} style={{fontSize:10,letterSpacing:".08em",textTransform:"uppercase",color:"var(--olive-dk)",cursor:"help"}}>+{c.aliases.length} alias</span>}{(c.crmTags||[]).slice(0,3).map(t=><span key={t} className="chip dk" style={{fontSize:9.5,padding:"1px 6px",letterSpacing:".02em"}}>{t}</span>)}{(c.crmTags||[]).length>3 && <span style={{fontSize:9.5,color:"var(--muted)"}}>+{c.crmTags.length-3}</span>}</div>
                         </div>
                       </div>
                     </td>
@@ -1786,7 +1877,11 @@ const ClientesTab = ({appts, services, fichaQuestions, fichas, refetch}) => {
                       <div className="t-sub">{relDays(c.lastDate)}</div>
                     </td>
                     <td className="num"><strong>{fP(c.total)}</strong></td>
-                    <td style={{color:"var(--muted)"}}><Icon name="chevron" size={14}/></td>
+                    <td style={{color:"var(--muted)",whiteSpace:"nowrap",textAlign:"right"}}>
+                      {(REACTIVATE_LABELS.includes(tag.label) && c.phone)
+                        ? <a className="btn btn-sm btn-wa" href={`https://wa.me/${waTel(c.phone)}?text=${encodeURIComponent(waMessageFor(c))}`} target="_blank" rel="noopener" title="Reactivar por WhatsApp" onClick={e=>e.stopPropagation()}><Icon name="phone" size={12}/></a>
+                        : <Icon name="chevron" size={14}/>}
+                    </td>
                   </tr>
                 );
               })}
@@ -1803,10 +1898,15 @@ const ClientesTab = ({appts, services, fichaQuestions, fichas, refetch}) => {
             <div className="flex gap-2 flex-wrap">
               {selected.phone && <a className="btn btn-wa" href={`https://wa.me/${waTel(selected.phone)}?text=${encodeURIComponent(waMessageFor(selected))}`} target="_blank" rel="noopener"><Icon name="phone" size={13}/> WhatsApp</a>}
               {selected.email && <a className="btn btn-sc" href={`mailto:${selected.email}`}><Icon name="mail" size={13}/> Email</a>}
-              <button className="btn btn-sc" onClick={()=>setFichaEditing({
-                id:null, client_phone:selected.phone||"", client_name:selected.name||"",
-                responses:{}, professional_notes:""
-              })}><Icon name="edit" size={13}/> Nueva ficha</button>
+              <button className="btn btn-sc" onClick={()=>{
+                const lastDone = (selected.appts||[]).filter(a=>a.status==="completed"||a.status==="confirmed")
+                  .slice().sort((a,b)=>(b.appointment_date+b.time_slot).localeCompare(a.appointment_date+a.time_slot))[0];
+                setFichaEditing({
+                  id:null, client_phone:selected.phone||"", client_name:selected.name||"",
+                  appointment_id: lastDone?.id || null,
+                  responses:{}, professional_notes:""
+                });
+              }}><Icon name="edit" size={13}/> Nueva ficha</button>
               <button className="btn btn-sc" onClick={()=>setEditingClient({
                 origPhone: selected.phone||"",
                 name: selected.name||"",
@@ -1818,7 +1918,7 @@ const ClientesTab = ({appts, services, fichaQuestions, fichas, refetch}) => {
             <button className="btn btn-pr" onClick={()=>setSelected(null)}>Cerrar</button>
           </>
         )}>
-        {selected && <ClienteDetail c={selected} svcMap={svcMap} fichas={fichas} questions={fichaQuestions} onEditFicha={setFichaEditing}/>}
+        {selected && <ClienteDetail key={selected.phone||selected.name} c={selected} svcMap={svcMap} fichas={fichas} questions={fichaQuestions} onEditFicha={setFichaEditing} onSaveCRM={saveClientCRM}/>}
       </Drawer>
 
       <Drawer open={!!editingClient} onClose={()=>setEditingClient(null)}
@@ -1845,6 +1945,7 @@ const ClientesTab = ({appts, services, fichaQuestions, fichas, refetch}) => {
                   client_phone: d.phone||"",
                 }).eq("client_phone", d.origPhone);
                 if(fhErr && !/not.?exist|does not exist/i.test(fhErr.message||"")){ toast("Error fichas: "+fhErr.message); return; }
+                await migrateClientCRM(d.origPhone, d.phone||"", d.name.trim());
                 setEditingClient(null);
                 setSelected(null);
                 refetch();
@@ -1881,6 +1982,7 @@ const ClientesTab = ({appts, services, fichaQuestions, fichas, refetch}) => {
                   client_name: tgt.name||"",
                 }).eq("client_phone", src.phone);
                 if(fhErr && !/not.?exist|does not exist/i.test(fhErr.message||"")){ toast("Error fichas: "+fhErr.message); return; }
+                await migrateClientCRM(src.phone, tgt.phone||"", tgt.name||"");
                 setMergingClient(null);
                 setSelected(null);
                 refetch();
@@ -1909,6 +2011,7 @@ const ClientesTab = ({appts, services, fichaQuestions, fichas, refetch}) => {
                 const payload = {
                   client_phone: fichaEditing.client_phone||"",
                   client_name: fichaEditing.client_name||"",
+                  appointment_id: fichaEditing.appointment_id || null,
                   responses: fichaEditing.responses||{},
                   professional_notes: fichaEditing.professional_notes||"",
                   updated_at: new Date().toISOString(),
@@ -1922,7 +2025,7 @@ const ClientesTab = ({appts, services, fichaQuestions, fichas, refetch}) => {
             </div>
           </>
         )}>
-        {fichaEditing && <FichaEditor ficha={fichaEditing} onChange={setFichaEditing} questions={fichaQuestions}/>}
+        {fichaEditing && <FichaEditor ficha={fichaEditing} onChange={setFichaEditing} questions={fichaQuestions} appts={appts} services={services}/>}
       </Drawer>
     </>
   );
@@ -2000,9 +2103,43 @@ const ClientMerger = ({source, clientes, targetKey, onChange}) => {
   );
 };
 
-const ClienteDetail = ({c, svcMap, fichas, questions, onEditFicha}) => {
+const ClienteDetail = ({c, svcMap, fichas, questions, onEditFicha, onSaveCRM}) => {
   const tag = clientTag(c);
   const clientFichas = (fichas||[]).filter(f => (f.client_phone||"") === (c.phone||""));
+
+  // Ficha CRM persistente (gf_clients): notas + etiquetas. Baseline local para no depender
+  // del prop stale (selected no se re-asigna tras refetch).
+  const [notes, setNotes] = useState(c.crmNotes||"");
+  const [savedNotes, setSavedNotes] = useState(c.crmNotes||"");
+  const [tags, setTags] = useState(c.crmTags||[]);
+  const [tagInput, setTagInput] = useState("");
+  const [savingNotes, setSavingNotes] = useState(false);
+  const notesDirty = notes !== savedNotes;
+
+  const commitNotes = async () => {
+    if(!notesDirty || savingNotes || !onSaveCRM) return;
+    setSavingNotes(true);
+    const ok = await onSaveCRM(c, { notes: notes.trim()||null });
+    if(ok){ const v = notes.trim(); setNotes(v); setSavedNotes(v); }
+    setSavingNotes(false);
+  };
+  const addTag = async () => {
+    const t = tagInput.trim();
+    if(!t || !onSaveCRM) return;
+    if(tags.some(x=>x.toLowerCase()===t.toLowerCase())){ setTagInput(""); return; }
+    const next = [...tags, t];
+    setTags(next); setTagInput("");
+    const ok = await onSaveCRM(c, { tags: next });
+    if(!ok) setTags(tags); // rollback si falló
+  };
+  const removeTag = async (t) => {
+    if(!onSaveCRM) return;
+    const next = tags.filter(x=>x!==t);
+    setTags(next);
+    const ok = await onSaveCRM(c, { tags: next });
+    if(!ok) setTags(tags); // rollback si falló
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <div className="card">
@@ -2016,6 +2153,11 @@ const ClienteDetail = ({c, svcMap, fichas, questions, onEditFicha}) => {
             <div><div className="mono" style={{fontSize:10,letterSpacing:".18em",textTransform:"uppercase",color:"var(--muted)"}}>Total</div><div className="serif num" style={{fontSize:26,color:"var(--olive-dk)",marginTop:4}}>{fP(c.total)}</div></div>
             <div><div className="mono" style={{fontSize:10,letterSpacing:".18em",textTransform:"uppercase",color:"var(--muted)"}}>Ticket prom.</div><div className="serif num" style={{fontSize:26,color:"var(--olive-dk)",marginTop:4}}>{fP(Math.round(c.total/c.appts.length))}</div></div>
           </div>
+          {c.cadenceDays && (
+            <div style={{marginTop:14,paddingTop:12,borderTop:"1px solid var(--border)",fontSize:12,color:"var(--muted)",lineHeight:1.5}}>
+              Ritmo esperado: ~cada <strong style={{color:"var(--ink)"}}>{Math.round(c.cadenceDays/7)} sem</strong>{c.dominantSvcName?` (${c.dominantSvcName})`:""} · última visita hace {daysAgo(c.lastDate)} días{tag.label==="Para retoque"?<em style={{color:"#8B5A1F",fontStyle:"normal",fontWeight:600}}> — vencida para su retoque</em>:""}
+            </div>
+          )}
         </div>
       </div>
 
@@ -2025,6 +2167,38 @@ const ClienteDetail = ({c, svcMap, fichas, questions, onEditFicha}) => {
           <div className="flex items-center gap-3"><Icon name="phone" size={14}/> <span className="mono">{c.phone||"—"}</span></div>
           <div className="flex items-center gap-3"><Icon name="mail" size={14}/> <span>{c.email||"sin email"}</span></div>
         </div>
+      </div>
+
+      <div>
+        <div className="sec-label mb-3">Etiquetas</div>
+        <div className="flex flex-wrap gap-2 items-center">
+          {tags.map(t=>(
+            <span key={t} className="chip dk" style={{display:"inline-flex",alignItems:"center",gap:6}}>
+              {t}
+              <button onClick={()=>removeTag(t)} aria-label={"Quitar etiqueta "+t} style={{border:0,background:"none",color:"inherit",cursor:"pointer",lineHeight:1,fontSize:14,padding:0,opacity:.7}}>×</button>
+            </span>
+          ))}
+          {tags.length===0 && <span style={{fontSize:12,color:"var(--muted)"}}>Sin etiquetas todavía.</span>}
+        </div>
+        {c.phone ? (
+          <div className="flex gap-2 mt-3">
+            <input className="inp" placeholder="Agregar etiqueta (ej: VIP, alérgica, cejas)…" value={tagInput}
+              onChange={e=>setTagInput(e.target.value)}
+              onKeyDown={e=>{ if(e.key==="Enter"){ e.preventDefault(); addTag(); } }} style={{flex:1}}/>
+            <button className="btn btn-sc" onClick={addTag} disabled={!tagInput.trim()}><Icon name="plus" size={13}/> Agregar</button>
+          </div>
+        ) : <div style={{fontSize:11.5,color:"var(--muted)",marginTop:8}}>Agregá un teléfono a la clienta (botón Editar) para poder etiquetarla.</div>}
+      </div>
+
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <div className="sec-label">Notas de la clienta</div>
+          {c.phone && <button className="btn btn-sm btn-sc" onClick={commitNotes} disabled={!notesDirty||savingNotes}>{savingNotes?"Guardando…":(notesDirty?"Guardar":"Guardado ✓")}</button>}
+        </div>
+        <textarea className="inp" rows={4} value={notes} onChange={e=>setNotes(e.target.value)} onBlur={commitNotes}
+          placeholder={c.phone ? "Preferencias, alergias, historia, lo que sea… se guarda para siempre en esta clienta." : "Agregá un teléfono a la clienta para guardar notas permanentes."}
+          disabled={!c.phone}/>
+        <div style={{fontSize:11,color:"var(--muted)",marginTop:6}}>Ficha permanente de la clienta — distinta de las notas de cada turno.</div>
       </div>
 
       {c.aliases && c.aliases.length>0 && (
@@ -2076,12 +2250,14 @@ const ClienteDetail = ({c, svcMap, fichas, questions, onEditFicha}) => {
           <div className="flex flex-col gap-2">
             {clientFichas.map(f=>{
               const respCount = Object.keys(f.responses||{}).length;
+              const linked = f.appointment_id ? (c.appts||[]).find(a=>a.id===f.appointment_id) : null;
               return (
                 <button key={f.id} onClick={()=>onEditFicha&&onEditFicha(f)} className="p-3 text-left" style={{background:"var(--cream)",border:"1px solid var(--border)",borderRadius:2,cursor:"pointer"}}>
                   <div className="flex items-center justify-between gap-2">
                     <div className="mono" style={{fontSize:10.5,color:"var(--muted)",letterSpacing:".1em"}}>{fDate((f.created_at||"").slice(0,10))}</div>
                     <div className="mono" style={{fontSize:10,color:"var(--muted)"}}>{respCount} {respCount===1?"respuesta":"respuestas"}</div>
                   </div>
+                  {linked && <div style={{fontSize:11,color:"var(--olive-dk)",marginTop:4,display:"flex",alignItems:"center",gap:5}}><Icon name="calendar" size={11}/> Visita: {fDate(linked.appointment_date)} · {svcMap[linked.service_id]?.name||"Servicio"}</div>}
                   {f.professional_notes && <div style={{fontSize:12.5,color:"var(--ink)",marginTop:4,lineHeight:1.45}}>{f.professional_notes.slice(0,120)}{f.professional_notes.length>120?"…":""}</div>}
                 </button>
               );
@@ -2108,19 +2284,37 @@ const ClienteDetail = ({c, svcMap, fichas, questions, onEditFicha}) => {
 };
 
 /* ============ FICHA EDITOR (usado en Clientes + Ficha tab) ============ */
-const FichaEditor = ({ficha, onChange, questions}) => {
+const FichaEditor = ({ficha, onChange, questions, appts=[], services=[]}) => {
   const u = (k,v) => onChange({...ficha,[k]:v});
   const setResponse = (qid, val) => onChange({...ficha, responses:{...(ficha.responses||{}), [qid]:val}});
   const activeQs = (questions||[]).filter(q=>q.active!==false).sort((a,b)=>(a.display_order||0)-(b.display_order||0));
   const byCat = {};
   activeQs.forEach(q=>{ (byCat[q.category||"general"] = byCat[q.category||"general"]||[]).push(q); });
   const catLabels = { habitos:"Hábitos", piel:"Piel", salud:"Salud", rutina:"Rutina", notas:"Notas", general:"General" };
+  const svcMap = useMemo(()=>Object.fromEntries((services||[]).map(s=>[s.id,s])), [services]);
+  const clientAppts = useMemo(()=>{
+    const ph = normPh(ficha.client_phone);
+    if(!ph) return [];
+    return (appts||[]).filter(a=>normPh(a.client_phone)===ph)
+      .slice().sort((a,b)=>(b.appointment_date+b.time_slot).localeCompare(a.appointment_date+a.time_slot));
+  }, [appts, ficha.client_phone]);
   return (
     <div className="flex flex-col gap-5">
       <div className="flex gap-3">
         <Field label="Nombre" grow><input className="inp" value={ficha.client_name||""} onChange={e=>u("client_name",e.target.value)} placeholder="Nombre de la clienta"/></Field>
         <Field label="Teléfono" grow><input className="inp mono" value={ficha.client_phone||""} onChange={e=>u("client_phone",e.target.value)} placeholder="+54 9 ..."/></Field>
       </div>
+
+      {clientAppts.length>0 && (
+        <Field label="Visita vinculada" hint="Asociá esta ficha al turno en que la atendiste. Queda ligada a esa visita.">
+          <select className="inp" value={ficha.appointment_id||""} onChange={e=>u("appointment_id", e.target.value||null)}>
+            <option value="">— sin vincular —</option>
+            {clientAppts.map(a=>(
+              <option key={a.id} value={a.id}>{fDate(a.appointment_date)} · {a.time_slot} · {svcMap[a.service_id]?.name||"Servicio"} ({STATUS_LABELS[a.status]||a.status})</option>
+            ))}
+          </select>
+        </Field>
+      )}
 
       {Object.keys(byCat).length===0 ? (
         <div className="card"><div className="card-empty">
@@ -3825,7 +4019,7 @@ const TestimoniosTab = ({content, persist}) => {
 /* ============ FICHA TAB (config preguntas + historial de fichas) ============ */
 const EMPTY_Q = { id:null, question:"", hint:"", category:"general", type:"text", options:[], display_order:0, required:false, active:true };
 
-const FichaTab = ({questions, fichas, services, refetch}) => {
+const FichaTab = ({questions, fichas, services, appts, refetch}) => {
   const [sub, setSub] = useState("preguntas");
   const [editingQ, setEditingQ] = useState(null);
   const [editingF, setEditingF] = useState(null);
@@ -3874,6 +4068,7 @@ const FichaTab = ({questions, fichas, services, refetch}) => {
     const payload = {
       client_phone: data.client_phone||"",
       client_name: data.client_name||"",
+      appointment_id: data.appointment_id || null,
       responses: data.responses||{},
       professional_notes: data.professional_notes||"",
       updated_at: new Date().toISOString(),
@@ -4005,7 +4200,7 @@ const FichaTab = ({questions, fichas, services, refetch}) => {
             </div>
           </>
         )}>
-        {editingF && <FichaEditor ficha={editingF} onChange={setEditingF} questions={questions}/>}
+        {editingF && <FichaEditor ficha={editingF} onChange={setEditingF} questions={questions} appts={appts} services={services}/>}
       </Drawer>
     </>
   );
@@ -4074,6 +4269,7 @@ const App = () => {
   const [gallery, setGallery] = useState([]);
   const [fichaQuestions, setFichaQuestions] = useState([]);
   const [fichas, setFichas] = useState([]);
+  const [clients, setClients] = useState([]);
   const [content, setContent] = useState(DEFAULT_CONTENT);
   const [settings, setSettings] = useState(()=>{
     try {
@@ -4120,7 +4316,7 @@ const App = () => {
     setLoading(true);
     setLoadError(null);
     try {
-      const [svcRes, pkRes, apRes, blRes, cpRes, cnRes, glRes, fqRes, fhRes] = await Promise.all([
+      const [svcRes, pkRes, apRes, blRes, cpRes, cnRes, glRes, fqRes, fhRes, clRes] = await Promise.all([
         sb.from("gf_services").select("*"),
         sb.from("gf_packs").select("*").then(r=>r, ()=>({data:[]})),
         sb.from("gf_appointments").select("*").order("appointment_date",{ascending:true}).order("time_slot",{ascending:true}),
@@ -4130,6 +4326,7 @@ const App = () => {
         sb.from("gf_gallery").select("*").order("display_order",{ascending:true}).then(r=>r, ()=>({data:[]})),
         sb.from("gf_ficha_questions").select("*").order("display_order",{ascending:true}).then(r=>r, ()=>({data:[]})),
         sb.from("gf_fichas").select("*").order("created_at",{ascending:false}).then(r=>r, ()=>({data:[]})),
+        sb.from("gf_clients").select("*").then(r=>r, ()=>({data:[]})),
       ]);
       // Supabase devuelve {data,error} sin rechazar la promesa: chequeamos las 3 queries core a mano
       if(svcRes.error) throw svcRes.error;
@@ -4143,6 +4340,7 @@ const App = () => {
       setGallery(glRes.data||[]);
       setFichaQuestions(fqRes.data||[]);
       setFichas(fhRes.data||[]);
+      setClients(clRes.data||[]);
       if(cnRes.data && cnRes.data.length){
         const merged = {...DEFAULT_CONTENT};
         for(const row of cnRes.data){ if(row.value) merged[row.key] = row.value; }
@@ -4185,6 +4383,7 @@ const App = () => {
       .on("postgres_changes",{event:"*",schema:"public",table:"gf_gallery"}, debouncedFetch)
       .on("postgres_changes",{event:"*",schema:"public",table:"gf_ficha_questions"}, debouncedFetch)
       .on("postgres_changes",{event:"*",schema:"public",table:"gf_fichas"}, debouncedFetch)
+      .on("postgres_changes",{event:"*",schema:"public",table:"gf_clients"}, debouncedFetch)
       .subscribe();
     return ()=>{ sb.removeChannel(channel); clearTimeout(fetchTimeout.current); };
   }, [auth, debouncedFetch]);
@@ -4304,8 +4503,8 @@ const App = () => {
           {loadError && appts.length===0 && <div className="card"><div className="card-empty">No se pudo conectar a la base. Revisá tu conexión.<br/><button className="btn" style={{marginTop:10}} onClick={fetchAll}>Reintentar</button></div></div>}
           {loading && !loadError && appts.length===0 && <div className="card"><div className="card-empty">Cargando…</div></div>}
           {tab==="turnos"     && <TurnosTab appts={appts} services={services} blocks={blocks} settings={settings} refetch={fetchAll}/>}
-          {tab==="clientes"   && <ClientesTab appts={appts} services={services} fichaQuestions={fichaQuestions} fichas={fichas} refetch={fetchAll}/>}
-          {tab==="ficha"      && <FichaTab questions={fichaQuestions} fichas={fichas} services={services} refetch={fetchAll}/>}
+          {tab==="clientes"   && <ClientesTab appts={appts} services={services} fichaQuestions={fichaQuestions} fichas={fichas} clients={clients} refetch={fetchAll}/>}
+          {tab==="ficha"      && <FichaTab questions={fichaQuestions} fichas={fichas} services={services} appts={appts} refetch={fetchAll}/>}
           {tab==="servicios"  && <ServiciosTab services={services} refetch={fetchAll}/>}
           {tab==="packs"      && <PacksTab packs={packs} services={services} refetch={fetchAll}/>}
           {tab==="galeria"    && <GaleriaTab gallery={gallery} services={services} refetch={fetchAll}/>}
