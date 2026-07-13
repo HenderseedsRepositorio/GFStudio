@@ -27,6 +27,7 @@
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="config.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Inter+Tight:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -249,9 +250,9 @@ button:focus-visible,a:focus-visible,[role="button"]:focus-visible{outline:2px s
 <div id="root"></div>
 <script type="text/babel">
 /* ═══════════ CONFIG ═══════════ */
-const SB_URL="https://ibikdnjuctopdkmtmgdd.supabase.co";
-const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImliaWtkbmp1Y3RvcGRrbXRtZ2RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1MjEwOTMsImV4cCI6MjA5MTA5NzA5M30.Tzsi0ZbcdohuJLFTut4z8h2vf5yi1dv_KfA_6m6COBI";
-const WA_GUADA="5492314555856";
+const SB_URL=GF_CONFIG.supabaseUrl;
+const SB_KEY=GF_CONFIG.supabaseKey;
+const WA_GUADA=GF_CONFIG.whatsapp;
 let sb;
 try{ sb=window.supabase.createClient(SB_URL,SB_KEY); }catch(e){ sb=null; }
 
@@ -370,7 +371,7 @@ const DEFAULT_CONTENT={
     body_main:"Soy Guada. GF Studio nació de la idea de brindar un servicio de belleza de verdad: con tiempo para cada piel, técnica profesional y productos que elijo uno por uno. Un espacio donde cuidarse es una experiencia, no un trámite.",
     body_sec:"Me especializo en cejas, faciales y terapias combinadas. Cada sesión arranca con una consulta breve: no todas las pieles son iguales, ni todas las cejas quieren lo mismo.",
     stat_a_v:"3+",stat_a_l:"Años de experiencia",stat_b_v:"12",stat_b_l:"Tratamientos en carta",stat_c_v:"1:1",stat_c_l:"Atención personalizada"},
-  contact:{phone:"+54 9 2314 55-5856",whatsapp:"5492314555856",instagram:"@gf.studio.henderson",
+  contact:{phone:"+54 9 2314 55-5856",whatsapp:"5492314555856",instagram:"@gfstudio.ok",
     address:"Hipólito Yrigoyen 229, Henderson",hours:"Lunes a sábado · 09:00 — 18:00",email:"hola@gfstudio.com.ar"},
   faq:[
     {q:"¿Cómo reservo un turno?",a:"Desde el botón Reservá tu turno elegís servicio, día y horario. Recibís confirmación por email y Guada te confirma por WhatsApp el mismo día."},

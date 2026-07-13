@@ -12,6 +12,7 @@
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="config.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter+Tight:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
@@ -435,16 +436,16 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xm
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
 /* ============ CONFIG ============ */
-const SB_URL = "https://ibikdnjuctopdkmtmgdd.supabase.co";
-const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImliaWtkbmp1Y3RvcGRrbXRtZ2RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1MjEwOTMsImV4cCI6MjA5MTA5NzA5M30.Tzsi0ZbcdohuJLFTut4z8h2vf5yi1dv_KfA_6m6COBI";
+const SB_URL = GF_CONFIG.supabaseUrl;
+const SB_KEY = GF_CONFIG.supabaseKey;
 const sb = window.supabase.createClient(SB_URL, SB_KEY, {
   auth: { persistSession: true, autoRefreshToken: true, storageKey: "gf-studio-admin-auth" }
 });
 // Email hardcoded = identificador técnico del único usuario admin en Supabase Auth.
 // Guada solo ingresa password — el email nunca se le muestra.
-const ADMIN_EMAIL = "guadalupefernandez016@gmail.com";
-const WA_GUADA = "5492314555856";
-const WA_TEST = "5492314573218";
+const ADMIN_EMAIL = GF_CONFIG.adminEmail;
+const WA_GUADA = GF_CONFIG.whatsapp;
+const WA_TEST = GF_CONFIG.whatsappTest;
 
 /* ============ HELPERS ============ */
 const fP = n => "$" + (Number(n)||0).toLocaleString("es-AR");
@@ -1590,11 +1591,13 @@ const buildClientes = (appts, services) => {
   for(const a of appts){
     const key = (a.client_phone||"").replace(/\s/g,"") || "noph-"+(a.client_name||"");
     const price = a.charged_price || svcMap[a.service_id]?.price || 0;
+    // Solo cuenta como ingreso lo realmente atendido: no cancelado ni no-show
+    const revenue = (a.status==="completed" || a.status==="confirmed") ? price : 0;
     const ex = map.get(key);
     if(!ex){
       map.set(key, {
         phone:a.client_phone, name:a.client_name, email:a.client_email||"",
-        appts:[a], total:price, lastDate:a.appointment_date, firstDate:a.appointment_date,
+        appts:[a], total:revenue, lastDate:a.appointment_date, firstDate:a.appointment_date,
         completed: a.status==="completed"?1:0,
         cancelled: a.status==="cancelled"?1:0,
         no_show: a.status==="no_show"?1:0,
@@ -1604,7 +1607,7 @@ const buildClientes = (appts, services) => {
       });
     } else {
       ex.appts.push(a);
-      ex.total += price;
+      ex.total += revenue;
       if(a.appointment_date > ex.lastDate) ex.lastDate = a.appointment_date;
       if(a.appointment_date < ex.firstDate) ex.firstDate = a.appointment_date;
       if(a.status==="completed") ex.completed++;
@@ -4080,6 +4083,7 @@ const App = () => {
     catch { return DEFAULT_SETTINGS; }
   });
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState(null);
 
   useEffect(()=>{ localStorage.setItem("gf_admin_tab", tab); },[tab]);
   useEffect(()=>{ localStorage.setItem("gf_admin_settings", JSON.stringify(settings)); },[settings]);
@@ -4112,31 +4116,41 @@ const App = () => {
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
-    const [svcRes, pkRes, apRes, blRes, cpRes, cnRes, glRes, fqRes, fhRes] = await Promise.all([
-      sb.from("gf_services").select("*"),
-      sb.from("gf_packs").select("*").then(r=>r, ()=>({data:[]})),
-      sb.from("gf_appointments").select("*").order("appointment_date",{ascending:true}).order("time_slot",{ascending:true}),
-      sb.from("gf_blocked_slots").select("*"),
-      sb.from("gf_coupons").select("*").then(r=>r, ()=>({data:[]})),
-      sb.from("gf_content").select("*").then(r=>r, ()=>({data:[]})),
-      sb.from("gf_gallery").select("*").order("display_order",{ascending:true}).then(r=>r, ()=>({data:[]})),
-      sb.from("gf_ficha_questions").select("*").order("display_order",{ascending:true}).then(r=>r, ()=>({data:[]})),
-      sb.from("gf_fichas").select("*").order("created_at",{ascending:false}).then(r=>r, ()=>({data:[]})),
-    ]);
-    setServices((svcRes.data||[]).map(normSvc));
-    setPacks((pkRes.data||[]).map(normPack));
-    setAppts(apRes.data||[]);
-    setBlocks((blRes.data||[]).map(normBlock));
-    setCoupons((cpRes.data||[]).map(normCoupon));
-    setGallery(glRes.data||[]);
-    setFichaQuestions(fqRes.data||[]);
-    setFichas(fhRes.data||[]);
-    if(cnRes.data && cnRes.data.length){
-      const merged = {...DEFAULT_CONTENT};
-      for(const row of cnRes.data){ if(row.value) merged[row.key] = row.value; }
-      setContent(merged);
+    setLoadError(null);
+    try {
+      const [svcRes, pkRes, apRes, blRes, cpRes, cnRes, glRes, fqRes, fhRes] = await Promise.all([
+        sb.from("gf_services").select("*"),
+        sb.from("gf_packs").select("*").then(r=>r, ()=>({data:[]})),
+        sb.from("gf_appointments").select("*").order("appointment_date",{ascending:true}).order("time_slot",{ascending:true}),
+        sb.from("gf_blocked_slots").select("*"),
+        sb.from("gf_coupons").select("*").then(r=>r, ()=>({data:[]})),
+        sb.from("gf_content").select("*").then(r=>r, ()=>({data:[]})),
+        sb.from("gf_gallery").select("*").order("display_order",{ascending:true}).then(r=>r, ()=>({data:[]})),
+        sb.from("gf_ficha_questions").select("*").order("display_order",{ascending:true}).then(r=>r, ()=>({data:[]})),
+        sb.from("gf_fichas").select("*").order("created_at",{ascending:false}).then(r=>r, ()=>({data:[]})),
+      ]);
+      // Supabase devuelve {data,error} sin rechazar la promesa: chequeamos las 3 queries core a mano
+      if(svcRes.error) throw svcRes.error;
+      if(apRes.error) throw apRes.error;
+      if(blRes.error) throw blRes.error;
+      setServices((svcRes.data||[]).map(normSvc));
+      setPacks((pkRes.data||[]).map(normPack));
+      setAppts(apRes.data||[]);
+      setBlocks((blRes.data||[]).map(normBlock));
+      setCoupons((cpRes.data||[]).map(normCoupon));
+      setGallery(glRes.data||[]);
+      setFichaQuestions(fqRes.data||[]);
+      setFichas(fhRes.data||[]);
+      if(cnRes.data && cnRes.data.length){
+        const merged = {...DEFAULT_CONTENT};
+        for(const row of cnRes.data){ if(row.value) merged[row.key] = row.value; }
+        setContent(merged);
+      }
+    } catch(e) {
+      setLoadError((e && e.message) ? e.message : "No se pudo conectar a la base de datos");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   useEffect(()=>{ if(auth) fetchAll(); }, [auth, fetchAll]);
@@ -4285,7 +4299,8 @@ const App = () => {
             {fDateLong(toISO(TODAY))}
           </span>}/>
         <div className="content">
-          {loading && appts.length===0 && <div className="card"><div className="card-empty">Cargando…</div></div>}
+          {loadError && appts.length===0 && <div className="card"><div className="card-empty">No se pudo conectar a la base. Revisá tu conexión.<br/><button className="btn" style={{marginTop:10}} onClick={fetchAll}>Reintentar</button></div></div>}
+          {loading && !loadError && appts.length===0 && <div className="card"><div className="card-empty">Cargando…</div></div>}
           {tab==="turnos"     && <TurnosTab appts={appts} services={services} blocks={blocks} settings={settings} refetch={fetchAll}/>}
           {tab==="clientes"   && <ClientesTab appts={appts} services={services} fichaQuestions={fichaQuestions} fichas={fichas} refetch={fetchAll}/>}
           {tab==="ficha"      && <FichaTab questions={fichaQuestions} fichas={fichas} services={services} refetch={fetchAll}/>}
