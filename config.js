@@ -28,4 +28,40 @@ window.GF_CONFIG = {
 
   // ── Admin ──
   adminEmail:   "guadalupefernandez016@gmail.com",  // identificador técnico en Supabase Auth
+
+  // ── Paleta de marca ── cambiar acá re-viste toda la web y el panel
+  theme: {
+    "olive-dk":      "#3D4A18",  // acento principal / botones / hover
+    "olive":         "#5E6B2E",  // acento
+    "olive-lt":      "#8A9456",
+    "olive-soft":    "#B8C481",
+    "sand":          "#E8E2D4",
+    "bone":          "#F2EDE0",  // fondo
+    "cream":         "#FAF7EF",
+    "ink":           "#1A1810",  // texto
+    "ink-sec":       "#3F3B2E",
+    "muted":         "#6B6650",
+    "border":        "rgba(26,24,16,.08)",
+    "border-strong": "rgba(26,24,16,.14)",
+    "danger":        "#A33B2A",  // semántico (rojo) — normalmente no se cambia
+    "success":       "#4A6B2E",  // semántico (verde) — normalmente no se cambia
+  },
 };
+
+/* Aplica la paleta a las CSS custom properties. Un setProperty inline con
+   !important gana sobre el :root y sobre el bloque @media(prefers-color-scheme:dark),
+   así un solo lugar (este archivo) controla los colores.
+   Para GF Studio los valores son idénticos a los del CSS → no cambia nada visible.
+   Para un cliente nuevo, cambiar el bloque theme de arriba re-viste toda la web. */
+(function(){
+  try {
+    var t = (window.GF_CONFIG && window.GF_CONFIG.theme) || {};
+    var r = document.documentElement;
+    for (var k in t) { if (Object.prototype.hasOwnProperty.call(t, k)) r.style.setProperty('--'+k, t[k], 'important'); }
+    // El fondo del <html> está como literal en el CSS (no como var): lo sincronizamos también
+    if (t.bone) {
+      r.style.setProperty('background-color', t.bone, 'important');
+      r.style.setProperty('background-image', 'linear-gradient('+t.bone+','+t.bone+')', 'important');
+    }
+  } catch(e) { /* si algo falla, quedan los colores del CSS por defecto */ }
+})();
