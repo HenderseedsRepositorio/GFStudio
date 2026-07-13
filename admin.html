@@ -446,6 +446,8 @@ const sb = window.supabase.createClient(SB_URL, SB_KEY, {
 const ADMIN_EMAIL = GF_CONFIG.adminEmail;
 const WA_GUADA = GF_CONFIG.whatsapp;
 const WA_TEST = GF_CONFIG.whatsappTest;
+const BRAND = GF_CONFIG.brandName;
+const OWNER = GF_CONFIG.ownerName;
 
 /* ============ HELPERS ============ */
 const fP = n => "$" + (Number(n)||0).toLocaleString("es-AR");
@@ -460,8 +462,8 @@ const toMin = hhmm => { if(!hhmm) return 0; const [h,m]=hhmm.slice(0,5).split(":
 const toHHMM = m => String(Math.floor(m/60)).padStart(2,'0')+":"+String(m%60).padStart(2,'0');
 const mondayOf = d => { const x=new Date(d); x.setHours(12,0,0,0); const dow=x.getDay(); const diff=dow===0?-6:1-dow; x.setDate(x.getDate()+diff); return x; };
 const waTel = p => { let t=(p||"").replace(/\D/g,''); if(!t) return ""; if(t.startsWith("549")) return t; if(t.startsWith("54")) return "549"+t.slice(2); if(t.startsWith("0")) t=t.slice(1); if(t.length===10) return "549"+t; return "549"+t; };
-const waMsgConfirm = (a, svc) => `Hola ${a.client_name}! 🌿\n\nTu turno en *GF Studio* fue confirmado:\n\n📅 ${fDateLong(a.appointment_date)}\n🕐 ${a.time_slot} hs\n💆 ${svc?.name||"Servicio"}\n\nNos vemos! Cualquier consulta, escribime por acá.\n\n— Guada`;
-const waMsgCancel = (a, svc, reason) => `Hola ${a.client_name},\n\nLamento informarte que tuve que cancelar tu turno del *${fDateLong(a.appointment_date)}* a las *${a.time_slot} hs* (${svc?.name||"Servicio"}).\n${reason?`\nMotivo: ${reason}\n`:""}\nReservá un nuevo horario en gfstudio.com.ar — o respondeme acá y lo coordinamos juntas.\n\nDisculpá las molestias 🌿\n— Guada`;
+const waMsgConfirm = (a, svc) => `Hola ${a.client_name}! 🌿\n\nTu turno en *${BRAND}* fue confirmado:\n\n📅 ${fDateLong(a.appointment_date)}\n🕐 ${a.time_slot} hs\n💆 ${svc?.name||"Servicio"}\n\nNos vemos! Cualquier consulta, escribime por acá.\n\n— ${OWNER}`;
+const waMsgCancel = (a, svc, reason) => `Hola ${a.client_name},\n\nLamento informarte que tuve que cancelar tu turno del *${fDateLong(a.appointment_date)}* a las *${a.time_slot} hs* (${svc?.name||"Servicio"}).\n${reason?`\nMotivo: ${reason}\n`:""}\nReservá un nuevo horario en gfstudio.com.ar — o respondeme acá y lo coordinamos juntas.\n\nDisculpá las molestias 🌿\n— ${OWNER}`;
 
 const blockCoversSlot = (block, date, sMin, eMin) => {
   const dow = new Date(date+"T12:00:00").getDay();
@@ -901,7 +903,7 @@ const Sidebar = ({current, onNav, appts, onLogout, isMobile, drawerOpen}) => {
         <div className="user">
           <div className="av">G</div>
           <div className="tx">
-            <div className="n">Guada</div>
+            <div className="n">{OWNER}</div>
             <div className="r">Propietaria</div>
           </div>
         </div>
@@ -1651,9 +1653,9 @@ const waMessageFor = (c) => {
   const firstName = ((c.name||"").trim().split(" ")[0]||"").replace(/[^\wáéíóúñÁÉÍÓÚÑ]/g,"");
   const hi = firstName ? `Hola ${firstName}!` : "Hola!";
   const d = daysAgo(c.lastDate);
-  if(d>90) return `${hi} Soy Guada de GF Studio 🌿 Hace un tiempo que no nos vemos, te queríamos recordar que seguimos acá. ¿Te armo un turno?`;
-  if(d>30) return `${hi} ¿Cómo estás? Soy Guada de GF Studio. ¿Querés que te reserve un turno esta semana?`;
-  return `${hi} Soy Guada de GF Studio. `;
+  if(d>90) return `${hi} Soy ${OWNER} de ${BRAND} 🌿 Hace un tiempo que no nos vemos, te queríamos recordar que seguimos acá. ¿Te armo un turno?`;
+  if(d>30) return `${hi} ¿Cómo estás? Soy ${OWNER} de ${BRAND}. ¿Querés que te reserve un turno esta semana?`;
+  return `${hi} Soy ${OWNER} de ${BRAND}. `;
 };
 
 const ClientesTab = ({appts, services, fichaQuestions, fichas, refetch}) => {
@@ -2807,7 +2809,7 @@ const ContenidoTab = ({content, setContent, persist}) => {
 
       <div className="flex gap-3 mb-5 flex-wrap">
         <Tabs value={section} onChange={setSection} options={[
-          {v:"hero",l:"Hero"},{v:"about",l:"Sobre Guada"},{v:"faq",l:"FAQ"},{v:"contact",l:"Contacto"},{v:"payment",l:"Pago y señas"}
+          {v:"hero",l:"Hero"},{v:"about",l:`Sobre ${OWNER}`},{v:"faq",l:"FAQ"},{v:"contact",l:"Contacto"},{v:"payment",l:"Pago y señas"}
         ]}/>
         <div className="flex-1"/>
         <a className="btn btn-sc" href="/" target="_blank"><Icon name="eye" size={14}/> Ver landing</a>
@@ -3047,7 +3049,7 @@ const PaymentEditor = ({data, onUpdate}) => {
           <ul className="flex flex-col gap-3" style={{fontSize:13.5,color:"var(--muted)",lineHeight:1.5}}>
             <li className="flex items-start gap-3"><Icon name="check" size={14}/><span>Si la seña está <strong style={{color:"var(--ink)"}}>activada</strong>, aparece un bloque discreto en la confirmación del turno con dos opciones: <em>Mercado Pago</em> y <em>Transferencia</em>.</span></li>
             <li className="flex items-start gap-3"><Icon name="dollar" size={14}/><span><strong style={{color:"var(--ink)"}}>Mercado Pago</strong> abre el link de pago directo. Cuando MP confirma, el turno se marca automáticamente como señado.</span></li>
-            <li className="flex items-start gap-3"><Icon name="phone" size={14}/><span><strong style={{color:"var(--ink)"}}>Transferencia</strong> abre WhatsApp con un mensaje pre-armado para que le pidan el CBU/alias a Guada.</span></li>
+            <li className="flex items-start gap-3"><Icon name="phone" size={14}/><span><strong style={{color:"var(--ink)"}}>Transferencia</strong> abre WhatsApp con un mensaje pre-armado para que le pidan el CBU/alias a {OWNER}.</span></li>
             <li className="flex items-start gap-3"><Icon name="lock" size={14}/><span>La seña es <strong style={{color:"var(--ink)"}}>opcional</strong>. La clienta puede reservar sin pagar y el turno queda igual.</span></li>
             {!enabled && <li className="flex items-start gap-3" style={{color:"var(--olive-dk)"}}><Icon name="eye" size={14}/><span>Hoy la seña está <strong>apagada</strong>. Activá el toggle de la izquierda para configurarla.</span></li>}
             {enabled && !mpOn && (!data.cbu && !data.alias) && <li className="flex items-start gap-3" style={{color:"#c95555"}}><Icon name="x" size={14}/><span>La seña está activada pero no hay ningún medio configurado — cargá MP o CBU/alias para que se vea el bloque.</span></li>}

@@ -253,6 +253,8 @@ button:focus-visible,a:focus-visible,[role="button"]:focus-visible{outline:2px s
 const SB_URL=GF_CONFIG.supabaseUrl;
 const SB_KEY=GF_CONFIG.supabaseKey;
 const WA_GUADA=GF_CONFIG.whatsapp;
+const BRAND=GF_CONFIG.brandName;
+const OWNER=GF_CONFIG.ownerName;
 let sb;
 try{ sb=window.supabase.createClient(SB_URL,SB_KEY); }catch(e){ sb=null; }
 
@@ -355,7 +357,7 @@ const downloadICS=({nombre,servicio,fecha_raw,horario,dur_min})=>{
   const base=fecha_raw.replace(/-/g,'');
   const dtS=`${base}T${pad(h)}${pad(m)}00`;
   const dtE=`${base}T${pad(eh)}${pad(em2)}00`;
-  const ics=`BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//GF Studio//ES\r\nBEGIN:VEVENT\r\nSUMMARY:${servicio} - GF Studio\r\nDTSTART;TZID=America/Argentina/Buenos_Aires:${dtS}\r\nDTEND;TZID=America/Argentina/Buenos_Aires:${dtE}\r\nLOCATION:Hip\u00f3lito Yrigoyen 229, Henderson, Buenos Aires\r\nDESCRIPTION:Turno de ${nombre} en GF Studio\r\nEND:VEVENT\r\nEND:VCALENDAR`;
+  const ics=`BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//${BRAND}//ES\r\nBEGIN:VEVENT\r\nSUMMARY:${servicio} - ${BRAND}\r\nDTSTART;TZID=America/Argentina/Buenos_Aires:${dtS}\r\nDTEND;TZID=America/Argentina/Buenos_Aires:${dtE}\r\nLOCATION:Hip\u00f3lito Yrigoyen 229, Henderson, Buenos Aires\r\nDESCRIPTION:Turno de ${nombre} en ${BRAND}\r\nEND:VEVENT\r\nEND:VCALENDAR`;
   const url=URL.createObjectURL(new Blob([ics],{type:'text/calendar;charset=utf-8'}));
   const a=document.createElement('a');a.href=url;a.download='turno-gf-studio.ics';a.click();
   setTimeout(()=>URL.revokeObjectURL(url),1000);
@@ -1070,7 +1072,7 @@ const DepositBlock=({payment,data})=>{
   if(!mpUrl && !hasTransfer && !mpLoading) return null;
 
   const amountTxt=Number(payment.deposit_amount)>0 ? ` de ${fP(Number(payment.deposit_amount))}` : "";
-  const waMsg=`Hola Guada! Reservé ${data.servicio} el ${data.fecha} a las ${data.horario} hs y quiero dejar la seña${amountTxt} por transferencia. ¿Me pasás CBU/alias?`;
+  const waMsg=`Hola ${OWNER}! Reservé ${data.servicio} el ${data.fecha} a las ${data.horario} hs y quiero dejar la seña${amountTxt} por transferencia. ¿Me pasás CBU/alias?`;
   const waHref=`https://wa.me/${WA_GUADA}?text=${encodeURIComponent(waMsg)}`;
 
   return(
@@ -1099,7 +1101,7 @@ const StepExito=({data,payment,onClose,onNew})=>(
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--olive-dk)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
       </div>
       <h2 className="serif text-[2rem] leading-tight mb-2" style={{color:"var(--ink)"}}>Te esperamos, {data.nombre.split(" ")[0]}.</h2>
-      <p className="text-[13px] mb-6" style={{color:"var(--muted)"}}>Recibiste un email con los detalles. Guada va a confirmarte por WhatsApp.</p>
+      <p className="text-[13px] mb-6" style={{color:"var(--muted)"}}>Recibiste un email con los detalles. {OWNER} va a confirmarte por WhatsApp.</p>
       <div className="text-left rounded p-5 mb-5 space-y-2 max-w-sm mx-auto w-full" style={{background:"var(--bone)",border:"1px solid var(--border)"}}>
         {[
           ["Servicio",data.servicio],
@@ -1117,7 +1119,7 @@ const StepExito=({data,payment,onClose,onNew})=>(
       <DepositBlock payment={payment} data={data}/>
       <div className="flex flex-col gap-2 max-w-sm mx-auto w-full">
         <button onClick={()=>downloadICS(data)} className="btn btn-dk">Agregar al calendario</button>
-        <a href={`https://wa.me/${WA_GUADA}?text=${encodeURIComponent(`Hola Guada! Reservé un turno para ${data.servicio} el ${data.fecha} a las ${data.horario} hs.`)}`} target="_blank" rel="noopener" className="btn btn-ghost">Avisar por WhatsApp</a>
+        <a href={`https://wa.me/${WA_GUADA}?text=${encodeURIComponent(`Hola ${OWNER}! Reservé un turno para ${data.servicio} el ${data.fecha} a las ${data.horario} hs.`)}`} target="_blank" rel="noopener" className="btn btn-ghost">Avisar por WhatsApp</a>
         <button onClick={onNew} className="btn btn-ghost">Reservar otro turno</button>
       </div>
     </div>
@@ -1190,7 +1192,7 @@ const Nav=({scrolled,mobileNav,setMobileNav,onBook,onGallery})=>{
   return(
   <nav className={"fixed top-0 left-0 right-0 z-40 transition-all duration-500 "+(scrolled?"nav-scrolled":"")}>
     <div className="max-w-[1280px] mx-auto px-5 sm:px-10 flex items-center justify-between h-[72px]">
-      <a href="#top" className="logo-mark" aria-label="GF Studio">
+      <a href="#top" className="logo-mark" aria-label={BRAND}>
         <svg viewBox="0 10 100 80" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <text x="50" y="60" textAnchor="middle" fontFamily="Fraunces, 'Playfair Display', Georgia, serif" fontSize="56" fontWeight="550" letterSpacing="-2.5" fill="currentColor">GF</text>
           <line x1="14" y1="72" x2="86" y2="72" stroke="currentColor" strokeWidth="1" opacity="0.22"/>
@@ -1860,7 +1862,7 @@ const Contact=({data,onBook})=>{
           return(
             <div className="reveal mt-12 md:mt-16 rounded-sm overflow-hidden" style={{border:"1px solid rgba(250,247,239,.12)",transitionDelay:".15s"}}>
               <iframe
-                title="Ubicación de GF Studio en Henderson"
+                title={`Ubicación de ${BRAND} en Henderson`}
                 src={osmSrc}
                 width="100%" height="320"
                 style={{border:0,display:"block",filter:"grayscale(.15) contrast(.95)"}}
@@ -1884,7 +1886,7 @@ const Contact=({data,onBook})=>{
 const Footer=()=>(
   <footer className="py-10" style={{background:"var(--ink)",color:"rgba(250,247,239,.4)"}}>
     <div className="max-w-[1280px] mx-auto px-5 sm:px-10 flex flex-col sm:flex-row items-center justify-between gap-4 border-t pt-8" style={{borderColor:"rgba(250,247,239,.08)"}}>
-      <p className="mono text-[11px]">© 2026 GF Studio · Henderson, Buenos Aires</p>
+      <p className="mono text-[11px]">© 2026 {BRAND} · Henderson, Buenos Aires</p>
       <p className="mono text-[11px]">Made with care in Argentina</p>
     </div>
   </footer>
@@ -1892,7 +1894,7 @@ const Footer=()=>(
 
 /* ---------- WhatsApp float ---------- */
 const WhatsAppFloat=({phone})=>(
-  <a href={`https://wa.me/${(phone||WA_GUADA).replace(/\D/g,'')}?text=${encodeURIComponent("Hola! Quiero consultar sobre turnos en GF Studio.")}`} target="_blank" rel="noopener"
+  <a href={`https://wa.me/${(phone||WA_GUADA).replace(/\D/g,'')}?text=${encodeURIComponent(`Hola! Quiero consultar sobre turnos en ${BRAND}.`)}`} target="_blank" rel="noopener"
      aria-label="Consultar por WhatsApp"
      className="fixed bottom-6 right-6 z-30 w-12 h-12 rounded-full flex items-center justify-center transition-transform hover:scale-110"
      style={{background:"var(--olive-dk)",color:"var(--cream)",boxShadow:"0 8px 24px rgba(61,74,24,.3)"}}>
