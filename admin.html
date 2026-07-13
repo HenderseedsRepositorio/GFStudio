@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://ibikdnjuctopdkmtmgdd.supabase.co wss://ibikdnjuctopdkmtmgdd.supabase.co; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://ibikdnjuctopdkmtmgdd.supabase.co wss://ibikdnjuctopdkmtmgdd.supabase.co; base-uri 'self'; form-action 'self'">
 <title>GF Studio · Panel</title>
-<script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <script src="config.js"></script>
+<script src="/shared.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter+Tight:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
@@ -451,57 +451,14 @@ const OWNER = GF_CONFIG.ownerName;
 const CAD = (GF_CONFIG && GF_CONFIG.cadenceWeeks) || {};
 
 /* ============ HELPERS ============ */
-const fP = n => "$" + (Number(n)||0).toLocaleString("es-AR");
-const fDur = m => { const n=Number(m)||0; if(n<60) return n+" min"; const h=Math.floor(n/60), r=n%60; return r===0 ? h+" hs" : h+":"+String(r).padStart(2,'0')+" hs"; };
 const fDate = iso => { if(!iso) return ""; const d=new Date(iso+"T12:00:00"); return d.toLocaleDateString("es-AR",{weekday:"short",day:"numeric",month:"short"}); };
 const fDateLong = iso => { if(!iso) return ""; const d=new Date(iso+"T12:00:00"); return d.toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long",year:"numeric"}); };
 const fDateTime = ts => { if(!ts) return ""; const d=new Date(ts); return d.toLocaleDateString("es-AR",{weekday:"short",day:"numeric",month:"short"})+" · "+d.toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit",hourCycle:"h23"}); };
-const toISO = d => d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0');
-const addDays = (d,n) => { const x=new Date(d); x.setDate(x.getDate()+n); return x; };
 const TODAY = new Date(); TODAY.setHours(12,0,0,0);
-const toMin = hhmm => { if(!hhmm) return 0; const [h,m]=hhmm.slice(0,5).split(":").map(Number); return h*60+m; };
-const toHHMM = m => String(Math.floor(m/60)).padStart(2,'0')+":"+String(m%60).padStart(2,'0');
-const mondayOf = d => { const x=new Date(d); x.setHours(12,0,0,0); const dow=x.getDay(); const diff=dow===0?-6:1-dow; x.setDate(x.getDate()+diff); return x; };
 const waTel = p => { let t=(p||"").replace(/\D/g,''); if(!t) return ""; if(t.startsWith("549")) return t; if(t.startsWith("54")) return "549"+t.slice(2); if(t.startsWith("0")) t=t.slice(1); if(t.length===10) return "549"+t; return "549"+t; };
 const waMsgConfirm = (a, svc) => `Hola ${a.client_name}! 🌿\n\nTu turno en *${BRAND}* fue confirmado:\n\n📅 ${fDateLong(a.appointment_date)}\n🕐 ${a.time_slot} hs\n💆 ${svc?.name||"Servicio"}\n\nNos vemos! Cualquier consulta, escribime por acá.\n\n— ${OWNER}`;
 const waMsgCancel = (a, svc, reason) => `Hola ${a.client_name},\n\nLamento informarte que tuve que cancelar tu turno del *${fDateLong(a.appointment_date)}* a las *${a.time_slot} hs* (${svc?.name||"Servicio"}).\n${reason?`\nMotivo: ${reason}\n`:""}\nReservá un nuevo horario en gfstudio.com.ar — o respondeme acá y lo coordinamos juntas.\n\nDisculpá las molestias 🌿\n— ${OWNER}`;
 
-const blockCoversSlot = (block, date, sMin, eMin) => {
-  const dow = new Date(date+"T12:00:00").getDay();
-  const mb = dow===0 ? 6 : dow-1;
-  switch(block.type){
-    case "full_day": return block.block_date===date;
-    case "datetime_range": {
-      if(block.block_date!==date) return false;
-      const bs = toMin(block.start_time), be = toMin(block.end_time);
-      return bs<eMin && be>sMin;
-    }
-    case "date_range": return date>=block.date_from && date<=block.date_to;
-    case "weekly": {
-      if(block.day_of_week!==mb) return false;
-      if(block.recurring_from && date<block.recurring_from) return false;
-      if(block.recurring_to && date>block.recurring_to) return false;
-      if(block.start_time && block.end_time){
-        const bs = toMin(block.start_time), be = toMin(block.end_time);
-        return bs<eMin && be>sMin;
-      }
-      return true;
-    }
-    default: return false;
-  }
-};
-const slotAvailable = (slot, dur, appts, svcs, blocks, date) => {
-  const sMin = toMin(slot), eMin = sMin+dur;
-  for(const a of appts){
-    if(a.status==="cancelled") continue;
-    if(a.appointment_date!==date) continue;
-    const aMin = toMin(a.time_slot);
-    const aDur = (svcs.find(s=>s.id===a.service_id)?.duration_minutes)||60;
-    if(aMin<eMin && (aMin+aDur)>sMin) return false;
-  }
-  for(const b of blocks){ if(blockCoversSlot(b,date,sMin,eMin)) return false; }
-  return true;
-};
 
 const STATUS_LABELS = { pending:"Pendiente", confirmed:"Confirmado", cancelled:"Cancelado", completed:"Realizado", no_show:"No vino" };
 const STATUS_TONES = { pending:"wait", confirmed:"ok", cancelled:"err", completed:"dk", no_show:"err" };

@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, staging]
   pull_request:
-    branches: [main]
+    branches: [main, staging]
 
 jobs:
   secret-scan:
@@ -67,10 +67,24 @@ jobs:
             fi
           done
 
+  node-tests:
+    name: Node tests (smoke + CRM logic)
+    runs-on: ubuntu-latest
+    needs: [secret-scan, html-basic-check]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Smoke test (archivos + estructura + CDN)
+        run: node tests/test-smoke.js
+      - name: CRM logic test (cadencia + segmentación + merge)
+        run: node tests/crm-logic.test.js
+
   smoke-prod:
     name: Smoke prod (post-deploy)
     runs-on: ubuntu-latest
-    needs: [secret-scan, html-basic-check]
+    needs: [secret-scan, html-basic-check, node-tests]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - name: Esperar Vercel deploy (~60s)

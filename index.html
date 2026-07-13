@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://ibikdnjuctopdkmtmgdd.supabase.co wss://ibikdnjuctopdkmtmgdd.supabase.co; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://ibikdnjuctopdkmtmgdd.supabase.co wss://ibikdnjuctopdkmtmgdd.supabase.co; base-uri 'self'; form-action 'self'">
 <title>GF Studio — El arte de cuidarte · Henderson, Buenos Aires</title>
 <meta name="description" content="GF Studio — Tratamientos profesionales de belleza y cuidado de la piel en Henderson, Buenos Aires. Reservá tu turno online.">
 <meta property="og:title" content="GF Studio — El arte de cuidarte">
@@ -22,12 +22,12 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BeautySalon","name":"GF Studio","url":"https://gf-studio.vercel.app","telephone":"+5492314555856","address":{"@type":"PostalAddress","streetAddress":"Hipólito Yrigoyen 229","addressLocality":"Henderson","addressRegion":"Buenos Aires","addressCountry":"AR"},"openingHoursSpecification":{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],"opens":"09:00","closes":"18:00"}}
 </script>
-<script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <script src="config.js"></script>
+<script src="/shared.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Inter+Tight:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -263,48 +263,17 @@ let SLOT_START=9*60, SLOT_END=18*60, SLOT_STEP=30, BREAK_START=0, BREAK_END=0;
 /* ═══════════ HELPERS ═══════════ */
 const{useState,useEffect,useCallback,useRef,useMemo}=React;
 
-const fP=n=>"$"+(Number(n)||0).toLocaleString("es-AR");
-const fDur=m=>{const n=Number(m)||0; if(n<60) return n+" min"; const h=Math.floor(n/60), r=n%60; return r===0 ? h+" hs" : h+":"+String(r).padStart(2,'0')+" hs";};
-const toMin=t=>{const[h,m]=t.split(":").map(Number);return h*60+m};
-const toHHMM=m=>`${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;
 const shortHM=hhmm=>{const[h,m]=hhmm.split(":");return `${parseInt(h,10)}:${m}`};
 
 const MONTH_FULL=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
 const MONTH_ABBR=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
 const DAY_ABBR=["dom","lun","mar","mié","jue","vie","sáb"];
 
-const toISO=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0');
 const fromISO=s=>new Date(s+"T12:00:00");
-const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
-const mondayOf=d=>{const x=new Date(d);const dow=x.getDay();const diff=dow===0?-6:1-dow;x.setDate(x.getDate()+diff);x.setHours(12,0,0,0);return x};
 const weekDaysFrom=monday=>Array.from({length:6},(_,i)=>addDays(monday,i));
 
 const genSlots=dur=>{const s=[];for(let t=SLOT_START;t+dur<=SLOT_END;t+=SLOT_STEP){if(BREAK_START>0&&BREAK_END>BREAK_START&&t<BREAK_END&&t+dur>BREAK_START)continue;s.push(toHHMM(t))}return s};
 
-const blockCoversSlot=(block,date,sMin,eMin)=>{
-  const dow=new Date(date+"T12:00:00").getDay();
-  const mb=dow===0?6:dow-1;
-  switch(block.type){
-    case"full_day": return block.block_date===date;
-    case"datetime_range":{
-      if(block.block_date!==date)return false;
-      const bs=toMin(block.start_time.slice(0,5)),be=toMin(block.end_time.slice(0,5));
-      return bs<eMin&&be>sMin;
-    }
-    case"date_range": return date>=block.date_from&&date<=block.date_to;
-    case"weekly":{
-      if(block.day_of_week!==mb)return false;
-      if(block.recurring_from&&date<block.recurring_from)return false;
-      if(block.recurring_to&&date>block.recurring_to)return false;
-      if(block.start_time&&block.end_time){
-        const bs=toMin(block.start_time.slice(0,5)),be=toMin(block.end_time.slice(0,5));
-        return bs<eMin&&be>sMin;
-      }
-      return true;
-    }
-    default: return false;
-  }
-};
 
 const dayHasSlots=(iso,dur,blocks,minISO)=>{
   if(iso<minISO)return false;
@@ -318,17 +287,6 @@ const dayHasSlots=(iso,dur,blocks,minISO)=>{
   return false;
 };
 
-const slotAvailable=(slot,dur,appts,svcs,blocks,date)=>{
-  const sMin=toMin(slot),eMin=sMin+dur;
-  for(const a of appts){
-    if(a.status==="cancelled")continue;
-    const aMin=toMin(a.time_slot);
-    const aDur=(svcs.find(s=>s.id===a.service_id)?.duration_minutes)||60;
-    if(aMin<eMin&&(aMin+aDur)>sMin)return false;
-  }
-  for(const b of blocks){if(blockCoversSlot(b,date,sMin,eMin))return false}
-  return true;
-};
 
 const EMAIL_TYPOS={"gmial.com":"gmail.com","gamil.com":"gmail.com","gmaol.com":"gmail.com","gmal.com":"gmail.com","gnail.com":"gmail.com","hotmial.com":"hotmail.com","hotamail.com":"hotmail.com","hotnail.com":"hotmail.com","yaho.com":"yahoo.com","yahooo.com":"yahoo.com","outlok.com":"outlook.com","outlookk.com":"outlook.com"};
 const suggestEmail=em=>{const at=em.lastIndexOf("@");if(at<0)return null;const dom=em.slice(at+1).toLowerCase();return EMAIL_TYPOS[dom]?em.slice(0,at+1)+EMAIL_TYPOS[dom]:null};

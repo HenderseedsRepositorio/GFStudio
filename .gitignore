@@ -23,3 +23,7 @@ Thumbs.db
 # Imports históricos (copias viejas del código con secrets expuestos)
 IMPORTADO DE CLAUDE DESIGNGF Studio/
 10-CARPETA DE CONTEXTO PARA IA/
+
+# Datos sensibles (defensa en profundidad)
+*.xlsx
+*.csv
