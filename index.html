@@ -264,7 +264,7 @@ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); }catch(e){ sb=null; }
 let SLOT_START=9*60, SLOT_END=18*60, SLOT_STEP=30, BREAK_START=0, BREAK_END=0;
 
 /* ═══════════ HELPERS ═══════════ */
-const{useState,useEffect,useCallback,useRef,useMemo}=React;
+const{useState,useEffect,useCallback,useMemo}=React;
 
 const shortHM=hhmm=>{const[h,m]=hhmm.split(":");return `${parseInt(h,10)}:${m}`};
 
@@ -1326,60 +1326,6 @@ const Services=({svcs,onPick})=>(
     </div>
   </section>
 );
-
-/* ---------- Promos (auto desde cupones activos públicos) ---------- */
-const Promos=({coupons,onBook})=>{
-  const visibleCoupons=coupons.filter(c=>c.active);
-  if(!visibleCoupons.length)return null;
-  const main=visibleCoupons[0];
-  const second=visibleCoupons[1];
-  const fmt=c=>c.type==="percent"?`${c.value}% OFF`:`${fP(c.value)} OFF`;
-  return(
-    <section id="promos" className="py-20 sm:py-28" style={{background:"var(--cream)"}}>
-      <div className="max-w-[1280px] mx-auto px-5 sm:px-10">
-        <div className="reveal mb-10">
-          <span className="sec-label mb-4" style={{color:"var(--olive)"}}>Este mes</span>
-          <h2 className="serif text-[clamp(2rem,4.5vw,3.5rem)] leading-[1.05] mt-4" style={{color:"var(--ink)"}}>
-            Destacados y <em style={{color:"var(--olive)"}}>cupones</em>
-          </h2>
-        </div>
-        <div className={`grid grid-cols-1 ${second?"md:grid-cols-3":"md:grid-cols-1"} gap-4 reveal`}>
-          <div className={second?"md:col-span-2 promo":"promo"} style={{minHeight:"280px"}}>
-            <div className="flex items-start justify-between mb-6">
-              <span className="mono text-[10px] uppercase tracking-[.25em] px-3 py-1 rounded-full" style={{background:"rgba(255,255,255,.12)",color:"var(--cream)"}}>Cupón</span>
-              <span className="mono text-[10px] tracking-[.2em]" style={{color:"rgba(250,247,239,.5)"}}>— {fmt(main)}</span>
-            </div>
-            <h3 className="serif text-[clamp(2rem,5vw,3.5rem)] leading-tight mb-4" style={{color:"var(--cream)"}}>{main.name||main.code}</h3>
-            <p className="text-[14px] leading-relaxed max-w-md mb-8" style={{color:"rgba(250,247,239,.75)"}}>
-              Usá el código <strong className="mono" style={{color:"var(--cream)"}}>{main.code}</strong> en tu próxima reserva.
-              {main.first_visit_only&&" Solo nuevos clientes."}
-              {main.valid_to&&` Vigente hasta el ${new Date(main.valid_to).toLocaleDateString("es-AR",{day:"numeric",month:"long"})}.`}
-            </p>
-            <button onClick={onBook} className="btn" style={{background:"var(--cream)",color:"var(--ink)"}}>
-              Reservar y aplicar
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </button>
-          </div>
-          {second&&(
-            <div className="rounded-sm p-8 flex flex-col justify-between" style={{background:"rgba(94,107,46,.08)",border:"1px solid var(--border)",minHeight:"280px"}}>
-              <div>
-                <span className="mono text-[10px] uppercase tracking-[.25em] px-3 py-1 rounded-full inline-block mb-6" style={{background:"rgba(94,107,46,.12)",color:"var(--olive-dk)"}}>{fmt(second)}</span>
-                <h3 className="serif text-[24px] leading-tight mb-4" style={{color:"var(--ink)"}}>{second.name||second.code}</h3>
-                <p className="text-[13px] leading-relaxed" style={{color:"var(--muted)"}}>Usá <strong className="mono" style={{color:"var(--olive-dk)"}}>{second.code}</strong> al reservar.</p>
-              </div>
-              <div className="mt-6 pt-4 border-t" style={{borderColor:"var(--border)"}}>
-                <button onClick={onBook} className="text-[12px] font-medium flex items-center gap-2 link-u" style={{color:"var(--olive-dk)"}}>
-                  Reservar
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
-  );
-};
 
 /* ---------- Packs ---------- */
 const Packs=({packs,onBook})=>{

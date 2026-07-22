@@ -249,8 +249,6 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xm
 .chip.warn{background:rgba(196,130,46,.14);color:#8B5A1F}
 .chip.err{background:rgba(163,59,42,.12);color:var(--danger)}
 .chip.dk{background:var(--ink);color:var(--cream)}
-.chip.live::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;animation:blink 2s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
 
 .tabs{display:inline-flex;background:rgba(26,24,16,.05);border-radius:3px;padding:3px;gap:2px}
 .tabs button{
@@ -425,7 +423,6 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xm
     transition-duration:.01ms !important;
     scroll-behavior:auto !important;
   }
-  .chip.live::before{animation:none !important}
 }
 </style>
 <link rel="stylesheet" href="/utilities.css">
@@ -446,7 +443,6 @@ const sb = window.supabase.createClient(SB_URL, SB_KEY, {
 // Guada solo ingresa password — el email nunca se le muestra.
 const ADMIN_EMAIL = GF_CONFIG.adminEmail;
 const WA_GUADA = GF_CONFIG.whatsapp;
-const WA_TEST = GF_CONFIG.whatsappTest;
 const BRAND = GF_CONFIG.brandName;
 const OWNER = GF_CONFIG.ownerName;
 const IG_HANDLE = GF_CONFIG.instagram;
@@ -459,7 +455,6 @@ const fDateTime = ts => { if(!ts) return ""; const d=new Date(ts); return d.toLo
 const TODAY = new Date(); TODAY.setHours(12,0,0,0);
 const waTel = p => { let t=(p||"").replace(/\D/g,''); if(!t) return ""; if(t.startsWith("549")) return t; if(t.startsWith("54")) return "549"+t.slice(2); if(t.startsWith("0")) t=t.slice(1); if(t.length===10) return "549"+t; return "549"+t; };
 const waMsgConfirm = (a, svc) => `Hola ${a.client_name}! 🌿\n\nTu turno en *${BRAND}* fue confirmado:\n\n📅 ${fDateLong(a.appointment_date)}\n🕐 ${a.time_slot} hs\n💆 ${svc?.name||"Servicio"}\n\nNos vemos! Cualquier consulta, escribime por acá.\n\n— ${OWNER}`;
-const waMsgCancel = (a, svc, reason) => `Hola ${a.client_name},\n\nLamento informarte que tuve que cancelar tu turno del *${fDateLong(a.appointment_date)}* a las *${a.time_slot} hs* (${svc?.name||"Servicio"}).\n${reason?`\nMotivo: ${reason}\n`:""}\nReservá un nuevo horario en gfstudio.com.ar — o respondeme acá y lo coordinamos juntas.\n\nDisculpá las molestias 🌿\n— ${OWNER}`;
 
 
 const STATUS_LABELS = { pending:"Pendiente", confirmed:"Confirmado", cancelled:"Cancelado", completed:"Realizado", no_show:"No vino" };
@@ -3074,39 +3069,6 @@ const FAQEditor = ({data, onUpdate}) => {
                 </div>
                 <button className="btn btn-dg btn-sm" onClick={()=>del(i)} aria-label="Eliminar pregunta"><Icon name="trash" size={13}/></button>
               </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-const TestimonialsEditor = ({data, onUpdate}) => {
-  const upd = (i,patch) => onUpdate(data.map((t,idx)=>idx===i?{...t,...patch}:t));
-  const add = () => onUpdate([...data, {name:"",svc:"",text:"",rating:5,visible:true}]);
-  const del = i => onUpdate(data.filter((_,idx)=>idx!==i));
-  return (
-    <div>
-      <div className="flex justify-end mb-4"><button className="btn btn-pr" onClick={add}><Icon name="plus"/> Nuevo testimonio</button></div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {data.map((t,i)=>(
-          <div key={i} className="card">
-            <div className="card-bd flex flex-col gap-3">
-              <div className="flex items-center justify-between">
-                <Toggle checked={t.visible} onChange={v=>upd(i,{visible:v})} label="Visible"/>
-                <button className="btn btn-dg btn-sm" onClick={()=>del(i)} aria-label="Eliminar testimonio"><Icon name="trash" size={13}/></button>
-              </div>
-              <Field label="Nombre"><input className="inp" value={t.name} onChange={e=>upd(i,{name:e.target.value})}/></Field>
-              <Field label="Servicio"><input className="inp" value={t.svc} onChange={e=>upd(i,{svc:e.target.value})}/></Field>
-              <Field label="Texto"><textarea className="inp" rows="4" value={t.text} onChange={e=>upd(i,{text:e.target.value})}/></Field>
-              <Field label="Calificación">
-                <div className="flex gap-1">
-                  {[1,2,3,4,5].map(n=>(
-                    <button key={n} onClick={()=>upd(i,{rating:n})} style={{border:"none",background:"none",cursor:"pointer",fontSize:20,color:n<=t.rating?"var(--olive)":"var(--border-strong)"}}>★</button>
-                  ))}
-                </div>
-              </Field>
             </div>
           </div>
         ))}
