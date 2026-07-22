@@ -411,6 +411,7 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xm
 
 /* Toast */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--cream);padding:12px 22px;border-radius:2px;font-size:13px;z-index:200;box-shadow:0 10px 30px rgba(0,0,0,.2);opacity:0;transition:opacity .25s,transform .25s}
+.savebar{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:14px;background:var(--ink);color:var(--cream);padding:9px 10px 9px 20px;border-radius:999px;box-shadow:0 10px 32px rgba(26,24,16,.35);white-space:nowrap;max-width:calc(100vw - 32px)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(-8px)}
 @media(max-width:900px){.toast{bottom:80px}}
 @media(max-width:640px){.toast{bottom:20px;left:10px;right:10px;transform:none;font-size:12px;padding:10px 16px}.toast.show{transform:translateY(-6px)}}
@@ -2927,10 +2928,21 @@ const CouponEditor = ({c, onChange, services, packs}) => {
   );
 };
 
+/* Barra flotante "Cambios sin guardar" — visible abajo mientras haya edición pendiente */
+const SaveBar = ({show, onSave, saving}) => show ? (
+  <div className="savebar" role="status">
+    <span className="mono" style={{fontSize:10.5,letterSpacing:".14em",textTransform:"uppercase",color:"var(--olive-soft)"}}>Cambios sin guardar</span>
+    <button className="btn btn-pr btn-sm" onClick={onSave} disabled={!!saving}><Icon name="check" size={13}/> {saving?"Guardando…":"Guardar"}</button>
+  </div>
+) : null;
+
 /* ============ CONTENIDO TAB ============ */
 const ContenidoTab = ({content, setContent, persist}) => {
   const [section, setSection] = useState("hero");
-  const u = (k,v) => setContent({...content, [k]:v});
+  const [dirty, setDirty] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const u = (k,v) => { setContent({...content, [k]:v}); setDirty(true); };
+  const doSave = async () => { setSaving(true); const ok = await persist(); setSaving(false); if(ok!==false) setDirty(false); };
   return (
     <>
       <div className="strip">
@@ -2939,7 +2951,7 @@ const ContenidoTab = ({content, setContent, persist}) => {
           <h2 className="mt-2">Contenido <em>editable.</em></h2>
           <p>Todo lo que las visitantes leen en la landing vive acá. Cambios se reflejan al instante.</p>
         </div>
-        <div className="kpis"><button className="btn btn-pr" onClick={persist}><Icon name="check" size={13}/> Guardar todo</button></div>
+        <div className="kpis"><button className="btn btn-pr" onClick={doSave}><Icon name="check" size={13}/> Guardar todo</button></div>
       </div>
 
       <div className="flex gap-3 mb-5 flex-wrap">
@@ -2955,6 +2967,7 @@ const ContenidoTab = ({content, setContent, persist}) => {
       {section==="faq" && <FAQEditor data={content.faq||[]} onUpdate={v=>u("faq",v)}/>}
       {section==="contact" && <ContactEditor data={content.contact} onUpdate={v=>u("contact",v)}/>}
       {section==="payment" && <PaymentEditor data={content.payment||{}} onUpdate={v=>u("payment",v)}/>}
+      <SaveBar show={dirty} onSave={doSave} saving={saving}/>
     </>
   );
 };
@@ -3889,6 +3902,7 @@ const TestimoniosTab = ({content, persist}) => {
         {dirty && <span className="mono" style={{fontSize:11,color:"var(--warn,#c4822e)",letterSpacing:".12em",textTransform:"uppercase"}}>Cambios sin guardar</span>}
         <button className="btn btn-sc" disabled={!dirty} onClick={save}>Guardar</button>
       </div>
+      <SaveBar show={dirty} onSave={save}/>
 
       {list.length===0 ? (
         <EmptyState icon="chart" title="Sin testimonios" desc="Agregá reseñas reales para que aparezcan en la landing." action={<button className="btn btn-pr" onClick={add}><Icon name="plus"/> Nuevo testimonio</button>}/>
@@ -4301,6 +4315,7 @@ const App = () => {
     const { error } = await sb.from("gf_content").upsert(rows);
     if(error) toast("Error: "+error.message+" — ¿migración aplicada?");
     else toast("Contenido guardado");
+    return !error;
   };
 
   const persistSettings = async () => {
