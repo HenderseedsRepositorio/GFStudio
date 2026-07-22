@@ -31,6 +31,10 @@ IMPORTADO DE CLAUDE DESIGNGF Studio/
 # Artefactos de sesiones de testing/browser (no son parte del sitio)
 .playwright-mcp/
 _archivo-skills/
+
+# Material de imprenta (vive en otro proyecto, no en este repo)
+assets/logo/calcos-imprenta/
+assets/logo/calcos.html
 # Screenshots sueltos en raíz (og-image.png sí es parte del sitio)
 /*.png
 !/og-image.png
