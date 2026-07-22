@@ -255,6 +255,8 @@ const SB_KEY=GF_CONFIG.supabaseKey;
 const WA_GUADA=GF_CONFIG.whatsapp;
 const BRAND=GF_CONFIG.brandName;
 const OWNER=GF_CONFIG.ownerName;
+const IG_HANDLE=GF_CONFIG.instagram;
+const IG_URL="https://www.instagram.com/"+(IG_HANDLE||"").replace(/^@/,"");
 let sb;
 try{ sb=window.supabase.createClient(SB_URL,SB_KEY); }catch(e){ sb=null; }
 
@@ -331,7 +333,7 @@ const DEFAULT_CONTENT={
     body_main:"Soy Guada. GF Studio nació de la idea de brindar un servicio de belleza de verdad: con tiempo para cada piel, técnica profesional y productos que elijo uno por uno. Un espacio donde cuidarse es una experiencia, no un trámite.",
     body_sec:"Me especializo en cejas, faciales y terapias combinadas. Cada sesión arranca con una consulta breve: no todas las pieles son iguales, ni todas las cejas quieren lo mismo.",
     stat_a_v:"3+",stat_a_l:"Años de experiencia",stat_b_v:"12",stat_b_l:"Tratamientos en carta",stat_c_v:"1:1",stat_c_l:"Atención personalizada"},
-  contact:{phone:"+54 9 2314 55-5856",whatsapp:"5492314555856",instagram:"@gfstudio.ok",
+  contact:{phone:"+54 9 2314 55-5856",whatsapp:"5492314555856",instagram:IG_HANDLE,
     address:"Hipólito Yrigoyen 229, Henderson",hours:"Lunes a sábado · 09:00 — 18:00",email:"hola@gfstudio.com.ar"},
   faq:[
     {q:"¿Cómo reservo un turno?",a:"Desde el botón Reservá tu turno elegís servicio, día y horario. Recibís confirmación por email y Guada te confirma por WhatsApp el mismo día."},
@@ -1685,7 +1687,7 @@ const EmptyGallery=()=>(
     <p className="text-[14px] max-w-md mx-auto leading-relaxed" style={{color:"var(--muted)"}}>
       Estamos preparando la galería con trabajos recientes. Mientras tanto, seguinos en Instagram para ver los resultados del día a día.
     </p>
-    <a href="https://www.instagram.com/gfstudio.ok" target="_blank" rel="noopener" className="btn btn-ghost mt-8">
+    <a href={IG_URL} target="_blank" rel="noopener" className="btn btn-ghost mt-8">
       Ver Instagram
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
     </a>
@@ -1797,7 +1799,7 @@ const Contact=({data,onBook})=>{
                 {k:"Dirección",v:c.address||"Hipólito Yrigoyen 229\nHenderson, Buenos Aires"},
                 {k:"Horarios", v:c.hours||"Lunes a sábado\n09:00 — 18:00 hs"},
                 {k:"WhatsApp", v:c.phone||"+54 9 2314 55-5856"},
-                {k:"Instagram",v:c.instagram||"@gfstudio.ok"},
+                {k:"Instagram",v:c.instagram||IG_HANDLE},
                 ...(c.email?[{k:"Email",v:c.email}]:[]),
               ].map((r,i)=>(
                 <div key={i} className="flex items-start justify-between gap-4 sm:gap-6 py-5 border-t" style={{borderColor:"rgba(250,247,239,.1)"}}>

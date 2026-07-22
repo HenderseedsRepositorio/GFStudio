@@ -80,6 +80,8 @@ jobs:
         run: node tests/test-smoke.js
       - name: CRM logic test (cadencia + segmentación + merge)
         run: node tests/crm-logic.test.js
+      - name: Instagram single-handle test (config como fuente única)
+        run: node tests/instagram-single-handle.test.js
 
   smoke-prod:
     name: Smoke prod (post-deploy)
