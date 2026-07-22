@@ -27,3 +27,10 @@ IMPORTADO DE CLAUDE DESIGNGF Studio/
 # Datos sensibles (defensa en profundidad)
 *.xlsx
 *.csv
+
+# Artefactos de sesiones de testing/browser (no son parte del sitio)
+.playwright-mcp/
+_archivo-skills/
+# Screenshots sueltos en raíz (og-image.png sí es parte del sitio)
+/*.png
+!/og-image.png
