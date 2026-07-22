@@ -75,7 +75,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
+      - name: Build de producción (transpila JSX — si falla acá, Vercel también fallaría)
+        run: |
+          npm ci
+          npm run build
       - name: Smoke test (archivos + estructura + CDN)
         run: node tests/test-smoke.js
       - name: CRM logic test (cadencia + segmentación + merge)

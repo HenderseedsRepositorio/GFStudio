@@ -28,6 +28,10 @@ IMPORTADO DE CLAUDE DESIGNGF Studio/
 *.xlsx
 *.csv
 
+# Build (Vercel genera dist/ en cada deploy; node_modules solo para devDependencies del build)
+node_modules/
+dist/
+
 # Artefactos de sesiones de testing/browser (no son parte del sitio)
 .playwright-mcp/
 _archivo-skills/
