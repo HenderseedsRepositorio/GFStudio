@@ -1326,8 +1326,6 @@ const NewApptDrawer = ({open, onClose, services, appts, blocks, settings, onCrea
   );
 };
 
-const CASH_DISCOUNT = 0.10; // 10% descuento efectivo
-
 const ApptDetail = ({a, svc, onUpdate, services, appts, blocks, settings}) => {
   const listPrice = svc?.price || 0;
   const saveTimer = useRef(null);
@@ -1391,12 +1389,6 @@ const ApptDetail = ({a, svc, onUpdate, services, appts, blocks, settings}) => {
   const u = (k,v) => {
     setDraft(d=>{
       const next = {...d,[k]:v};
-      if(k==="payment_method" && v==="efectivo" && listPrice>0){
-        next.charged_price = Math.round(listPrice * (1 - CASH_DISCOUNT));
-      }
-      if(k==="payment_method" && v!=="efectivo" && d.payment_method==="efectivo" && Number(d.charged_price)===Math.round(listPrice*(1-CASH_DISCOUNT))){
-        next.charged_price = "";
-      }
       autoSave(next);
       return next;
     });
@@ -1445,8 +1437,6 @@ const ApptDetail = ({a, svc, onUpdate, services, appts, blocks, settings}) => {
     onUpdate({status:"cancelled"});
     toast("Turno cancelado");
   };
-
-  const isCashDiscount = draft.payment_method==="efectivo" && listPrice>0;
 
   return (
     <div className="flex flex-col gap-4">
@@ -1527,13 +1517,10 @@ const ApptDetail = ({a, svc, onUpdate, services, appts, blocks, settings}) => {
             <div className="mono" style={{fontSize:10,letterSpacing:".15em",textTransform:"uppercase",color:"var(--muted)",marginBottom:4}}>Lista</div>
             <div className="mono" style={{fontSize:14,color:"var(--ink)",fontWeight:600}}>{fP(listPrice)}</div>
           </div>
-          <Field label={isCashDiscount ? `Cobrado (−${CASH_DISCOUNT*100}% efvo)` : "Monto cobrado"} grow>
+          <Field label="Monto cobrado" grow>
             <input className="inp num" type="number" value={draft.charged_price} onChange={e=>{setDraft(d=>({...d,charged_price:e.target.value}));autoSave({...draft,charged_price:e.target.value})}} placeholder={listPrice?String(listPrice):""}/>
           </Field>
         </div>
-        {isCashDiscount && Number(draft.charged_price)===Math.round(listPrice*(1-CASH_DISCOUNT)) && (
-          <div className="mono" style={{fontSize:10.5,color:"var(--success)",padding:"4px 0"}}>Descuento efectivo aplicado: {fP(listPrice)} → {fP(draft.charged_price)}</div>
-        )}
         <Field label="Cupón" grow>
           <input className="inp mono" value={draft.coupon_code} onChange={e=>u("coupon_code",e.target.value.toUpperCase())} placeholder="sin cupón"/>
         </Field>
