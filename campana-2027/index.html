@@ -1,0 +1,1688 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lanzamiento GF Studio 2027</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Campaña de lanzamiento de GF Studio (Henderson, marzo 2027): concepto, reels, antes y después, feed, calendario, ofertas y métricas. Borrador para analizar.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Inter+Tight:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: cuaderno de campaña. Índice fijo arriba; cada sección abre con su rótulo a la izquierda
+   y el contenido a la derecha. Los mockups (celulares, feed, stories, afiches) son "piezas impresas":
+   usan la paleta de marca fija en ambos temas, apoyadas sobre el papel de la página. */
+:root{
+  --bg:#F2EDE0; --surface:#FAF7EF; --sunk:#E8E2D4; --ink:#1A1810; --ink-2:#3F3B2E; --muted:#6B6650;
+  --accent:#3D4A18; --accent-2:#5E6B2E; --on-accent:#FAF7EF;
+  --line:rgba(26,24,16,.12); --line-strong:rgba(26,24,16,.24); --focus:#5E6B2E;
+  --bezel:#16170F; --shadow:0 18px 40px -18px rgba(26,24,16,.35);
+
+  --ph-prep-bg:#E3DCCB; --ph-prep-fg:#3F3B2E;
+  --ph-exp-bg:#DCE3BF;  --ph-exp-fg:#2E3812;
+  --ph-lan-bg:#3D4A18;  --ph-lan-fg:#FAF7EF;
+  --ph-sos-bg:#8A9456;  --ph-sos-fg:#14150D;
+
+  --c-reel-bg:#3D4A18; --c-reel-fg:#FAF7EF;
+  --c-car-bg:#DCE3BF;  --c-car-fg:#2E3812;
+  --c-sto-bg:#E3DCCB;  --c-sto-fg:#3F3B2E;
+  --c-evt-bg:#F1DCB8;  --c-evt-fg:#6B3E08;
+  --c-hol-bg:#F1D6CE;  --c-hol-fg:#7A2A1C;
+
+  --b1:#3D4A18; --b2:#6E7B3A; --b3:#A3AD6A; --b4:#C9A86A; --b5:#8C6A4A; --b6:#CFC6AE; --b7:#5A5644;
+
+  /* piezas gráficas: idénticas en claro y oscuro */
+  --art-olive:#3D4A18; --art-olive-2:#5E6B2E; --art-sage:#8A9456; --art-soft:#B8C481;
+  --art-sand:#E8E2D4; --art-bone:#F2EDE0; --art-cream:#FAF7EF; --art-ink:#1A1810;
+  --art-skin:#E8CBB0; --art-skin-2:#C99D7C; --art-brow:#4A3426; --art-spot:#A87B5A;
+
+  --display:'Fraunces', Georgia, 'Times New Roman', serif;
+  --body:'Inter Tight', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --step--2:.75rem; --step--1:.8125rem; --step-0:1rem; --step-1:1.1875rem; --step-2:1.5rem; --step-3:clamp(1.75rem,3.4vw,2.375rem); --step-4:clamp(2.75rem,8vw,5.25rem);
+  --wrap:1180px; --r:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#12130C; --surface:#1B1D13; --sunk:#25271B; --ink:#EEE8D8; --ink-2:#D2CBB6; --muted:#A39D86;
+    --accent:#B8C481; --accent-2:#A3AD6A; --on-accent:#14150D;
+    --line:rgba(238,232,216,.12); --line-strong:rgba(238,232,216,.26); --focus:#B8C481;
+    --bezel:#080905; --shadow:0 18px 40px -18px rgba(0,0,0,.7);
+    --ph-prep-bg:#2A2C20; --ph-prep-fg:#D2CBB6;
+    --ph-exp-bg:#2E3518;  --ph-exp-fg:#D7E0AE;
+    --ph-lan-bg:#B8C481;  --ph-lan-fg:#14150D;
+    --ph-sos-bg:#5E6B2E;  --ph-sos-fg:#EEE8D8;
+    --c-reel-bg:#B8C481; --c-reel-fg:#14150D;
+    --c-car-bg:#2E3518;  --c-car-fg:#D7E0AE;
+    --c-sto-bg:#2A2C20;  --c-sto-fg:#D2CBB6;
+    --c-evt-bg:#3A2A12;  --c-evt-fg:#F0C68A;
+    --c-hol-bg:#3A1C16;  --c-hol-fg:#F0A898;
+    --b1:#B8C481; --b2:#8A9456; --b3:#5E6B2E; --b4:#C9A86A; --b5:#A47E5A; --b6:#4A4C3C; --b7:#7E7962;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#12130C; --surface:#1B1D13; --sunk:#25271B; --ink:#EEE8D8; --ink-2:#D2CBB6; --muted:#A39D86;
+  --accent:#B8C481; --accent-2:#A3AD6A; --on-accent:#14150D;
+  --line:rgba(238,232,216,.12); --line-strong:rgba(238,232,216,.26); --focus:#B8C481;
+  --bezel:#080905; --shadow:0 18px 40px -18px rgba(0,0,0,.7);
+  --ph-prep-bg:#2A2C20; --ph-prep-fg:#D2CBB6;
+  --ph-exp-bg:#2E3518;  --ph-exp-fg:#D7E0AE;
+  --ph-lan-bg:#B8C481;  --ph-lan-fg:#14150D;
+  --ph-sos-bg:#5E6B2E;  --ph-sos-fg:#EEE8D8;
+  --c-reel-bg:#B8C481; --c-reel-fg:#14150D;
+  --c-car-bg:#2E3518;  --c-car-fg:#D7E0AE;
+  --c-sto-bg:#2A2C20;  --c-sto-fg:#D2CBB6;
+  --c-evt-bg:#3A2A12;  --c-evt-fg:#F0C68A;
+  --c-hol-bg:#3A1C16;  --c-hol-fg:#F0A898;
+  --b1:#B8C481; --b2:#8A9456; --b3:#5E6B2E; --b4:#C9A86A; --b5:#A47E5A; --b6:#4A4C3C; --b7:#7E7962;
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 var(--step-0)/1.55 var(--body);letter-spacing:-.003em;overflow-x:clip}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+a{color:var(--accent-2)}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:4px}
+.wrap{max-width:var(--wrap);margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.serif{font-family:var(--display)}
+.tnum{font-variant-numeric:tabular-nums}
+.eyebrow{font-size:var(--step--2);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.muted{color:var(--muted)}
+.sup{display:inline-block;font-size:var(--step--2);letter-spacing:.06em;text-transform:uppercase;font-weight:600;color:var(--c-evt-fg);background:var(--c-evt-bg);border-radius:999px;padding:1px 8px;vertical-align:2px;white-space:nowrap}
+h3{font-family:var(--display);font-weight:500;font-size:var(--step-2);line-height:1.15;letter-spacing:-.01em;margin:0 0 8px;text-wrap:balance}
+h4{font-size:var(--step-0);font-weight:600;margin:0 0 6px}
+p{margin:0 0 10px}
+ul.clean{list-style:none;margin:0;padding:0}
+
+/* ── nav ── */
+.topnav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.topnav .wrap{display:flex;align-items:center;gap:16px;height:52px}
+.brand{font-family:var(--display);font-weight:600;font-size:1.05rem;white-space:nowrap;color:var(--ink);text-decoration:none;letter-spacing:-.01em}
+.brand i{font-weight:400;color:var(--muted);font-style:italic}
+.navlinks{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0;mask-image:linear-gradient(90deg,#000 92%,transparent)}
+.navlinks::-webkit-scrollbar{display:none}
+.navlinks a{padding:6px 10px;border-radius:999px;color:var(--ink-2);text-decoration:none;font-size:var(--step--1);white-space:nowrap}
+.navlinks a:hover,.navlinks a.on{background:var(--sunk);color:var(--ink)}
+
+/* ── hero ── */
+.hero{padding-block:56px 72px}
+.hero .wrap{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr);gap:56px;align-items:center}
+.hero h1{font-family:var(--display);font-weight:400;font-size:var(--step-4);line-height:.95;letter-spacing:-.03em;margin:16px 0 22px;text-wrap:balance}
+.hero h1 em{font-style:italic;color:var(--accent-2)}
+.lede{font-size:var(--step-1);color:var(--ink-2);max-width:56ch;margin:0}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:36px;border-top:1px solid var(--line-strong)}
+.fact{padding:14px 14px 0 0;min-width:0}
+.fact b{display:block;font-family:var(--display);font-size:var(--step-2);font-weight:500;line-height:1.1;letter-spacing:-.01em}
+.fact span{font-size:var(--step--1);color:var(--muted)}
+.hero-phone{display:flex;flex-direction:column;align-items:center;gap:10px}
+.hero-phone .cap{font-size:var(--step--1);color:var(--muted);text-align:center;max-width:30ch}
+@media (max-width:880px){.hero .wrap{grid-template-columns:minmax(0,1fr);gap:40px}.facts{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:14px}}
+
+/* ── sections ── */
+.sec{padding-block:72px;border-top:1px solid var(--line);scroll-margin-top:calc(56px + env(safe-area-inset-top,0px))}
+.sec-head{display:grid;grid-template-columns:200px minmax(0,1fr);gap:32px;margin-bottom:36px}
+.sec-head h2{font-family:var(--display);font-weight:400;font-size:var(--step-3);line-height:1.08;letter-spacing:-.02em;margin:0 0 10px;text-wrap:balance}
+.sec-head h2 em{font-style:italic;color:var(--accent-2)}
+.sec-head p{margin:0;color:var(--ink-2);max-width:64ch}
+.sec-body{display:grid;grid-template-columns:200px minmax(0,1fr);gap:32px}
+.sec-body > .side{font-size:var(--step--1);color:var(--muted)}
+.sec-body > .main{min-width:0}
+@media (max-width:880px){.sec{padding-block:56px}.sec-head,.sec-body{grid-template-columns:minmax(0,1fr);gap:8px}.sec-body > .side:empty{display:none}}
+
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+@media (max-width:980px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:880px){.g3{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:640px){.g2,.g4{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;min-width:0}
+.card.flat{background:transparent}
+.rule-top{border-top:1px solid var(--line-strong);padding-top:14px;min-width:0}
+
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:var(--step--2);font-weight:600;letter-spacing:.04em;border-radius:999px;padding:3px 9px;white-space:nowrap;line-height:1.4}
+.ph-prep{background:var(--ph-prep-bg);color:var(--ph-prep-fg)}
+.ph-exp{background:var(--ph-exp-bg);color:var(--ph-exp-fg)}
+.ph-lan{background:var(--ph-lan-bg);color:var(--ph-lan-fg)}
+.ph-sos{background:var(--ph-sos-bg);color:var(--ph-sos-fg)}
+.t-reel{background:var(--c-reel-bg);color:var(--c-reel-fg)}
+.t-car{background:var(--c-car-bg);color:var(--c-car-fg)}
+.t-sto{background:var(--c-sto-bg);color:var(--c-sto-fg)}
+.t-evt{background:var(--c-evt-bg);color:var(--c-evt-fg)}
+.t-hol{background:var(--c-hol-bg);color:var(--c-hol-fg)}
+.chip.ghost{background:transparent;border:1px solid var(--line-strong);color:var(--ink-2)}
+
+.btn{font:inherit;font-size:var(--step--1);font-weight:600;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);border-radius:999px;padding:7px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{background:var(--sunk)}
+.btn.solid{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.btn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:transparent}
+
+/* ── resumen ── */
+.kpi-line{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border-top:1px solid var(--line-strong);border-bottom:1px solid var(--line-strong);margin-block:8px 28px}
+.kpi-line div{padding:16px 16px 16px 0}
+.kpi-line b{display:block;font-family:var(--display);font-weight:500;font-size:clamp(2rem,5vw,3rem);line-height:1;letter-spacing:-.02em}
+.kpi-line span{font-size:var(--step--1);color:var(--muted)}
+.havelist li{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:16px;padding:12px 0;border-top:1px solid var(--line)}
+.havelist li b{font-weight:600}
+.havelist li span{color:var(--ink-2)}
+@media (max-width:640px){.havelist li{grid-template-columns:minmax(0,1fr);gap:2px}.kpi-line{grid-template-columns:minmax(0,1fr)}}
+.decide li{padding:10px 0;border-top:1px solid var(--line);display:flex;gap:10px}
+.decide li::before{content:"";flex:0 0 10px;height:10px;margin-top:7px;border:1.5px solid var(--accent-2);border-radius:2px}
+
+/* ── concepto ── */
+.poster{aspect-ratio:4/5;max-width:100%;border-radius:10px;padding:22px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:var(--shadow);overflow:hidden;position:relative}
+.poster .p-top{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;font-weight:600;opacity:.75}
+.poster .p-head{font-family:var(--display);font-weight:400;font-size:clamp(2rem,4.2vw,3rem);line-height:.95;letter-spacing:-.03em}
+.poster .p-head em{font-style:italic}
+.poster .p-foot{display:flex;justify-content:space-between;align-items:end;font-size:.72rem;gap:10px}
+.poster .p-logo{font-family:var(--display);font-weight:700;font-size:1.1rem;letter-spacing:-.02em}
+.route{display:flex;flex-direction:column;gap:14px;min-width:0}
+.route .rec{align-self:flex-start}
+.route dl{margin:0;display:grid;gap:8px}
+.route dt{font-size:var(--step--2);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.route dd{margin:0;color:var(--ink-2);font-size:.95rem}
+.art-olive{background:var(--art-olive);color:var(--art-cream)}
+.art-sand{background:var(--art-sand);color:var(--art-ink)}
+.art-cream{background:var(--art-cream);color:var(--art-olive)}
+.art-bone{background:var(--art-bone);color:var(--art-ink)}
+.art-sage{background:var(--art-sage);color:var(--art-ink)}
+
+/* ── personas ── */
+.persona h3{margin-bottom:2px}
+.persona .age{font-size:var(--step--1);color:var(--muted);margin-bottom:12px}
+.persona dl{margin:0;display:grid;gap:10px}
+.persona dt{font-size:var(--step--2);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.persona dd{margin:0;font-size:.95rem;color:var(--ink-2)}
+.persona .msg{font-family:var(--display);font-style:italic;font-size:1.25rem;color:var(--ink);line-height:1.2}
+
+/* ── gantt ── */
+.gantt-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.gantt{min-width:780px;padding:14px 16px 18px;position:relative}
+.g-row{display:grid;grid-template-columns:150px minmax(0,1fr);align-items:center;min-height:34px}
+.g-row .lab{font-size:var(--step--1);color:var(--ink-2);padding-right:10px}
+.g-row.grp .lab{font-size:var(--step--2);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;padding-top:10px}
+.g-track{position:relative;height:26px}
+.g-bar{position:absolute;top:3px;height:20px;border-radius:5px;font-size:.7rem;font-weight:600;line-height:20px;padding:0 7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.g-months{position:relative;height:22px;border-bottom:1px solid var(--line-strong)}
+.g-months span{position:absolute;top:0;font-size:var(--step--2);color:var(--muted);letter-spacing:.06em;text-transform:uppercase;padding-left:4px;border-left:1px solid var(--line-strong);height:22px}
+.g-grid{position:absolute;top:0;bottom:0;width:1px;background:var(--line)}
+.g-today{position:absolute;top:0;bottom:0;width:0;border-left:1.5px dashed var(--accent-2);z-index:2}
+.g-today b{position:absolute;bottom:-16px;left:4px;font-size:.66rem;color:var(--accent-2);white-space:nowrap;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.g-ms{position:absolute;top:4px;width:18px;height:18px;margin-left:-9px;display:grid;place-items:center;font-size:.62rem;font-weight:700;border-radius:50%;background:var(--ink);color:var(--bg)}
+.g-ms.l2{top:28px}
+.g-track.ms{height:50px}
+.ms-list{columns:2;column-gap:32px;margin-top:20px;font-size:.95rem}
+.ms-list li{break-inside:avoid;display:grid;grid-template-columns:22px 64px minmax(0,1fr);gap:8px;padding:7px 0;border-top:1px solid var(--line)}
+.ms-list .n{width:18px;height:18px;border-radius:50%;background:var(--ink);color:var(--bg);font-size:.62rem;font-weight:700;display:grid;place-items:center;margin-top:3px}
+.ms-list .d{color:var(--muted);font-size:var(--step--1);padding-top:2px}
+@media (max-width:720px){.ms-list{columns:1}}
+.phases{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:28px}
+.phases .card h4{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.phases p{font-size:.93rem;color:var(--ink-2)}
+@media (max-width:980px){.phases{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.phases{grid-template-columns:minmax(0,1fr)}}
+
+/* ── phone / reel ── */
+.phone{width:100%;max-width:250px;aspect-ratio:9/19.5;border-radius:36px;background:var(--bezel);padding:8px;box-shadow:var(--shadow);outline:1px solid var(--line-strong);outline-offset:-1px}
+.phone.sm{max-width:200px;border-radius:30px;padding:7px}
+.screen{position:relative;width:100%;height:100%;border-radius:29px;overflow:hidden;container-type:inline-size;background:var(--art-sand)}
+.phone.sm .screen{border-radius:24px}
+.frame{position:absolute;inset:0;opacity:0;transition:opacity .45s ease}
+.frame.on{opacity:1}
+.frame svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.frame .ov{position:absolute;left:8%;right:8%;top:12%;text-align:center;font-family:var(--display);font-weight:500;font-size:9.6cqw;line-height:1.12;letter-spacing:-.02em;white-space:pre-line;text-wrap:balance}
+.ov .t,.tile .tx .t{background:var(--fb);padding:.02em .24em;-webkit-box-decoration-break:clone;box-decoration-break:clone;border-radius:.14em}
+.frame.center .ov{top:50%;transform:translateY(-60%)}
+.frame .ov small{display:block;font-family:var(--body);font-weight:600;font-size:5.2cqw;letter-spacing:.01em;margin-top:3cqw;line-height:1.25}
+.bg-olive{--fb:var(--art-olive);background:var(--art-olive);color:var(--art-cream)}
+.bg-sand{--fb:var(--art-sand);background:var(--art-sand);color:var(--art-ink)}
+.bg-bone{--fb:var(--art-bone);background:var(--art-bone);color:var(--art-ink)}
+.bg-cream{--fb:var(--art-cream);background:var(--art-cream);color:var(--art-olive)}
+.bg-skin{--fb:var(--art-skin);background:var(--art-skin);color:var(--art-ink)}
+.bg-sage{--fb:var(--art-sage);background:var(--art-sage);color:var(--art-ink)}
+.segs{position:absolute;top:4.5cqw;left:5cqw;right:5cqw;display:flex;gap:1.6cqw;z-index:3}
+.segs i{flex:1;height:1.1cqw;min-height:2px;border-radius:2px;background:rgba(250,247,239,.45);overflow:hidden;position:relative;box-shadow:0 0 0 .3px rgba(26,24,16,.25)}
+.segs i::after{content:"";position:absolute;inset:0;background:var(--art-cream);transform:scaleX(0);transform-origin:left}
+.segs i.done::after{transform:scaleX(1)}
+.segs i.cur::after{animation:seg var(--d,3s) linear forwards}
+.paused .segs i.cur::after{animation-play-state:paused}
+@keyframes seg{to{transform:scaleX(1)}}
+.ig{position:absolute;left:5cqw;right:5cqw;bottom:5cqw;z-index:3;display:flex;align-items:flex-end;gap:3cqw;font-family:var(--body);color:var(--art-cream);text-shadow:0 1px 3px rgba(26,24,16,.55);pointer-events:none}
+.ig .who{flex:1;min-width:0;font-size:4.6cqw;line-height:1.3}
+.ig .who b{display:block;font-weight:700}
+.ig .who span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.92}
+.ig .acts{display:flex;flex-direction:column;gap:3.5cqw}
+.ig .acts i{width:7cqw;height:7cqw;border-radius:50%;border:1.6px solid var(--art-cream);display:block;box-shadow:0 1px 3px rgba(26,24,16,.35)}
+.ig-fade{position:absolute;inset:auto 0 0 0;height:30%;background:linear-gradient(transparent,rgba(26,24,16,.45));z-index:2;pointer-events:none}
+.ph-ctrl{display:flex;align-items:center;gap:6px;justify-content:center;margin-top:12px}
+.ph-ctrl .btn{padding:6px 11px}
+.ph-ctrl .count{font-size:var(--step--1);color:var(--muted);min-width:8ch;text-align:center}
+
+.viewer{display:grid;grid-template-columns:270px minmax(0,1fr);gap:40px;align-items:start}
+.viewer .phone-col{position:sticky;top:calc(72px + env(safe-area-inset-top,0px));display:flex;flex-direction:column;align-items:center}
+@media (max-width:880px){.viewer{grid-template-columns:minmax(0,1fr)}.viewer .phone-col{position:static}}
+.rv-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:6px}
+.rv-title{font-family:var(--display);font-weight:400;font-size:var(--step-3);line-height:1.05;letter-spacing:-.02em;margin:4px 0 14px}
+.rv-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:20px}
+.rv-meta div{border-top:1px solid var(--line-strong);padding-top:8px;min-width:0}
+.rv-meta span{display:block;font-size:var(--step--2);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+@media (max-width:560px){.rv-meta{grid-template-columns:minmax(0,1fr)}}
+.sb{width:100%;border-collapse:collapse;font-size:.92rem}
+.sb th{font-size:var(--step--2);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;font-weight:600;padding:6px 8px;border-bottom:1px solid var(--line-strong)}
+.sb td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+.sb tr{cursor:pointer}
+.sb tr.on td{background:var(--sunk)}
+.sb .thumb{width:40px;aspect-ratio:9/16;border-radius:6px;overflow:hidden;position:relative}
+.sb .thumb svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.sb .tc{white-space:nowrap;color:var(--muted);font-variant-numeric:tabular-nums}
+.sb .ost{font-family:var(--display);font-style:italic;color:var(--ink)}
+.sb-wrap{overflow-x:auto}
+.sb-wrap table{min-width:520px}
+.capbox{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:18px}
+.capbox pre{margin:0 0 12px;white-space:pre-wrap;font:inherit;font-size:.93rem;color:var(--ink-2)}
+.capbox .row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.note{margin-top:14px;padding:12px 14px;border-left:3px solid var(--accent-2);background:var(--sunk);border-radius:0 10px 10px 0;font-size:.93rem;color:var(--ink-2)}
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin:36px 0 14px}
+.reel-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:980px){.reel-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:680px){.reel-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.rcard{font:inherit;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;color:var(--ink);display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:start}
+.rcard:hover{border-color:var(--line-strong)}
+.rcard[aria-current="true"]{border-color:var(--accent-2);box-shadow:0 0 0 1px var(--accent-2)}
+.rcard .thumb{width:44px;aspect-ratio:9/16;border-radius:7px;overflow:hidden;position:relative}
+.rcard .thumb svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.rcard .id{font-size:var(--step--2);color:var(--muted);font-weight:700;letter-spacing:.08em}
+.rcard .tt{font-family:var(--display);font-size:1.02rem;line-height:1.15;margin:2px 0 6px}
+.rcard .when{font-size:var(--step--2);color:var(--muted)}
+.mix{display:flex;height:34px;border-radius:8px;overflow:hidden;margin:10px 0 10px}
+.mix span{display:flex;align-items:center;padding-left:8px;font-size:.72rem;font-weight:700;white-space:nowrap;overflow:hidden}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:var(--step--1);color:var(--ink-2)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+
+/* ── antes / después ── */
+.ba{position:relative;aspect-ratio:4/5;max-width:100%;border-radius:12px;overflow:hidden;box-shadow:var(--shadow);--pos:50%;user-select:none;touch-action:pan-y}
+.ba .lay{position:absolute;inset:0}
+.ba .lay svg{width:100%;height:100%;display:block}
+.ba .after{clip-path:inset(0 0 0 var(--pos))}
+.ba .line{position:absolute;top:0;bottom:0;left:var(--pos);width:2px;margin-left:-1px;background:var(--art-cream);pointer-events:none;z-index:2}
+.ba .line::after{content:"";position:absolute;top:50%;left:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:var(--art-cream);box-shadow:0 2px 8px rgba(26,24,16,.35)}
+.ba .tag{position:absolute;top:10px;z-index:2;font-size:.66rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 8px;border-radius:999px;background:rgba(26,24,16,.62);color:var(--art-cream)}
+.ba .tag.l{left:10px}.ba .tag.r{right:10px}
+.ba input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;margin:0;z-index:3}
+.ba:has(input:focus-visible){outline:2px solid var(--focus);outline-offset:3px}
+.ba-cap{margin-top:10px;font-size:.93rem}
+.ba-cap b{display:block}
+.formats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+@media (max-width:980px){.formats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.fmt-vis{aspect-ratio:1/1;border-radius:10px;overflow:hidden;position:relative;margin-bottom:10px;display:grid}
+.fmt-vis > div{position:absolute;inset:0}
+.fmt-vis .cell{position:relative;overflow:hidden}
+.fmt-vis svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.s-ba{position:relative;flex:1;border-radius:8px;overflow:hidden;margin-top:4px}
+.s-ba svg{position:absolute;inset:0;width:100%;height:100%}
+.steps{counter-reset:s;list-style:none;margin:0;padding:0}
+.steps li{counter-increment:s;display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.steps li::before{content:counter(s);width:24px;height:24px;border-radius:50%;border:1.5px solid var(--accent-2);color:var(--accent-2);font-size:.75rem;font-weight:700;display:grid;place-items:center}
+.plain li{padding:9px 0;border-top:1px solid var(--line);font-size:.95rem}
+.consent{font-family:var(--display);font-size:1.05rem;line-height:1.45;color:var(--ink);background:var(--surface);border:1px dashed var(--line-strong);border-radius:12px;padding:18px}
+
+/* ── feed & stories ── */
+.ig-profile{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;max-width:440px}
+.igp-top{display:flex;gap:16px;align-items:center}
+.igp-av{width:76px;height:76px;flex:0 0 76px;border-radius:50%;background:var(--art-olive);color:var(--art-cream);display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:1.6rem;letter-spacing:-.03em;box-shadow:0 0 0 3px var(--surface),0 0 0 5px var(--art-soft)}
+.igp-stats{display:flex;gap:18px;font-size:.85rem;color:var(--muted)}
+.igp-stats b{display:block;color:var(--ink);font-size:1rem}
+.igp-bio{margin-top:12px;font-size:.92rem;line-height:1.45;white-space:pre-line}
+.igp-bio b{display:block}
+.igp-bio a{color:var(--accent-2);font-weight:600;text-decoration:none}
+.igp-btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:12px}
+.igp-btns span{background:var(--sunk);border-radius:8px;text-align:center;font-size:.8rem;font-weight:600;padding:7px 4px}
+.hl{display:flex;gap:12px;overflow-x:auto;padding:14px 2px 4px;scrollbar-width:none}
+.hl div{flex:0 0 auto;text-align:center;font-size:.72rem;color:var(--ink-2);width:62px}
+.hl i{display:grid;place-items:center;width:58px;height:58px;margin:0 auto 5px;border-radius:50%;background:var(--art-bone);border:1px solid var(--line-strong);font-style:normal;font-family:var(--display);font-size:1.05rem;color:var(--art-olive)}
+.feed{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;max-width:440px;margin-top:14px;border-radius:6px;overflow:hidden}
+.tile{position:relative;aspect-ratio:3/4;overflow:hidden}
+.tile svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.tile .tx{position:absolute;left:5%;right:5%;top:7%;font-family:var(--display);font-weight:500;font-size:clamp(.66rem,2.6vw,.95rem);line-height:1.05;letter-spacing:-.01em;white-space:pre-line}
+.tile .ord{position:absolute;left:6px;bottom:6px;font-size:.6rem;font-weight:700;background:rgba(26,24,16,.62);color:var(--art-cream);border-radius:999px;padding:1px 6px}
+.tile .ty{position:absolute;right:6px;top:6px;width:13px;height:13px}
+.tile .ty svg{position:static;width:13px;height:13px}
+.feed-wrap{display:grid;grid-template-columns:minmax(0,440px) minmax(0,1fr);gap:40px;align-items:start}
+@media (max-width:880px){.feed-wrap{grid-template-columns:minmax(0,1fr)}}
+.feedlist li{display:grid;grid-template-columns:28px 62px minmax(0,1fr) auto;gap:10px;align-items:baseline;padding:8px 0;border-top:1px solid var(--line);font-size:.93rem}
+.feedlist .o{font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.feedlist .d{color:var(--muted);font-size:var(--step--1)}
+@media (max-width:480px){.feedlist li{grid-template-columns:24px minmax(0,1fr) auto}.feedlist .d{display:none}}
+.stories{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px}
+@media (max-width:1060px){.stories{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:560px){.stories{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.story{aspect-ratio:9/16;border-radius:14px;overflow:hidden;position:relative;padding:14% 9% 24%;display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow);container-type:inline-size}
+.story .s-h{font-family:var(--display);font-weight:500;font-size:11cqw;line-height:1;letter-spacing:-.02em}
+.story .s-h em{font-style:italic}
+.stk{background:var(--art-cream);color:var(--art-ink);border-radius:10px;padding:7% 7%;font-size:7cqw;font-weight:600;box-shadow:0 3px 10px rgba(26,24,16,.18);text-align:center}
+.stk.poll{display:grid;gap:4px;padding:6%}
+.stk.poll span{display:block;border:1px solid rgba(26,24,16,.18);border-radius:999px;padding:4% 0;font-size:6.5cqw}
+.stk.cd b{display:block;font-family:var(--display);font-size:15cqw;font-weight:500;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.stk.cd small{font-size:5.5cqw;font-weight:500;opacity:.7}
+.stk.link{background:var(--art-cream);color:var(--art-olive);border-radius:8px;font-size:6.5cqw;padding:5% 6%;align-self:center}
+.slots{display:grid;gap:5px;font-size:7cqw}
+.slots span{background:rgba(250,247,239,.16);border:1px solid rgba(250,247,239,.35);border-radius:8px;padding:4% 6%;display:flex;justify-content:space-between}
+.story .s-lbl{position:absolute;left:0;right:0;bottom:0;padding:6px 8px;font-size:.66rem;font-weight:600;background:rgba(26,24,16,.62);color:var(--art-cream);text-align:center}
+.story-cap{font-size:var(--step--1);color:var(--muted);margin-top:8px}
+
+/* ── calendario ── */
+.cal-head,.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.cal-head div{font-size:var(--step--2);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:0 4px 6px}
+.day{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px;min-height:118px;display:flex;flex-direction:column;gap:5px;min-width:0}
+.day.pad{background:transparent;border-style:dashed;border-color:var(--line)}
+.day.key{border-color:var(--accent-2);box-shadow:inset 0 0 0 1px var(--accent-2)}
+.day .dn{display:flex;justify-content:space-between;align-items:baseline;gap:4px}
+.day .dn b{font-family:var(--display);font-weight:500;font-size:1.25rem;line-height:1}
+.day .dn span{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;text-align:right}
+.day .dw{display:none}
+.ent{font-size:.72rem;line-height:1.25;border-radius:6px;padding:4px 6px;font-weight:500}
+.ent b{font-weight:700}
+@media (max-width:820px){
+  .cal-head{display:none}
+  .cal{grid-template-columns:minmax(0,1fr);gap:6px}
+  .day.pad{display:none}
+  .day{min-height:0;display:grid;grid-template-columns:64px minmax(0,1fr);gap:4px 10px;align-items:start}
+  .day .dn{flex-direction:column;align-items:flex-start;grid-row:span 4}
+  .day .dw{display:inline;font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+  .day .ent{grid-column:2}
+}
+.cadence{margin-top:28px}
+.cad-table{width:100%;border-collapse:collapse;font-size:.93rem;min-width:560px}
+.cad-table th,.cad-table td{text-align:left;padding:10px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.cad-table th{font-size:var(--step--2);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;border-bottom-color:var(--line-strong)}
+.tbl-wrap{overflow-x:auto}
+
+/* ── ofertas ── */
+.offers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:760px){.offers{grid-template-columns:minmax(0,1fr)}}
+.offer{display:flex;flex-direction:column;gap:10px}
+.offer .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.code{font-family:var(--display);font-weight:600;font-size:1.35rem;letter-spacing:.04em;border:1.5px dashed var(--accent-2);color:var(--accent-2);border-radius:8px;padding:2px 10px;line-height:1.3}
+.code.none{font-family:var(--body);font-size:.8rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-style:solid;border-color:var(--line-strong);color:var(--muted);padding:5px 10px}
+.offer .when{font-size:var(--step--1);color:var(--muted)}
+.cfg{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;font-size:.84rem;background:var(--sunk);border-radius:8px;padding:10px 12px;margin:0}
+.cfg dt{color:var(--muted)}
+.cfg dd{margin:0;font-variant-numeric:tabular-nums;color:var(--ink)}
+
+/* ── canales / presupuesto ── */
+.ch-table{width:100%;border-collapse:collapse;font-size:.92rem;min-width:820px}
+.ch-table th,.ch-table td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.ch-table th{font-size:var(--step--2);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;border-bottom-color:var(--line-strong)}
+.ch-table td:first-child{font-weight:600;white-space:nowrap}
+.budget{display:grid;gap:22px;margin-top:8px}
+.bud-row{display:grid;grid-template-columns:170px minmax(0,1fr) 90px;gap:16px;align-items:center}
+.bud-row .nm b{display:block;font-family:var(--display);font-weight:500;font-size:1.15rem}
+.bud-row .nm span{font-size:var(--step--1);color:var(--muted)}
+.bud-row .tot{font-family:var(--display);font-size:1.3rem;text-align:right;font-variant-numeric:tabular-nums}
+.bud-bar{display:flex;height:30px;border-radius:7px;overflow:hidden;background:var(--sunk)}
+.bud-bar span{height:100%}
+@media (max-width:640px){.bud-row{grid-template-columns:minmax(0,1fr) auto}.bud-row .bud-bar{grid-column:1/-1;grid-row:2}}
+
+/* ── métricas ── */
+.kpi-table{width:100%;border-collapse:collapse;font-size:.93rem;min-width:640px}
+.kpi-table th,.kpi-table td{text-align:left;padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.kpi-table th{font-size:var(--step--2);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;border-bottom-color:var(--line-strong)}
+.kpi-table td.t{font-family:var(--display);font-size:1.1rem;white-space:nowrap;font-variant-numeric:tabular-nums}
+.kpi-table tr.grp td{padding-top:20px;border-bottom-color:var(--line-strong)}
+.funnel{display:grid;gap:6px;margin-top:6px}
+.fn{display:grid;grid-template-columns:minmax(0,1fr);justify-items:center}
+.fn div{background:var(--sunk);border-radius:8px;padding:9px 12px;text-align:center;font-size:.9rem;min-width:0;width:var(--w)}
+.fn div b{display:block}
+.fn div span{font-size:var(--step--2);color:var(--muted)}
+.fn:nth-child(5) div,.fn:nth-child(6) div{background:var(--ph-exp-bg);color:var(--ph-exp-fg)}
+.fn:nth-child(5) div span,.fn:nth-child(6) div span{color:inherit;opacity:.8}
+
+/* ── producción ── */
+.dodont{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:640px){.dodont{grid-template-columns:minmax(0,1fr)}}
+.dodont li{padding:8px 0;border-top:1px solid var(--line);font-size:.95rem}
+.dodont .no li{color:var(--ink-2);text-decoration:line-through;text-decoration-color:var(--line-strong)}
+.week{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:760px){.week{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.week div{border-top:2px solid var(--accent-2);padding-top:10px;min-width:0}
+.week b{display:block;font-family:var(--display);font-size:1.5rem;font-weight:500;font-variant-numeric:tabular-nums}
+.week span{font-size:.9rem;color:var(--ink-2)}
+.swatches{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+@media (max-width:640px){.swatches{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.sw{border-radius:10px;aspect-ratio:1/1;padding:8px;display:flex;flex-direction:column;justify-content:flex-end;font-size:.66rem;font-weight:600;letter-spacing:.04em;border:1px solid var(--line)}
+.type-spec{display:grid;gap:10px;margin-top:16px}
+.type-spec div{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:10px}
+.type-spec span{font-size:var(--step--2);color:var(--muted);letter-spacing:.1em;text-transform:uppercase;font-weight:600;width:110px}
+
+/* ── ideas ── */
+.quad{display:grid;grid-template-columns:28px repeat(2,minmax(0,1fr));grid-template-rows:auto auto 28px;gap:10px}
+.quad .q{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;min-width:0}
+.quad .q.hot{border-color:var(--accent-2);box-shadow:inset 0 0 0 1px var(--accent-2)}
+.quad .q h4{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.quad .q h4 small{font-weight:500;color:var(--muted);font-size:var(--step--2);letter-spacing:.08em;text-transform:uppercase}
+.quad .q li{padding:8px 0;border-top:1px solid var(--line);font-size:.93rem}
+.quad .q li b{display:block;font-weight:600}
+.quad .q li span{color:var(--ink-2);font-size:.88rem}
+.ax-y{grid-row:1/3;writing-mode:vertical-rl;transform:rotate(180deg);font-size:var(--step--2);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:center;display:flex;align-items:center;justify-content:space-between}
+.ax-x{grid-column:2/4;font-size:var(--step--2);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;display:flex;justify-content:space-between;align-items:center}
+@media (max-width:720px){.quad{grid-template-columns:minmax(0,1fr);grid-template-rows:none}.ax-y,.ax-x{display:none}.quad .q::before{content:attr(data-ax);display:block;font-size:var(--step--2);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:4px}}
+
+/* ── checklist ── */
+.months{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px}
+@media (max-width:1060px){.months{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:760px){.months{grid-template-columns:minmax(0,1fr)}}
+.month h4{font-family:var(--display);font-weight:500;font-size:1.2rem;display:flex;justify-content:space-between;align-items:baseline}
+.month h4 small{font-family:var(--body);font-size:var(--step--1);color:var(--muted);font-weight:500;font-variant-numeric:tabular-nums}
+.task{display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;padding:8px 0;border-top:1px solid var(--line);font-size:.92rem;cursor:pointer;align-items:start}
+.task input{width:16px;height:16px;margin:3px 0 0;accent-color:var(--accent-2)}
+.task input:checked + span{color:var(--muted);text-decoration:line-through}
+.progress{height:6px;border-radius:999px;background:var(--sunk);overflow:hidden;margin:6px 0 4px}
+.progress i{display:block;height:100%;background:var(--accent-2);width:0;transition:width .3s}
+
+footer{border-top:1px solid var(--line);padding-block:36px 56px;font-size:var(--step--1);color:var(--muted)}
+footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+
+/* svg art classes */
+.f-o{fill:var(--art-olive)}.f-o2{fill:var(--art-olive-2)}.f-sg{fill:var(--art-sage)}.f-sf{fill:var(--art-soft)}
+.f-sd{fill:var(--art-sand)}.f-bn{fill:var(--art-bone)}.f-cr{fill:var(--art-cream)}.f-ink{fill:var(--art-ink)}
+.f-sk{fill:var(--art-skin)}.f-sk2{fill:var(--art-skin-2)}.f-br{fill:var(--art-brow)}.f-sp{fill:var(--art-spot)}
+.n{fill:none}
+.s-o{stroke:var(--art-olive)}.s-o2{stroke:var(--art-olive-2)}.s-sg{stroke:var(--art-sage)}.s-sf{stroke:var(--art-soft)}
+.s-cr{stroke:var(--art-cream)}.s-ink{stroke:var(--art-ink)}.s-br{stroke:var(--art-brow)}.s-sp{stroke:var(--art-spot)}.s-sk2{stroke:var(--art-skin-2)}.s-sd{stroke:var(--art-sand)}
+
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  .frame{transition:none}
+  .segs i.cur::after{animation:none;transform:scaleX(1)}
+  .progress i{transition:none}
+}
+</style>
+</head>
+<body>
+
+<nav class="topnav" aria-label="Secciones">
+  <div class="wrap">
+    <a class="brand" href="#top">GF Studio <i>· campaña 2027</i></a>
+    <div class="navlinks" id="navlinks">
+      <a href="#resumen">Resumen</a>
+      <a href="#concepto">Concepto</a>
+      <a href="#publico">Público</a>
+      <a href="#hoja">Hoja de ruta</a>
+      <a href="#reels">Reels</a>
+      <a href="#antes-despues">Antes y después</a>
+      <a href="#feed">Feed y stories</a>
+      <a href="#marzo">Marzo</a>
+      <a href="#ofertas">Ofertas</a>
+      <a href="#canales">Canales</a>
+      <a href="#metricas">Métricas</a>
+      <a href="#produccion">Producción</a>
+      <a href="#ideas">Ideas</a>
+      <a href="#checklist">Checklist</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow">GF Studio · Henderson, Bs. As. · Campaña de lanzamiento · Borrador v1</div>
+      <h1>Volvé <em>a vos.</em></h1>
+      <p class="lede">Plan completo para abrir GF Studio en marzo de 2027: concepto, reels con guion cuadro por cuadro, antes y después, feed, calendario del mes de apertura, ofertas que ya se pueden cargar en el admin y cómo medir si funciona.</p>
+      <div class="facts">
+        <div class="fact"><b class="tnum">1 · 3 · 27</b><span>Apertura propuesta (lunes)</span></div>
+        <div class="fact"><b class="tnum" id="countdown">133 días</b><span>Faltan para abrir</span></div>
+        <div class="fact"><b>12 reels</b><span>Con guion y storyboard</span></div>
+        <div class="fact"><b>4 fases</b><span>Nov 2026 → jun 2027</span></div>
+      </div>
+    </div>
+    <div class="hero-phone">
+      <div id="hero-phone"></div>
+      <div class="cap">Boceto del reel teaser <b>R01 · La llave</b>. Tocá la pantalla para pausar o usá las flechas para ir cuadro por cuadro.</div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ═════════ RESUMEN ═════════ -->
+<section class="sec" id="resumen">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">La idea en 1 minuto</div>
+      <div>
+        <h2>Abrir con la agenda llena de marzo y clientas que vuelvan en abril.</h2>
+        <p>Marzo es vuelta a la rutina: termina el verano, empiezan las clases y la piel llega castigada por el sol. La campaña usa ese momento para que cuidarse sea el primer hábito del año, con Guada como cara visible y el antes y después como prueba.</p>
+      </div>
+    </div>
+    <div class="sec-body">
+      <div class="side">Metas sugeridas para marzo 2027 <span class="sup">supuesto</span><br><br>Con una sola profesional y turnos de ~1 h, el techo realista es de 35 a 40 turnos por semana (lunes a sábado, 9 a 18).</div>
+      <div class="main">
+        <div class="kpi-line">
+          <div><b class="tnum">80</b><span>turnos en el mes de apertura</span></div>
+          <div><b class="tnum">50</b><span>clientas nuevas</span></div>
+          <div><b class="tnum">15</b><span>reseñas en Google</span></div>
+        </div>
+        <div class="g2">
+          <div>
+            <h3>Lo que ya está construido y la campaña aprovecha</h3>
+            <ul class="clean havelist">
+              <li><b>Reserva online con horarios reales</b><span>Todos los llamados a la acción apuntan al link de la bio. Nadie tiene que llamar.</span></li>
+              <li><b>Cupones con vigencia y tope</b><span>Un código por canal (VIP27, DUO, ABRIMOS) para saber de dónde viene cada clienta.</span></li>
+              <li><b>Packs visibles en la landing</b><span>El pack «Volvé a vos» se carga desde el admin, sin tocar código.</span></li>
+              <li><b>Galería con antes y después</b><span>Las fotos de la convocatoria de modelos se suben a la galería y a las redes.</span></li>
+              <li><b>CRM con cadencia de retoque</b><span>Desde abril marca quién está «para retoque» y quién se durmió: base para retener.</span></li>
+              <li><b>Resultados + export CSV</b><span>Ocupación, clientas únicas y uso de cupones. El CSV se puede llevar a Excel o Power BI.</span></li>
+            </ul>
+          </div>
+          <div>
+            <h3>Decisiones abiertas</h3>
+            <ul class="clean decide">
+              <li><span><b>Concepto:</b> elegir entre las tres rutas (recomendada: «Volvé a vos»).</span></li>
+              <li><span><b>Fecha exacta de apertura:</b> lunes 1/3 con Open Studio el sábado 6/3, o abrir directamente el sábado.</span></li>
+              <li><span><b>Precios 2027</b> de servicios y packs. Esta página no usa precios porque los de 2026 van a quedar viejos.</span></li>
+              <li><span><b>Presupuesto:</b> base, recomendado o intensivo (ver Canales).</span></li>
+              <li><span><b>Seña por Mercado Pago:</b> ya está lista en el admin. Activarla solo si en marzo los ausentes superan el 10%.</span></li>
+              <li><span><b>Hasta dónde mostrar a Guada:</b> la campaña rinde más con su cara y su voz en cámara.</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ CONCEPTO ═════════ -->
+<section class="sec" id="concepto">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Concepto creativo</div>
+      <div>
+        <h2>Tres rutas para la misma apertura. <em>Recomiendo la primera.</em></h2>
+        <p>Las tres conviven con el lema de la marca, «El arte de cuidarte». Lo que cambia es el gancho emocional de la campaña. Cada afiche muestra cómo se vería la pieza principal.</p>
+      </div>
+    </div>
+    <div class="g3">
+      <div class="route">
+        <div class="poster art-olive">
+          <div class="p-top">Henderson · Marzo 2027</div>
+          <div class="p-head">Volvé<br><em>a vos.</em></div>
+          <div class="p-foot"><span>Cejas · pestañas · faciales<br>Hipólito Yrigoyen 229</span><span class="p-logo">GF</span></div>
+        </div>
+        <span class="chip ph-lan rec">Recomendada</span>
+        <h3>A · Volvé a vos</h3>
+        <dl>
+          <dt>Insight</dt><dd>Después del verano y con los chicos de vuelta en el cole, marzo es el mes en que muchas retoman sus rutinas. Cuidarse puede ser la primera.</dd>
+          <dt>Por qué funciona</dt><dd>Sirve para todos los públicos, encaja con la piel post-verano, con el 8M y con la apertura. Da nombre al pack de lanzamiento.</dd>
+          <dt>Riesgo</dt><dd>Es una frase amable y puede sonar genérica si no va acompañada de antes y después reales.</dd>
+        </dl>
+      </div>
+      <div class="route">
+        <div class="poster art-sand">
+          <div class="p-top">GF Studio · Atención 1:1</div>
+          <div class="p-head">Sin<br><em>apuro.</em></div>
+          <div class="p-foot"><span>Una clienta por vez.<br>Consulta antes de empezar.</span><span class="p-logo">GF</span></div>
+        </div>
+        <span class="chip ghost rec">Alternativa</span>
+        <h3>B · Sin apuro</h3>
+        <dl>
+          <dt>Insight</dt><dd>La belleza «al paso» deja con ganas. Lo que se valora es que alguien se tome el tiempo de mirar tu cara y tu piel.</dd>
+          <dt>Por qué funciona</dt><dd>Marca el diferencial del estudio: 1:1, consulta previa y tiempo real de cada servicio.</dd>
+          <dt>Riesgo</dt><dd>Puede leerse como «es lento». Conviene combinarlo con la reserva online en un minuto.</dd>
+        </dl>
+      </div>
+      <div class="route">
+        <div class="poster art-cream">
+          <div class="p-top">Abre el 1 de marzo</div>
+          <div class="p-head">Henderson tiene <em>estudio.</em></div>
+          <div class="p-foot"><span>Faciales con aparatología,<br>cejas y pestañas. Acá nomás.</span><span class="p-logo">GF</span></div>
+        </div>
+        <span class="chip ghost rec">Alternativa</span>
+        <h3>C · Henderson tiene estudio</h3>
+        <dl>
+          <dt>Insight</dt><dd>Para algunos tratamientos faciales con aparatología hoy puede que haya que viajar a otra ciudad. <span class="sup">validar</span></dd>
+          <dt>Por qué funciona</dt><dd>Orgullo local y sentido de novedad. Muy fuerte para la radio, los volantes y los grupos de Facebook del pueblo.</dd>
+          <dt>Riesgo</dt><dd>Se agota después de la apertura y depende de que el insight sea cierto.</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ PÚBLICO ═════════ -->
+<section class="sec" id="publico">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Público</div>
+      <div>
+        <h2>Tres clientas tipo, tres mensajes.</h2>
+        <p>En un pueblo chico todos los públicos se cruzan en los mismos grupos y estados de WhatsApp. Por eso la campaña es una sola, pero cada pieza le habla primero a una de ellas.</p>
+      </div>
+    </div>
+    <div class="g3">
+      <article class="card persona">
+        <h3>La práctica</h3>
+        <div class="age">25 a 40 años · trabaja · usa Instagram todos los días</div>
+        <dl>
+          <dt>Qué quiere</dt><dd>Verse prolija sin pensar en eso cada mañana.</dd>
+          <dt>Servicios gancho</dt><dd>Laminado, lifting de pestañas, perfilado.</dd>
+          <dt>Dónde está</dt><dd>Reels, stories, WhatsApp.</dd>
+          <dt>Objeción → respuesta</dt><dd>«No tengo tiempo» → unos 45 minutos, dura semanas y se reserva online en un minuto.</dd>
+          <dt>Mensaje</dt><dd class="msg">Te levantás con la ceja hecha.</dd>
+        </dl>
+      </article>
+      <article class="card persona">
+        <h3>La que vuelve a ella</h3>
+        <div class="age">35 a 55 años · mamá · poco tiempo propio</div>
+        <dl>
+          <dt>Qué quiere</dt><dd>Un rato para ella cuando arrancan las clases y recuperar la piel después del verano.</dd>
+          <dt>Servicios gancho</dt><dd>Limpieza profunda, fototerapia LED, radiofrecuencia (packs).</dd>
+          <dt>Dónde está</dt><dd>Facebook y sus grupos, estados de WhatsApp, boca a boca.</dd>
+          <dt>Objeción → respuesta</dt><dd>«No sé si sirve» → consulta inicial y pack con precio cerrado por sesiones.</dd>
+          <dt>Mensaje</dt><dd class="msg">Marzo también es para vos.</dd>
+        </dl>
+      </article>
+      <article class="card persona">
+        <h3>La del evento</h3>
+        <div class="age">15 a 30 años · 15, egresos, casamientos</div>
+        <dl>
+          <dt>Qué quiere</dt><dd>Llegar lista a una fecha puntual y salir bien en las fotos.</dd>
+          <dt>Servicios gancho</dt><dd>Cejas + pestañas + maquillaje.</dd>
+          <dt>Dónde está</dt><dd>Instagram, TikTok, recomendación de amigas.</dd>
+          <dt>Objeción → respuesta</dt><dd>«¿Y si no me gusta?» → antes y después reales y una prueba previa.</dd>
+          <dt>Mensaje</dt><dd class="msg">Llegá lista.</dd>
+        </dl>
+      </article>
+    </div>
+    <p class="muted" style="margin-top:18px;font-size:.93rem">Público secundario: <b>quien regala</b> (parejas, hijas, amigas). Se activa con la gift card en el 8M y en el Día de la Madre (domingo 17 de octubre de 2027).</p>
+  </div>
+</section>
+
+<!-- ═════════ HOJA DE RUTA ═════════ -->
+<section class="sec" id="hoja">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Hoja de ruta</div>
+      <div>
+        <h2>De hoy a junio, en cuatro fases.</h2>
+        <p>La línea punteada marca la fecha de hoy. Lo más importante pasa antes de abrir: fotos reales, lista VIP y el banco de antes y después que sale de la convocatoria de modelos.</p>
+      </div>
+    </div>
+    <div class="gantt-scroll"><div class="gantt" id="gantt"></div></div>
+    <ul class="clean ms-list" id="ms-list"></ul>
+    <div class="phases">
+      <div class="card"><h4><span class="chip ph-prep">Fase 1</span> Preparación</h4><p class="muted" style="font-size:.85rem">Oct → dic 2026</p><p>Fotos profesionales, Google Business, Instagram optimizado, dominio propio, kit de grabación y plantillas.</p></div>
+      <div class="card"><h4><span class="chip ph-exp">Fase 2</span> Expectativa</h4><p class="muted" style="font-size:.85rem">Ene → feb 2027</p><p>Teaser, lista VIP, convocatoria de modelos, soft opening del 15 al 27/2 y countdown.</p></div>
+      <div class="card"><h4><span class="chip ph-lan">Fase 3</span> Lanzamiento</h4><p class="muted" style="font-size:.85rem">Marzo 2027</p><p>Apertura, Open Studio, semana DUO del 8M, pack «Volvé a vos» y pedido de reseñas.</p></div>
+      <div class="card"><h4><span class="chip ph-sos">Fase 4</span> Sostén</h4><p class="muted" style="font-size:.85rem">Abr → jun 2027</p><p>Referidos AMIGA15, retoques según cadencia, contenido educativo y «piel de invierno» en junio.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ REELS ═════════ -->
+<section class="sec" id="reels">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Reels</div>
+      <div>
+        <h2>Doce reels, con guion <em>cuadro por cuadro.</em></h2>
+        <p>Numerados en orden de publicación. Elegí uno abajo para ver el boceto animado, el guion por plano, el texto en pantalla y el copy listo para pegar. Los tiempos son reales: el boceto dura lo mismo que el reel.</p>
+      </div>
+    </div>
+    <div class="viewer">
+      <div class="phone-col"><div id="rv-phone"></div></div>
+      <div id="rv-detail" style="min-width:0"></div>
+    </div>
+    <div class="filters" role="group" aria-label="Filtrar reels por fase">
+      <button class="btn" data-f="all" aria-pressed="true">Todos</button>
+      <button class="btn" data-f="exp" aria-pressed="false">Expectativa</button>
+      <button class="btn" data-f="lan" aria-pressed="false">Lanzamiento</button>
+      <button class="btn" data-f="sos" aria-pressed="false">Sostén</button>
+    </div>
+    <div class="reel-grid" id="reel-grid"></div>
+
+    <div class="g2" style="margin-top:40px">
+      <div>
+        <h3>Mezcla de contenido</h3>
+        <p class="muted" style="font-size:.93rem">Proporción sugerida sobre el total de publicaciones del mes. La transformación es el pilar que más vende; la persona detrás del estudio es el que más confianza genera en un pueblo.</p>
+        <div class="mix" id="mix"></div>
+        <div class="legend" id="mix-legend"></div>
+      </div>
+      <div>
+        <h3>Fórmula del reel</h3>
+        <ul class="clean steps">
+          <li><span><b>Gancho en el primer segundo.</b> Texto en pantalla grande y una imagen que intriga: la ceja antes, la llave, una pregunta.</span></li>
+          <li><span><b>Un solo mensaje.</b> Entre 10 y 25 segundos. Si hay dos ideas, son dos reels.</span></li>
+          <li><span><b>Prueba visual.</b> El después tiene que verse en el mismo encuadre que el antes.</span></li>
+          <li><span><b>Llamado concreto.</b> «Reservá online», «escribí VIP», «comentá 1, 2 o 3». Nunca «seguinos para más».</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ ANTES Y DESPUÉS ═════════ -->
+<section class="sec" id="antes-despues">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Antes y después</div>
+      <div>
+        <h2>La prueba que vende. <em>Con reglas.</em></h2>
+        <p>Deslizá cada imagen para comparar. Son ilustraciones para mostrar el formato: las reales salen de la convocatoria de modelos de febrero y se suben a la galería de la web desde el admin.</p>
+      </div>
+    </div>
+    <div class="g3" id="ba-grid"></div>
+
+    <h3 style="margin-top:48px">Cuatro formatos para publicarlo</h3>
+    <div class="formats" id="formats"></div>
+
+    <div class="g2" style="margin-top:48px">
+      <div>
+        <h3>Protocolo de foto</h3>
+        <p class="muted" style="font-size:.93rem">En este orden, en cada sesión. Sin esto el antes y después no se puede comparar y pierde credibilidad.</p>
+        <ul class="clean steps">
+          <li><span><b>Autorización firmada antes de empezar.</b> Nunca después.</span></li>
+          <li><span><b>Misma luz.</b> Panel fijo o ventana, sin flash y sin luz del techo.</span></li>
+          <li><span><b>Mismo encuadre.</b> Trípode en una marca fija del piso o de la camilla.</span></li>
+          <li><span><b>Cara relajada</b> y sin maquillaje en la zona a tratar.</span></li>
+          <li><span><b>Sin filtros ni retoque.</b> Ni siquiera el «suavizado» del celular.</span></li>
+          <li><span><b>Foto al terminar</b> y, si se puede, a la semana (laminado y lifting asientan).</span></li>
+          <li><span><b>Nombrar el archivo</b> como fecha_servicio_iniciales. Ej.: 2027-03-03_laminado_LP.</span></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Texto de autorización</h3>
+        <p class="muted" style="font-size:.93rem">Para sumar a la ficha de la clienta (el admin ya tiene fichas con preguntas). Revisarlo con alguien de confianza antes de usarlo.</p>
+        <div class="consent" id="consent-text">Autorizo a GF Studio a sacar fotos y videos de mi tratamiento y a publicarlos en sus redes y en su web. Puedo elegir que no se vea mi cara y puedo pedir que se borren cuando quiera, escribiendo por WhatsApp.<br><br>☐ Sí, con mi cara &nbsp; ☐ Sí, sin mi cara &nbsp; ☐ No</div>
+        <div style="margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn" data-copy="consent-text">Copiar texto</button><span class="muted" style="font-size:.85rem" aria-live="polite" id="consent-msg"></span></div>
+        <div class="note">No prometer resultados médicos. Evitar «elimina manchas», «borra arrugas» o «milagro». Hablar de mejorar el aspecto y de constancia.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ FEED Y STORIES ═════════ -->
+<section class="sec" id="feed">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Feed y stories</div>
+      <div>
+        <h2>Así se vería el perfil el 11 de marzo.</h2>
+        <p>Las doce primeras publicaciones, de la más nueva (arriba a la izquierda) a la primera (abajo a la derecha). El número de cada tile es el orden en que se publica.</p>
+      </div>
+    </div>
+    <div class="feed-wrap">
+      <div>
+        <div class="ig-profile">
+          <div class="igp-top">
+            <div class="igp-av">GF</div>
+            <div style="min-width:0">
+              <div style="font-weight:700;margin-bottom:6px">gfstudio.ok</div>
+              <div class="igp-stats"><span><b>12</b>publicaciones</span><span><b>—</b>seguidores</span><span><b>—</b>seguidos</span></div>
+            </div>
+          </div>
+          <div class="igp-bio"><b>GF Studio · Guada</b>Cejas · pestañas · faciales
+Hipólito Yrigoyen 229 · Henderson
+Lun a sáb 9 a 18 · Atención 1:1
+Reservá online ↓
+<a href="https://gf-studio.vercel.app" target="_blank" rel="noopener">gf-studio.vercel.app</a></div>
+          <div class="igp-btns"><span>Seguir</span><span>Mensaje</span><span>WhatsApp</span></div>
+          <div class="hl" id="highlights"></div>
+          <div class="feed" id="feed-grid"></div>
+        </div>
+      </div>
+      <div style="min-width:0">
+        <h3>Orden de publicación</h3>
+        <ul class="clean feedlist" id="feed-list"></ul>
+        <div class="note">Portada de cada reel: texto grande arriba, recortado en 3:4 para que se lea en la grilla. Alternar fondos oliva y claros para que el perfil se vea ordenado.</div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:52px">Plantillas de stories</h3>
+    <p class="muted" style="font-size:.93rem;max-width:64ch">Stories todos los días. Seis plantillas fijas alcanzan para el mes: se arman una vez en Canva y se cambia solo el texto.</p>
+    <div class="stories" id="stories"></div>
+  </div>
+</section>
+
+<!-- ═════════ MARZO ═════════ -->
+<section class="sec" id="marzo">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Calendario</div>
+      <div>
+        <h2>Marzo 2027, <em>día por día.</em></h2>
+        <p>El mes de apertura tiene cinco publicaciones por semana más stories diarias. Los feriados del 24 y del Viernes Santo van sin publicidad.</p>
+      </div>
+    </div>
+    <div class="legend" style="margin-bottom:14px">
+      <span><span class="chip t-reel">Reel</span></span>
+      <span><span class="chip t-car">Carrusel / foto</span></span>
+      <span><span class="chip t-sto">Stories</span></span>
+      <span><span class="chip t-evt">Evento / oferta</span></span>
+      <span><span class="chip t-hol">Feriado</span></span>
+    </div>
+    <div class="cal-head"><div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div><div>Dom</div></div>
+    <div class="cal" id="cal"></div>
+
+    <div class="cadence">
+      <h3>Ritmo fuera de marzo</h3>
+      <div class="tbl-wrap">
+        <table class="cad-table">
+          <thead><tr><th>Período</th><th>Reels</th><th>Carruseles / fotos</th><th>Stories</th><th>Foco</th></tr></thead>
+          <tbody>
+            <tr><td><span class="chip ph-exp">Ene → feb</span></td><td class="tnum">1 por semana</td><td class="tnum">1 por semana</td><td>3 a 4 por semana</td><td>Intriga, Guada, convocatoria, lista VIP</td></tr>
+            <tr><td><span class="chip ph-lan">Marzo</span></td><td class="tnum">3 por semana</td><td class="tnum">2 por semana</td><td>Todos los días</td><td>Apertura, antes y después, ofertas</td></tr>
+            <tr><td><span class="chip ph-sos">Abr → jun</span></td><td class="tnum">2 por semana</td><td class="tnum">1 por semana</td><td>Todos los días hábiles</td><td>Educación, reseñas, referidos, retoques</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ OFERTAS ═════════ -->
+<section class="sec" id="ofertas">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Ofertas y mecánicas</div>
+      <div>
+        <h2>Cada beneficio con su código, <em>para poder medirlo.</em></h2>
+        <p>La configuración de cada cupón usa los mismos campos que la pestaña Cupones del admin. Los porcentajes son propuestas para discutir.</p>
+      </div>
+    </div>
+    <div class="offers" id="offers"></div>
+    <div class="note" style="margin-top:20px">No dar descuentos ni sorteos a cambio de reseñas en Google: lo prohíben sus políticas y pueden borrar todas las reseñas. Se piden, se agradecen y listo.</div>
+  </div>
+</section>
+
+<!-- ═════════ CANALES ═════════ -->
+<section class="sec" id="canales">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Canales y presupuesto</div>
+      <div>
+        <h2>Instagram muestra, <em>WhatsApp cierra.</em></h2>
+        <p>En un pueblo, lo físico y lo digital se refuerzan: el volante con QR lleva a la reserva, la radio lleva a Instagram, el estado de WhatsApp llega a todos.</p>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <table class="ch-table">
+        <thead><tr><th>Canal</th><th>Rol</th><th>Frecuencia en marzo</th><th>Costo</th><th>Cómo se mide</th></tr></thead>
+        <tbody>
+          <tr><td>Instagram</td><td>Vidriera principal: reels, antes y después, link de reserva</td><td>3 reels + 2 carruseles por semana, stories diarias</td><td>Gratis</td><td>Cuentas alcanzadas, guardados, mensajes, clics al link</td></tr>
+          <tr><td>WhatsApp Business</td><td>Consultas, lista VIP, estados diarios, catálogo de servicios</td><td>Estados todos los días; lista VIP 1 vez por semana</td><td>Gratis</td><td>Mensajes por día, usos de VIP27</td></tr>
+          <tr><td>Facebook</td><td>Llegar a mayores de 35 y a quien no usa Instagram</td><td>2 posts por semana + grupos del pueblo en cada hito</td><td>Gratis</td><td>Interacciones y mensajes</td></tr>
+          <tr><td>Google Business</td><td>Aparecer en Maps y juntar reseñas</td><td>1 foto por semana, responder cada reseña</td><td>Gratis</td><td>Reseñas, llamadas, «cómo llegar»</td></tr>
+          <tr><td>Meta Ads</td><td>Ampliar alcance a Henderson y pueblos vecinos</td><td>Del 15/2 al 21/3 y una tanda en abril</td><td>USD 2 a 4 por día <span class="sup">supuesto</span></td><td>Costo por mensaje, reservas con código</td></tr>
+          <tr><td>Volantes y vidriera</td><td>Presencia física, QR directo a la reserva</td><td>500 volantes; cartel fijo en la vidriera</td><td>Imprenta <span class="sup">cotizar</span></td><td>Código FLYER</td></tr>
+          <tr><td>Radio o portal local</td><td>Credibilidad y alcance a mayores de 40</td><td>Spot de 20 s en la semana de apertura, con la voz de Guada</td><td>A cotizar</td><td>Código RADIO y «¿cómo nos conociste?»</td></tr>
+          <tr><td>Alianzas</td><td>Referidos cruzados: peluquería, gimnasio, local de ropa, fotógrafa de eventos</td><td>3 a 4 alianzas cerradas antes de abrir</td><td>Canje</td><td>Un código por aliado</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="margin-top:44px">Tres escenarios de inversión</h3>
+    <p class="muted" style="font-size:.93rem;max-width:64ch">En dólares para que no los desactualice la inflación; cotizar en pesos en enero. Incluye lo que queda para siempre (kit y fotos) y lo que se gasta en la campaña. <span class="sup">supuesto</span></p>
+    <div class="budget" id="budget"></div>
+    <div class="legend" id="budget-legend" style="margin-top:14px"></div>
+  </div>
+</section>
+
+<!-- ═════════ MÉTRICAS ═════════ -->
+<section class="sec" id="metricas">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Métricas</div>
+      <div>
+        <h2>Quince minutos los viernes.</h2>
+        <p>Casi todo se lee en el admin (pestaña Resultados y Clientes) y en las estadísticas de Instagram. Una vez por mes, el export CSV se puede llevar a Excel o Power BI.</p>
+      </div>
+    </div>
+    <div class="g2" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)">
+      <div class="tbl-wrap">
+        <table class="kpi-table">
+          <thead><tr><th>Indicador</th><th>Meta <span class="sup">supuesto</span></th><th>Dónde se mira</th></tr></thead>
+          <tbody>
+            <tr class="grp"><td colspan="3"><span class="chip ph-exp">Expectativa · ene → feb</span></td></tr>
+            <tr><td>Contactos en la lista VIP</td><td class="t">150</td><td>Lista de difusión de WhatsApp</td></tr>
+            <tr><td>Modelos atendidas en el soft opening</td><td class="t">10</td><td>Admin → Turnos</td></tr>
+            <tr><td>Antes y después en el banco</td><td class="t">20</td><td>Carpeta de fotos / Galería</td></tr>
+            <tr><td>Seguidores de la zona</td><td class="t">+50%</td><td>Instagram → Estadísticas → Público</td></tr>
+            <tr class="grp"><td colspan="3"><span class="chip ph-lan">Lanzamiento · marzo</span></td></tr>
+            <tr><td>Turnos del mes</td><td class="t">80</td><td>Admin → Resultados</td></tr>
+            <tr><td>Clientas únicas</td><td class="t">50</td><td>Admin → Resultados</td></tr>
+            <tr><td>Ocupación</td><td class="t">≥ 45%</td><td>Admin → Resultados</td></tr>
+            <tr><td>Ausentes sin aviso</td><td class="t">&lt; 10%</td><td>Admin → Resultados (si se pasa, activar seña)</td></tr>
+            <tr><td>Reseñas en Google</td><td class="t">15</td><td>Google Business</td></tr>
+            <tr><td>Turnos con cupón</td><td class="t">60</td><td>Admin → Resultados → «Con cupón»</td></tr>
+            <tr class="grp"><td colspan="3"><span class="chip ph-sos">Sostén · abr → jun</span></td></tr>
+            <tr><td>Ocupación</td><td class="t">≥ 65%</td><td>Admin → Resultados</td></tr>
+            <tr><td>Clientas que vuelven a tiempo para su retoque</td><td class="t">40%</td><td>Admin → Clientes (cadencia)</td></tr>
+            <tr><td>Referidas con AMIGA15</td><td class="t">20</td><td>Admin → Cupones</td></tr>
+            <tr><td>Reseñas en Google (acumuladas)</td><td class="t">40</td><td>Google Business</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h3>El embudo</h3>
+        <p class="muted" style="font-size:.93rem">Si las reservas no llegan, este orden dice dónde mirar: el primer escalón que se corta es el problema.</p>
+        <div class="funnel">
+          <div class="fn" style="--w:100%"><div><b>Alcance en la zona</b><span>Instagram · Facebook · radio · volantes</span></div></div>
+          <div class="fn" style="--w:88%"><div><b>Visitas al perfil</b><span>Estadísticas de Instagram</span></div></div>
+          <div class="fn" style="--w:74%"><div><b>Clics al link o mensajes</b><span>Instagram · WhatsApp</span></div></div>
+          <div class="fn" style="--w:60%"><div><b>Reservas</b><span>Admin → Turnos</span></div></div>
+          <div class="fn" style="--w:48%"><div><b>Turnos asistidos</b><span>Admin → Resultados</span></div></div>
+          <div class="fn" style="--w:36%"><div><b>Vuelve</b><span>Admin → Clientes</span></div></div>
+        </div>
+        <div class="note">Sumar a la ficha la pregunta «¿Cómo nos conociste?». Es la forma más simple de saber qué canal funciona, aunque la clienta no use cupón.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ PRODUCCIÓN ═════════ -->
+<section class="sec" id="produccion">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Producción</div>
+      <div>
+        <h2>Una sola persona, <em>dos horas por semana.</em></h2>
+        <p>El contenido se graba en tanda un día fijo (el de menos turnos) y se programa. Así las redes no compiten con la agenda.</p>
+      </div>
+    </div>
+    <div class="week">
+      <div><b>30 min</b><span>Grabar 2 o 3 reels con los guiones de esta página</span></div>
+      <div><b>20 min</b><span>Fotos del espacio, productos y detalles</span></div>
+      <div><b>40 min</b><span>Editar con plantilla fija (CapCut o Edits)</span></div>
+      <div><b>15 min</b><span>Programar en Meta Business Suite (Instagram + Facebook)</span></div>
+    </div>
+    <p class="muted" style="margin-top:12px;font-size:.93rem">Y 5 minutos por día para stories: turnos libres, detrás de escena, respuestas.</p>
+
+    <div class="g3" style="margin-top:40px">
+      <div class="rule-top">
+        <h3>Kit de grabación</h3>
+        <ul class="clean plain">
+          <li><span><b>Trípode</b> con cabezal y brazo para tomas desde arriba.</span></li>
+          <li><span><b>Panel LED regulable</b> en luz neutra (4500 a 5000 K).</span></li>
+          <li><span><b>Micrófono corbatero</b> inalámbrico para hablar a cámara y para el ASMR.</span></li>
+          <li><span><b>Pared lisa</b> oliva o hueso como fondo fijo.</span></li>
+          <li><span><b>Espejo de mano</b> lindo: aparece en muchos reels.</span></li>
+        </ul>
+      </div>
+      <div class="rule-top">
+        <h3>Copy</h3>
+        <p style="font-size:.95rem;color:var(--ink-2)">Gancho en una línea, dos o tres líneas de valor, un llamado concreto y de 3 a 5 hashtags.</p>
+        <p style="font-size:.95rem;color:var(--ink-2)">Hashtags locales siempre: <b>#Henderson #HipólitoYrigoyen #GFStudio</b>. Más uno o dos del servicio: #laminadodecejas, #skincare, #limpiezafacial.</p>
+        <p style="font-size:.95rem;color:var(--ink-2)">Voseo, primera persona de Guada, frases cortas.</p>
+      </div>
+      <div class="rule-top">
+        <h3>Música</h3>
+        <p style="font-size:.95rem;color:var(--ink-2)">Usar audios de la biblioteca de Instagram desde una cuenta profesional. Si la cuenta es de empresa, Instagram limita la música comercial: elegir de la sección de audios libres para evitar que se silencie el reel.</p>
+      </div>
+    </div>
+
+    <div class="dodont" style="margin-top:40px">
+      <div>
+        <h3>Sí</h3>
+        <ul class="clean">
+          <li>«Unos 45 minutos y te vas con la ceja peinada.»</li>
+          <li>«En la primera sesión vemos qué necesita tu piel.»</li>
+          <li>«Mejora el aspecto de la piel con constancia.»</li>
+          <li>«Reservá online desde el link de la bio.»</li>
+          <li>Mostrar el tiempo real de cada servicio y la cara de Guada.</li>
+        </ul>
+      </div>
+      <div class="no">
+        <h3>No</h3>
+        <ul class="clean">
+          <li>«Resultados milagrosos.»</li>
+          <li>«Eliminá tus manchas y arrugas.»</li>
+          <li>«El mejor estudio de la zona.»</li>
+          <li>«Feliz día» en el 8M.</li>
+          <li>Filtros o retoques en el antes y después.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 style="margin-top:44px">Identidad de la campaña</h3>
+    <p class="muted" style="font-size:.93rem;max-width:64ch">La misma paleta y tipografías de la web (ya definidas en config.js), para que redes, volantes y landing se vean como una sola marca.</p>
+    <div class="swatches">
+      <div class="sw" style="background:var(--art-olive);color:var(--art-cream)">Oliva oscuro<br>#3D4A18</div>
+      <div class="sw" style="background:var(--art-olive-2);color:var(--art-cream)">Oliva<br>#5E6B2E</div>
+      <div class="sw" style="background:var(--art-soft);color:var(--art-ink)">Oliva suave<br>#B8C481</div>
+      <div class="sw" style="background:var(--art-sand);color:var(--art-ink)">Arena<br>#E8E2D4</div>
+      <div class="sw" style="background:var(--art-bone);color:var(--art-ink)">Hueso<br>#F2EDE0</div>
+      <div class="sw" style="background:var(--art-ink);color:var(--art-cream)">Tinta<br>#1A1810</div>
+    </div>
+    <div class="type-spec">
+      <div><span>Títulos</span><b style="font-family:var(--display);font-weight:400;font-size:1.9rem;letter-spacing:-.02em">Volvé <i style="color:var(--accent-2)">a vos.</i></b><small class="muted">Fraunces, con la cursiva para la palabra que importa</small></div>
+      <div><span>Textos</span><b style="font-weight:500;font-size:1.05rem">Cejas · pestañas · faciales. Lunes a sábado de 9 a 18.</b><small class="muted">Inter Tight</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ IDEAS ═════════ -->
+<section class="sec" id="ideas">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Banco de ideas</div>
+      <div>
+        <h2>Para seguir pensando.</h2>
+        <p>Ideas nuevas ordenadas por impacto y esfuerzo. Las de «hacer ya» se pueden sumar a la campaña sin cambiar el plan; las de «planificar» son proyectos para el segundo semestre.</p>
+      </div>
+    </div>
+    <div class="quad" id="quad"></div>
+  </div>
+</section>
+
+<!-- ═════════ CHECKLIST ═════════ -->
+<section class="sec" id="checklist">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Checklist</div>
+      <div>
+        <h2>De hoy a la apertura.</h2>
+        <p>Las tildes se guardan en este navegador, así podés ir marcando lo que se hace. Varias tareas son pendientes que ya estaban anotados en el repo (fotos reales, dominio, política de cancelación).</p>
+      </div>
+    </div>
+    <div class="progress" aria-hidden="true"><i id="prog-bar"></i></div>
+    <p class="muted tnum" style="font-size:.85rem;margin-bottom:22px" id="prog-txt" aria-live="polite"></p>
+    <div class="months" id="months"></div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>GF Studio · Campaña de lanzamiento 2027 · Borrador v1 del 19/10/2026</span>
+    <span>Fuentes: servicios, packs, cupones, paleta y funciones del repo GFStudio. Lo marcado como <span class="sup">supuesto</span> hay que validarlo.</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+
+/* ───────── utilidades ───────── */
+function rng(seed){var a=seed>>>0;return function(){a=(a+0x6D2B79F5)|0;var t=Math.imul(a^(a>>>15),1|a);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296;};}
+var UID=0;
+function f1(n){return Math.round(n*10)/10;}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+var reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function store(k,v){try{if(v===undefined){return localStorage.getItem(k);}localStorage.setItem(k,v);}catch(e){return null;}}
+
+/* ───────── ilustraciones (viewBox 90×160) ───────── */
+function eye(cx,cy,w){
+  var x1=cx-w/2,x2=cx+w/2,top=cy-w*0.36,bot=cy+w*0.22;
+  return '<path d="M'+x1+' '+cy+' Q'+cx+' '+f1(top)+' '+x2+' '+cy+' Q'+cx+' '+f1(bot)+' '+x1+' '+cy+'Z" class="f-cr s-br" stroke-width="1"/>'+
+    '<circle cx="'+cx+'" cy="'+(cy-1)+'" r="'+f1(w*0.14)+'" class="f-br"/>'+
+    '<circle cx="'+cx+'" cy="'+(cy-1)+'" r="'+f1(w*0.06)+'" class="f-ink"/>'+
+    '<circle cx="'+f1(cx+w*0.05)+'" cy="'+f1(cy-w*0.06)+'" r="'+f1(w*0.025)+'" class="f-cr"/>';
+}
+function browCurve(t){return [(1-t)*(1-t)*14+2*(1-t)*t*38+t*t*78,(1-t)*(1-t)*74+2*(1-t)*t*56+t*t*68];}
+function brow(kind,seed){
+  var r=rng(seed||7),s="",i,t,p,len,ang;
+  if(kind==="brow0"){
+    for(i=0;i<48;i++){
+      t=r(); if(t>0.4&&t<0.56&&r()<0.75) continue;
+      p=browCurve(t); len=2.5+r()*4; ang=(-70+(r()-0.5)*110)*Math.PI/180;
+      var y0=p[1]+r()*5-1.5;
+      s+='<line x1="'+f1(p[0])+'" y1="'+f1(y0)+'" x2="'+f1(p[0]+Math.cos(ang)*len)+'" y2="'+f1(y0+Math.sin(ang)*len)+'" class="s-sp" stroke-width=".9" stroke-linecap="round" opacity="'+f1(.5+r()*.4)+'"/>';
+    }
+    for(i=0;i<9;i++){var x=20+r()*52,y=79+r()*7;s+='<line x1="'+f1(x)+'" y1="'+f1(y)+'" x2="'+f1(x+1.6)+'" y2="'+f1(y-2.4)+'" class="s-sp" stroke-width=".7" stroke-linecap="round" opacity=".6"/>';}
+    return s;
+  }
+  var thick=kind==="browP"?4.2:kind==="brow1"?7.5:6.2, top="", bot="";
+  function w(t){return thick*(t<0.7?(0.62+0.38*t/0.7):(1-(t-0.7)/0.3*0.85));}
+  for(i=0;i<=24;i++){t=i/24;p=browCurve(t);top+=(i?"L":"M")+f1(p[0])+" "+f1(p[1]-w(t))+" ";bot="L"+f1(p[0])+" "+f1(p[1]+0.6)+" "+bot;}
+  var op=kind==="browH"?0.92:kind==="brow1"?0.42:0.6;
+  s+='<path d="'+top+bot+'Z" class="f-br" opacity="'+op+'"/>';
+  if(kind!=="browH"){
+    var n=kind==="brow1"?80:36;
+    for(i=0;i<n;i++){
+      t=Math.min(1,i/n+r()*0.012); p=browCurve(t);
+      len=w(t)*(kind==="brow1"?1.3:1.05);
+      ang=(kind==="brow1"?(-98+t*58):(-105+t*90))*Math.PI/180;
+      s+='<line x1="'+f1(p[0])+'" y1="'+f1(p[1]+0.4)+'" x2="'+f1(p[0]+Math.cos(ang)*len)+'" y2="'+f1(p[1]+0.4+Math.sin(ang)*len)+'" class="s-br" stroke-width=".7" stroke-linecap="round" opacity=".85"/>';
+    }
+  }
+  return s;
+}
+function lidCurve(t){return [(1-t)*(1-t)*16+2*(1-t)*t*45+t*t*74,(1-t)*(1-t)*96+2*(1-t)*t*75.2+t*t*96];}
+function lashes(kind,seed){
+  var r=rng(seed||3),s="",i,t,p,dx,len;
+  for(i=0;i<=24;i++){
+    t=0.07+i/24*0.86;p=lidCurve(t);dx=t-0.5;
+    if(kind==="lash0"){len=3.8+r()*1.4;s+='<line x1="'+f1(p[0])+'" y1="'+f1(p[1])+'" x2="'+f1(p[0]+dx*5)+'" y2="'+f1(p[1]+len*0.75)+'" class="s-ink" stroke-width=".8" stroke-linecap="round"/>';}
+    else{len=9+r()*2.5;var ex=p[0]+dx*16,ey=p[1]-len,cx=p[0]+dx*3,cy=p[1]-len*0.15;s+='<path d="M'+f1(p[0])+' '+f1(p[1])+' Q'+f1(cx)+' '+f1(cy)+' '+f1(ex)+' '+f1(ey)+'" class="n s-ink" stroke-width=".9" stroke-linecap="round"/>';}
+  }
+  return s;
+}
+function face(kind,seed,extra){
+  var r=rng(seed||11),id="g"+(++UID),s="",i;
+  s+='<defs><radialGradient id="'+id+'" cx="40%" cy="42%" r="60%"><stop offset="0" style="stop-color:var(--art-cream);stop-opacity:'+(kind==="skin1"?0.7:0.08)+'"/><stop offset="1" style="stop-color:var(--art-cream);stop-opacity:0"/></radialGradient></defs>';
+  s+='<ellipse cx="45" cy="86" rx="31" ry="41" class="f-br"/>';
+  s+='<rect x="38" y="118" width="14" height="20" class="f-sk2"/>';
+  s+='<path d="M10 160 Q45 126 80 160Z" class="'+(extra==="towel"?"f-cr":"f-sd")+'"/>';
+  s+='<ellipse cx="45" cy="92" rx="25" ry="32" class="f-sk"/>';
+  if(kind==="skin0"){
+    for(i=0;i<46;i++){var a=r()*Math.PI*2,rr=Math.sqrt(r()),x=45+Math.cos(a)*rr*21,y=95+Math.sin(a)*rr*26;s+='<circle cx="'+f1(x)+'" cy="'+f1(y)+'" r="'+f1(.45+r()*.9)+'" class="f-sp" opacity="'+f1(.3+r()*.35)+'"/>';}
+    s+='<ellipse cx="45" cy="92" rx="25" ry="32" class="f-sd" opacity=".16"/>';
+  }else{
+    s+='<ellipse cx="45" cy="92" rx="25" ry="32" fill="url(#'+id+')"/>';
+    s+='<path d="M28 98 l2 -2 M31 101 l1.5 -1.5" class="n s-cr" stroke-width=".8" stroke-linecap="round" opacity=".9"/>';
+  }
+  s+='<path d="M33 88 Q37 91 41 88 M49 88 Q53 91 57 88" class="n s-br" stroke-width="1.1" stroke-linecap="round"/>';
+  s+='<path d="M32 80 Q37 77 42 79 M48 79 Q53 77 58 80" class="n s-br" stroke-width="1.6" stroke-linecap="round"/>';
+  s+='<path d="M45 90 Q47.5 99 43.5 101" class="n s-sk2" stroke-width="1" stroke-linecap="round"/>';
+  s+='<path d="M39 110 Q45 113.5 51 110" class="n s-sk2" stroke-width="1.5" stroke-linecap="round"/>';
+  if(extra==="towel"){s+='<path d="M19 72 Q45 48 71 72 L71 66 Q45 42 19 66Z" class="f-cr"/>';}
+  return s;
+}
+var ART={
+  door:function(){return '<g transform="translate(0 8)"><rect x="20" y="36" width="50" height="104" rx="2" class="f-o2"/><rect x="25" y="41" width="40" height="99" class="f-o"/><rect x="33" y="50" width="24" height="9" rx="1.5" class="f-cr"/><text x="45" y="57" text-anchor="middle" font-size="6" font-weight="700" class="f-o" style="font-family:var(--body)">229</text><circle cx="58" cy="94" r="2.6" class="f-sd"/><g transform="rotate(-24 60 96)"><circle cx="64" cy="96" r="4.2" class="n s-sd" stroke-width="1.8"/><rect x="68" y="95" width="11" height="2.2" class="f-sd"/><rect x="75" y="97" width="1.6" height="3" class="f-sd"/></g></g><rect x="0" y="148" width="90" height="12" class="f-sd" opacity=".6"/>';},
+  space:function(){return '<rect x="0" y="128" width="90" height="32" class="f-sd"/><circle cx="45" cy="56" r="20" class="f-cr" opacity=".55"/><path d="M45 30 V44" class="n s-ink" stroke-width=".8"/><path d="M36 52 Q45 40 54 52Z" class="f-o2"/><ellipse cx="22" cy="80" rx="7" ry="10" class="n s-o2" stroke-width="1.6"/><rect x="14" y="102" width="56" height="8" rx="3.5" class="f-o2"/><rect x="16" y="99" width="16" height="5" rx="2.5" class="f-cr"/><path d="M20 110 V128 M64 110 V128" class="n s-ink" stroke-width="1.6"/><rect x="70" y="112" width="9" height="16" rx="1.5" class="f-cr"/><ellipse cx="72" cy="104" rx="3" ry="8" class="f-sg" transform="rotate(-20 72 104)"/><ellipse cx="78" cy="102" rx="3" ry="9" class="f-o2" transform="rotate(18 78 102)"/><ellipse cx="75" cy="99" rx="2.6" ry="9" class="f-sg"/>';},
+  detail:function(){return '<rect x="16" y="112" width="40" height="11" rx="4" class="f-sd"/><rect x="18" y="101" width="36" height="11" rx="4" class="f-cr"/><rect x="20" y="90" width="32" height="11" rx="4" class="f-sg"/><rect x="61" y="86" width="13" height="37" rx="3.5" class="f-o"/><rect x="64" y="79" width="7" height="8" rx="1" class="f-ink"/><rect x="63" y="98" width="9" height="11" rx="1" class="f-cr"/><path d="M8 123 H82" class="n s-ink" stroke-width=".6" opacity=".4"/>';},
+  person:function(){return '<path d="M12 160 Q45 108 78 160Z" class="f-o2"/><rect x="39" y="104" width="12" height="14" class="f-sk2"/><ellipse cx="45" cy="88" rx="17" ry="19" class="f-br"/><ellipse cx="45" cy="92" rx="13.5" ry="16" class="f-sk"/><circle cx="45" cy="70" r="7" class="f-br"/><path d="M40 90 Q42 92 44 90 M46 90 Q48 92 50 90" class="n s-br" stroke-width=".9" stroke-linecap="round"/><path d="M41.5 99 Q45 101.5 48.5 99" class="n s-sk2" stroke-width="1.2" stroke-linecap="round"/>';},
+  group:function(){var s="",c=[["f-sg","f-sk",22],["f-cr","f-sk2",45],["f-sd","f-sk",68]];c.forEach(function(v,i){var x=v[2],y=i===1?92:100;s+='<path d="M'+(x-20)+' 160 Q'+x+' '+(y+24)+' '+(x+20)+' 160Z" class="'+v[0]+'"/><circle cx="'+x+'" cy="'+y+'" r="11.5" class="f-br"/><circle cx="'+x+'" cy="'+(y+2)+'" r="9.5" class="'+v[1]+'"/>';});return s;},
+  brow0:function(){return '<path d="M20 97 Q45 79 70 97" class="n s-sk2" stroke-width="1"/>'+eye(45,100,52)+brow("brow0",5);},
+  browP:function(){return '<path d="M20 97 Q45 79 70 97" class="n s-sk2" stroke-width="1"/>'+eye(45,100,52)+brow("browP",8);},
+  brow1:function(){return '<path d="M20 97 Q45 79 70 97" class="n s-sk2" stroke-width="1"/>'+eye(45,100,52)+brow("brow1",9);},
+  browH:function(){return '<path d="M20 97 Q45 79 70 97" class="n s-sk2" stroke-width="1"/>'+eye(45,100,52)+brow("browH",4);},
+  lash0:function(){return '<path d="M22 70 Q45 58 70 66" class="n s-br" stroke-width="4" stroke-linecap="round" opacity=".6"/>'+eye(45,96,58)+lashes("lash0",3);},
+  lash1:function(){return '<path d="M22 70 Q45 58 70 66" class="n s-br" stroke-width="4" stroke-linecap="round" opacity=".6"/>'+eye(45,96,58)+lashes("lash1",3);},
+  skin0:function(){return face("skin0",11);},
+  skin1:function(){return face("skin1",11);},
+  steam:function(){return face("skin1",11,"towel")+'<path d="M26 70 q-4 -7 0 -14 q4 -7 0 -14 M45 66 q-4 -7 0 -14 q4 -7 0 -14 M64 70 q-4 -7 0 -14 q4 -7 0 -14" class="n s-cr" stroke-width="1.6" stroke-linecap="round" opacity=".85"/>';},
+  led:function(){var s=face("skin1",11);[32,38,44].forEach(function(r,i){s+='<path d="M'+(45-r)+' 96 A'+r+' '+r+' 0 0 1 '+(45+r)+' 96" class="n s-sf" stroke-width="'+(2.2-i*.5)+'" opacity="'+(.9-i*.2)+'"/>';for(var k=0;k<=8;k++){var a=Math.PI+k*Math.PI/8;s+='<circle cx="'+f1(45+Math.cos(a)*r)+'" cy="'+f1(96+Math.sin(a)*r)+'" r="1.1" class="f-sf" opacity="'+(.95-i*.2)+'"/>';}});return s;},
+  bottles:function(){return '<rect x="0" y="124" width="90" height="36" class="f-sd" opacity=".7"/><rect x="16" y="86" width="16" height="38" rx="4" class="f-o"/><rect x="20" y="78" width="8" height="9" class="f-ink"/><rect x="36" y="96" width="18" height="28" rx="9" class="f-cr"/><rect x="41" y="90" width="8" height="7" rx="1" class="f-o2"/><rect x="58" y="74" width="13" height="50" rx="3" class="f-sg"/><path d="M64.5 74 V64 H70" class="n s-ink" stroke-width="1.6"/><rect x="18" y="100" width="12" height="10" class="f-cr"/>';},
+  mate:function(){return '<rect x="0" y="122" width="90" height="38" class="f-sd" opacity=".7"/><path d="M30 92 Q26 122 45 124 Q64 122 60 92Z" class="f-o"/><ellipse cx="45" cy="92" rx="15" ry="4" class="f-br"/><ellipse cx="45" cy="92" rx="12" ry="2.8" class="f-sg"/><path d="M50 92 L62 58" class="n s-sd" stroke-width="2.2" stroke-linecap="round"/><path d="M36 70 q-3 -5 0 -10 M44 66 q-3 -5 0 -10" class="n s-o2" stroke-width="1.2" stroke-linecap="round" opacity=".6"/>';},
+  phone:function(){var s='<rect x="24" y="52" width="42" height="80" rx="6" class="f-ink"/><rect x="27" y="57" width="36" height="70" rx="3" class="f-cr"/><rect x="31" y="62" width="28" height="4" rx="1" class="f-o"/>';for(var r=0;r<4;r++)for(var c=0;c<5;c++){var hot=(r===2&&c===3);s+='<rect x="'+(31+c*5.8)+'" y="'+(71+r*7)+'" width="4.4" height="5" rx="1" class="'+(hot?"f-o":"f-sd")+'"/>';}s+='<rect x="31" y="104" width="28" height="7" rx="3.5" class="f-o2"/><rect x="31" y="114" width="28" height="7" rx="3.5" class="f-sd"/>';return s;},
+  calendar:function(){var s='<rect x="18" y="56" width="54" height="68" rx="3" class="f-cr"/><rect x="18" y="56" width="54" height="13" rx="3" class="f-o"/><circle cx="30" cy="56" r="2.2" class="f-ink"/><circle cx="60" cy="56" r="2.2" class="f-ink"/>';for(var r=0;r<5;r++)for(var c=0;c<6;c++){var x=23+c*7.6,y=74+r*9.2,k=r*6+c;if(k<15){s+='<path d="M'+x+' '+y+' l4.5 5 M'+(x+4.5)+' '+y+' l-4.5 5" class="n s-sg" stroke-width=".9"/>';}else{s+='<rect x="'+x+'" y="'+y+'" width="4.5" height="5" rx=".8" class="f-sd"/>';}}s+='<ellipse cx="'+(23+3*7.6+2.2)+'" cy="'+(74+2*9.2+2.5)+'" rx="5" ry="4.6" class="n s-o" stroke-width="1.3"/>';return s;},
+  logo:function(){return '<text x="45" y="92" text-anchor="middle" font-size="30" font-weight="700" class="f-cr" style="font-family:var(--display);letter-spacing:-1px">GF</text><path d="M28 100 H62" class="n s-cr" stroke-width=".7" opacity=".4"/><text x="45" y="110" text-anchor="middle" font-size="6.2" class="f-cr" opacity=".7" style="font-family:var(--body);letter-spacing:3.5px">STUDIO</text>';},
+  mirror:function(){return face("skin1",13).replace(/<path d="M10 160[^>]*>/,"")+'<ellipse cx="45" cy="92" rx="32" ry="42" class="n s-o2" stroke-width="5"/><path d="M45 134 V160" class="n s-o2" stroke-width="7" stroke-linecap="round"/><path d="M22 70 l5 -6 M20 78 l3 -3" class="n s-cr" stroke-width="1.4" stroke-linecap="round"/>';},
+  clock:function(){return '<circle cx="45" cy="92" r="26" class="f-cr"/><circle cx="45" cy="92" r="26" class="n s-o" stroke-width="2.2"/><path d="M45 92 V76 M45 92 L56 98" class="n s-ink" stroke-width="2" stroke-linecap="round"/><circle cx="45" cy="92" r="2" class="f-o"/>';},
+  three:function(){var s="";[["browP",8],["brow1",9],["browH",4]].forEach(function(b,i){var c=78+i*24;s+='<g transform="translate(22 '+f1(c-45.5)+') scale(.7)">'+brow(b[0],b[1])+'</g><text x="16" y="'+(c+3)+'" font-size="10" font-weight="700" class="f-o" style="font-family:var(--display)">'+(i+1)+'</text>';});return s;},
+  split:function(){var a="c"+(++UID),b="c"+(++UID);return '<defs><clipPath id="'+a+'"><rect x="0" y="0" width="45" height="160"/></clipPath><clipPath id="'+b+'"><rect x="45" y="0" width="45" height="160"/></clipPath></defs><g clip-path="url(#'+a+')">'+ART.brow0()+'</g><g clip-path="url(#'+b+')">'+ART.brow1()+'</g><path d="M45 0 V160" class="n s-cr" stroke-width="1.5"/>';},
+  swipe:function(){return '<path d="M-10 120 L60 -10 L110 -10 L40 170Z" class="f-sk" opacity=".35"/><path d="M10 150 L70 30 M24 156 L84 36" class="n s-cr" stroke-width="2" opacity=".5" stroke-linecap="round"/>';},
+  services:function(){return '<circle cx="45" cy="64" r="13" class="f-sk"/><g transform="translate(29.4 41.9) scale(.34)">'+brow("brow1",9)+'</g><circle cx="45" cy="94" r="13" class="f-sk"/><g transform="translate(27 58) scale(.4)">'+eye(45,96,58)+lashes("lash1",3)+'</g><circle cx="45" cy="124" r="13" class="f-sg"/><ellipse cx="45" cy="122" rx="7.5" ry="8.5" class="f-br"/><ellipse cx="45" cy="125" rx="6" ry="7" class="f-sk"/><path d="M42.5 130 Q45 131.5 47.5 130" class="n s-sk2" stroke-width=".8"/>';},
+  text:function(){return "";}
+};
+function svg(art,cls){var f=ART[art]||ART.text;return '<svg viewBox="0 0 90 160" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"'+(cls?' class="'+cls+'"':'')+'>'+f()+'</svg>';}
+
+/* ───────── datos: reels ───────── */
+var PH={exp:["ph-exp","Expectativa"],lan:["ph-lan","Lanzamiento"],sos:["ph-sos","Sostén"]};
+var REELS=[
+{id:"R01",t:"La llave",fase:"exp",pilar:"Detrás de escena",fecha:"Vie 15 ene",
+ hook:"Una mano gira la llave en la puerta de Yrigoyen 229. Intriga desde el primer segundo.",
+ audio:"Piano o lo-fi suave, de la biblioteca de audios de Instagram.",cta:"Escribí VIP por WhatsApp",
+ frames:[
+  {s:2,art:"door",bg:"sand",txt:"Henderson.\nYrigoyen 229.",shot:"Primer plano: la mano con la llave en la cerradura del estudio."},
+  {s:4,art:"space",bg:"bone",txt:"Algo se está armando…",shot:"Timelapse del armado: pintura, camilla, luces. Celular fijo en trípode, una toma por día durante dos semanas."},
+  {s:3,art:"detail",bg:"cream",txt:"Pensado desde el detalle.",shot:"Cortes de medio segundo: toallas dobladas, frascos, la camilla con la manta, la planta."},
+  {s:3,art:"person",bg:"sand",txt:"Soy Guada.",shot:"Guada de espaldas acomoda algo, se da vuelta y mira a cámara."},
+  {s:2,art:"logo",bg:"olive",txt:"Abrimos en marzo.",sub:"Lista VIP · link en la bio",shot:"Placa final con el logo y el llamado a la lista VIP."}],
+ caption:"Hace meses que vengo armando este lugar, detalle por detalle. En marzo abre GF Studio en Hipólito Yrigoyen 229, Henderson.\n\n¿Querés enterarte primero y tener un beneficio de apertura? Escribime VIP por WhatsApp.\n\n#Henderson #GFStudio #cejas #skincare",
+ notas:"Empezar el timelapse en diciembre. No mostrar la cara completa hasta el cuadro 4: sostiene la intriga."},
+{id:"R02",t:"Busco 10 caras",fase:"exp",pilar:"Comunidad",fecha:"Vie 29 ene",
+ hook:"Guada a cámara, sin saludo: «Busco 10 caras para estrenar el estudio».",
+ audio:"Voz de Guada a cámara con música muy baja de fondo.",cta:"Escribí MODELO por WhatsApp",
+ frames:[
+  {s:3,art:"person",bg:"olive",txt:"Busco 10 caras\npara estrenar el estudio.",shot:"Guada a cámara, plano medio, mirada directa. Arranca hablando sin saludar."},
+  {s:3,art:"services",bg:"bone",txt:"Cejas · pestañas · faciales",shot:"Cortes de un segundo de cada servicio (material de archivo o fotos)."},
+  {s:4,art:"text",bg:"cream",txt:"A precio de costo,\na cambio de fotos y video.",shot:"Guada explica la condición: se graba el antes y el después, con autorización firmada.",center:true},
+  {s:4,art:"calendar",bg:"sand",txt:"Del 15 al 27 de febrero.",shot:"Calendario de papel con las fechas marcadas."},
+  {s:3,art:"phone",bg:"olive",txt:"Escribime MODELO\npor WhatsApp.",shot:"Placa final con el número y el logo."}],
+ caption:"Busco 10 personas para estrenar GF Studio antes de abrir. El servicio va a precio de costo y, a cambio, grabamos el antes y el después (siempre con tu autorización).\n\nCejas, pestañas o faciales. Sesiones del 15 al 27 de febrero.\nEscribime MODELO por WhatsApp y te cuento.\n\n#Henderson #cejas #pestañas",
+ notas:"Elegir perfiles variados: edades, tipos de piel y de ceja. De acá sale el banco de antes y después de todo marzo."},
+{id:"R03",t:"Faltan 3 días",fase:"exp",pilar:"Detrás de escena",fecha:"Vie 26 feb",
+ hook:"Mano tachando el calendario de papel: «Faltan 3 días».",
+ audio:"Audio en tendencia con ritmo marcado, cortes al compás.",cta:"Reservá online (link en la bio)",
+ frames:[
+  {s:2,art:"calendar",bg:"sand",txt:"Faltan 3 días.",shot:"Calendario de papel: la mano tacha el día."},
+  {s:3,art:"detail",bg:"cream",txt:"Últimos detalles.",shot:"Colgando el cartel, flores en la entrada, la manta sobre la camilla."},
+  {s:2,art:"space",bg:"bone",txt:"",shot:"Paneo lento del espacio terminado."},
+  {s:3,art:"phone",bg:"olive",txt:"La agenda ya está abierta.",shot:"Grabación de pantalla reservando un turno en gf-studio.vercel.app."},
+  {s:2,art:"logo",bg:"olive",txt:"Lunes 1/3.\nAbrimos.",shot:"Placa final con el logo."}],
+ caption:"Faltan 3 días. Estoy colgando los últimos cuadros y ya hay turnos tomados para la primera semana.\n\nLa agenda online está abierta: link en la bio. Si sos de la lista VIP, usá tu código VIP27.\n\n#Henderson #GFStudio",
+ notas:"La grabación de pantalla de la reserva enseña que se puede reservar sin llamar. Grabarla en el celular, no en la compu."},
+{id:"R04",t:"45 minutos",fase:"lan",pilar:"Transformación",fecha:"Mié 3 mar",
+ hook:"Primer plano de la ceja antes, con el texto «45 minutos».",
+ audio:"Audio en tendencia con un golpe marcado para el corte al después.",cta:"Reservá online (link en la bio)",
+ frames:[
+  {s:1,art:"brow0",bg:"skin",txt:"45 minutos.",shot:"Primer plano de la ceja ANTES. Luz de ventana o panel fijo, sin filtro."},
+  {s:3,art:"bottles",bg:"bone",txt:"",shot:"Tres cortes de medio segundo: cepillado, film, tinte."},
+  {s:1,art:"swipe",bg:"olive",txt:"",shot:"Transición: la mano tapa la cámara y se corre."},
+  {s:4,art:"brow1",bg:"skin",txt:"Laminado de cejas.",shot:"Mismo encuadre: la ceja DESPUÉS."},
+  {s:3,art:"split",bg:"skin",txt:"Antes · Después",sub:"Reservá online · link en la bio",shot:"Pantalla dividida y placa con el link."}],
+ caption:"Antes y después de un laminado de cejas. Unos 45 minutos y la ceja queda peinada y prolija por varias semanas.\n\n¿Querés probar? Reservá online desde el link de la bio.\n\n#laminadodecejas #antesydespues #Henderson",
+ notas:"Mismo encuadre antes y después: trípode fijo en la marca. Ajustar los minutos a la duración real cargada en el admin. El formato se repite con lifting (17/3) y con piel (23/3)."},
+{id:"R05",t:"Semana del 8M",fase:"lan",pilar:"Oferta",fecha:"Vie 5 mar",
+ hook:"Montaje de caras de distintas edades con el texto «Semana del 8M».",
+ audio:"Instrumental cálido, sin letra.",cta:"Código DUO al reservar",
+ frames:[
+  {s:3,art:"group",bg:"olive",txt:"Semana del 8M.",shot:"Montaje de caras de distintas edades (modelos y clientas que autorizan)."},
+  {s:3,art:"text",bg:"cream",txt:"Venís con tu mamá,\ntu hermana o tu amiga…",shot:"Dos personas riéndose en la sala de espera.",center:true},
+  {s:3,art:"text",bg:"cream",txt:"…y cada una\ntiene 15% off.",shot:"Placa con el beneficio.",center:true},
+  {s:3,art:"calendar",bg:"sand",txt:"Del 8 al 13 de marzo.",shot:"Calendario con la semana marcada."},
+  {s:3,art:"logo",bg:"olive",txt:"Código DUO",sub:"al reservar online",shot:"Placa final con el logo."}],
+ caption:"Del 8 al 13 de marzo: si venís con tu mamá, tu hermana o una amiga, cada una tiene 15% off en su servicio. Código DUO al reservar online.\n\nUn rato para compartir con alguien que querés.\n\n#8M #Henderson #GFStudio",
+ notas:"El 8M es una fecha de reivindicación: tono respetuoso, sin «feliz día» ni flores. El lunes 8 va un carrusel reflexivo sin venta; el beneficio vive en este reel y en las stories."},
+{id:"R06",t:"Lo que el verano le hizo a tu piel",fase:"lan",pilar:"Educación",fecha:"Mar 9 mar",
+ hook:"«Marzo. Tu piel te está pidiendo esto.» Guada a cámara.",
+ audio:"Voz de Guada; música suave de fondo.",cta:"Pack Volvé a vos",
+ frames:[
+  {s:2,art:"person",bg:"olive",txt:"Marzo.\nTu piel te está\npidiendo esto.",shot:"Guada a cámara con el estudio de fondo. El gancho entra en el primer segundo."},
+  {s:3,art:"skin0",bg:"sand",txt:"1 · Deshidratación",shot:"Detalle de piel tirante (modelo)."},
+  {s:3,art:"skin0",bg:"sand",txt:"2 · Manchitas de sol",shot:"Detalle de mejilla. Nunca mostrar caras sin autorización."},
+  {s:3,art:"skin0",bg:"sand",txt:"3 · Poros marcados",shot:"Detalle de nariz y mejilla."},
+  {s:4,art:"led",bg:"olive",txt:"Limpieza profunda + LED",sub:"Pack Volvé a vos",shot:"Toma del protocolo con LED y placa final con el pack."}],
+ caption:"Después del verano la piel suele quedar deshidratada, con manchitas y los poros más marcados. Para marzo armé el pack Volvé a vos: limpieza profunda + fototerapia LED.\n\nCada piel es distinta: en la primera sesión hacemos una consulta y vemos qué necesita la tuya.\n\n#skincare #limpiezafacial #Henderson",
+ notas:"No prometer resultados médicos ni «eliminar manchas». Hablar de mejorar el aspecto y de constancia."},
+{id:"R07",t:"Elegí tu ceja",fase:"lan",pilar:"Interacción",fecha:"Jue 11 mar",
+ hook:"Tres cejas en pantalla y la pregunta «¿Cuál es tu ceja?».",
+ audio:"Audio en tendencia corto, que invite a ver de nuevo.",cta:"Comentá 1, 2 o 3",
+ frames:[
+  {s:2,art:"three",bg:"cream",txt:"¿Cuál es tu ceja?",sub:"Comentá 1, 2 o 3",shot:"Placa con las tres opciones."},
+  {s:2,art:"browP",bg:"skin",txt:"1 · Natural perfilada",shot:"Ejemplo real de perfilado."},
+  {s:2,art:"brow1",bg:"skin",txt:"2 · Laminada",shot:"Ejemplo real de laminado."},
+  {s:2,art:"browH",bg:"skin",txt:"3 · Definida con tinte",shot:"Ejemplo real de perfilado con tinte."},
+  {s:2,art:"text",bg:"olive",txt:"Te respondo cuál\nte queda mejor\nsegún tu cara.",shot:"Placa final.",center:true}],
+ caption:"¿Cuál elegís? Comentá 1, 2 o 3 y te respondo cuál le queda mejor a tu cara.\n\n1 · Natural perfilada\n2 · Laminada\n3 · Definida con tinte\n\n#cejas #laminadodecejas #Henderson",
+ notas:"Responder todos los comentarios el mismo día: los comentarios empujan el alcance. Fijar la respuesta más útil."},
+{id:"R08",t:"POV: tu primera vez",fase:"lan",pilar:"Experiencia",fecha:"Lun 15 mar",
+ hook:"Cámara en mano entrando por la puerta: «POV: tu primera vez en GF Studio».",
+ audio:"Lo-fi cálido.",cta:"Reservá online (link en la bio)",
+ frames:[
+  {s:4,art:"door",bg:"sand",txt:"POV: tu primera vez\nen GF Studio.",shot:"Cámara en mano a la altura del pecho, entrando por la puerta."},
+  {s:4,art:"mate",bg:"cream",txt:"Primero, un mate\no un té.",shot:"Recibimiento; la taza sobre la mesa."},
+  {s:4,art:"phone",bg:"bone",txt:"Charlamos 5 minutos:\ntu piel, tu ceja,\nlo que buscás.",shot:"Guada completa la ficha en el celular o la tablet."},
+  {s:4,art:"space",bg:"sand",txt:"Después,\nsolo relajarte.",shot:"Camilla, manta y luz cálida. Toma desde arriba."},
+  {s:4,art:"mirror",bg:"olive",txt:"Y este momento.",shot:"Espejo de mano: la reacción de la clienta (con autorización)."}],
+ caption:"Así es tu primera vez en GF Studio: llegás, charlamos un rato y recién ahí arrancamos. Sin apuro.\n\nReservá online desde el link de la bio.\n\n#Henderson #GFStudio #skincare",
+ notas:"La reacción al espejo solo con autorización firmada. Sirve también como portada de la historia destacada «Servicios»."},
+{id:"R09",t:"Un día en GF",fase:"lan",pilar:"Persona",fecha:"Vie 19 mar",
+ hook:"«8:30» sobre la persiana que se abre.",
+ audio:"Audio en tendencia tipo «un día conmigo».",cta:"Reservá online (link en la bio)",
+ frames:[
+  {s:4,art:"clock",bg:"sand",txt:"8:30\nabrir el estudio",shot:"Llegada, se abre la persiana."},
+  {s:4,art:"mate",bg:"cream",txt:"8:45\nmate y agenda",shot:"Mate en la mano, la agenda del admin en el celular."},
+  {s:5,art:"space",bg:"bone",txt:"9:00\nprimera clienta",shot:"Preparar la camilla, recibir a la primera clienta."},
+  {s:5,art:"bottles",bg:"cream",txt:"13:00\nordenar y reponer",shot:"Ordenar productos, lavar pinceles."},
+  {s:4,art:"person",bg:"olive",txt:"18:00\nhasta mañana",shot:"Guada apaga la luz y saluda a cámara."}],
+ caption:"Un día en GF Studio, de 8:30 a 18. Gracias a todas las que pasaron en estas primeras semanas.\n\n¿Querés tu turno? Link en la bio.\n\n#Henderson #GFStudio #detrásdeescena",
+ notas:"Grabar clips de 2 segundos a lo largo de un día real. Mostrar a la persona detrás del estudio es lo que más confianza genera en un pueblo."},
+{id:"R10",t:"Ese momento",fase:"lan",pilar:"Prueba social",fecha:"Lun 29 mar",
+ hook:"Primera reacción al espejo, sin texto más que «Ese momento».",
+ audio:"Audio emotivo en tendencia.",cta:"Dejá tu reseña en Google",
+ frames:[
+  {s:3,art:"mirror",bg:"cream",txt:"Ese momento.",shot:"Compilado de 4 o 5 reacciones al espejo (autorizadas)."},
+  {s:3,art:"mirror",bg:"bone",txt:"",shot:"Segunda reacción."},
+  {s:3,art:"mirror",bg:"sand",txt:"",shot:"Tercera reacción."},
+  {s:3,art:"text",bg:"olive",txt:"Gracias por este\nprimer mes.",shot:"Placa.",center:true},
+  {s:3,art:"logo",bg:"olive",txt:"Abril ya tiene agenda.",sub:"link en la bio",shot:"Placa final con el logo."}],
+ caption:"El momento del espejo. Gracias a cada una por este primer mes.\n\nSi viniste, me ayudás muchísimo dejando una reseña en Google: el link está en las historias destacadas.\n\n#Henderson #GFStudio",
+ notas:"Juntar las reacciones durante todo marzo, con autorización. No ofrecer descuentos a cambio de reseñas."},
+{id:"R11",t:"3 mitos de la radiofrecuencia",fase:"sos",pilar:"Educación",fecha:"Mar 6 abr",
+ hook:"«3 mitos de la radiofrecuencia», con el equipo de fondo.",
+ audio:"Voz de Guada; música suave de fondo.",cta:"Pack RF + LED x4",
+ frames:[
+  {s:3,art:"person",bg:"olive",txt:"3 mitos de la\nradiofrecuencia.",shot:"Guada a cámara con el equipo de radiofrecuencia de fondo."},
+  {s:5,art:"text",bg:"cream",txt:"Mito 1: «duele».",sub:"Se siente un calor agradable.",shot:"Corte a la aplicación; la cara relajada de la clienta.",center:true},
+  {s:5,art:"text",bg:"cream",txt:"Mito 2: «con una\nsesión alcanza».",sub:"Es progresivo: se trabaja en sesiones.",shot:"Placa con las 4 sesiones del pack.",center:true},
+  {s:5,art:"text",bg:"cream",txt:"Mito 3: «es solo\npara más de 50».",sub:"También se usa como cuidado preventivo.",shot:"Guada a cámara.",center:true},
+  {s:4,art:"calendar",bg:"olive",txt:"Pack RF + LED x4",sub:"Reservá la primera sesión",shot:"Placa final con el pack."}],
+ caption:"Tres cosas que escucho siempre sobre la radiofrecuencia facial. ¿Tenés otra duda? Dejala en comentarios y la respondo en un próximo video.\n\n#radiofrecuencia #skincare #Henderson",
+ notas:"Validar cada afirmación con la ficha técnica del equipo antes de grabar. Las preguntas de los comentarios son el guion de los próximos reels."},
+{id:"R12",t:"Subí el volumen",fase:"sos",pilar:"Sensorial",fecha:"Mar 13 abr",
+ hook:"Pantalla oliva con «Subí el volumen» y el primer sonido.",
+ audio:"Sonido directo, sin música: agua, espuma, pincel, vapor.",cta:"Reservá tu limpieza",
+ frames:[
+  {s:2,art:"text",bg:"olive",txt:"Subí el volumen.",shot:"Placa de entrada.",center:true},
+  {s:4,art:"steam",bg:"cream",txt:"",shot:"Vapor en primer plano, toalla tibia."},
+  {s:3,art:"bottles",bg:"bone",txt:"",shot:"Espuma en la mano, pincel aplicando la máscara."},
+  {s:3,art:"skin1",bg:"sand",txt:"",shot:"Piel limpia, luz suave."},
+  {s:3,art:"logo",bg:"olive",txt:"Tu rato.\nSin apuro.",shot:"Placa final con el logo."}],
+ caption:"Subí el volumen. Así suena una limpieza profunda en GF Studio.\n\n#asmr #limpiezafacial #Henderson",
+ notas:"Sin voz ni música: sonido directo con el micrófono corbatero muy cerca. Es el formato que más se guarda y se comparte."}
+];
+REELS.forEach(function(r){var acc=0;r.frames.forEach(function(f){f.a=acc;acc+=f.s;f.b=acc;});r.dur=acc;});
+
+/* ───────── reproductor de celular ───────── */
+var players=[];
+function Phone(host,reel,opts){
+  opts=opts||{};
+  var self=this; this.reel=reel; this.i=0; this.playing=false; this.timer=null; this.onchange=opts.onchange||null;
+  host.innerHTML="";
+  var ph=document.createElement("div"); ph.className="phone"+(opts.small?" sm":"");
+  var sc=document.createElement("div"); sc.className="screen paused";
+  var segs='<div class="segs">'+reel.frames.map(function(f){return '<i style="--d:'+f.s+'s"></i>';}).join("")+'</div>';
+  var frames=reel.frames.map(function(f,k){
+    return '<div class="frame bg-'+f.bg+(f.center?" center":"")+(k===0?" on":"")+'">'+svg(f.art)+(f.txt||f.sub?'<div class="ov">'+(f.txt?'<span class="t">'+esc(f.txt)+'</span>':'')+(f.sub?'<small>'+esc(f.sub)+'</small>':'')+'</div>':'')+'</div>';
+  }).join("");
+  sc.innerHTML=segs+frames+'<div class="ig-fade"></div><div class="ig"><div class="who"><b>gfstudio.ok</b><span>♪ '+esc(reel.audio)+'</span></div><div class="acts"><i></i><i></i><i></i></div></div>';
+  sc.setAttribute("role","img"); sc.setAttribute("aria-label","Boceto del reel "+reel.id+": "+reel.t);
+  ph.appendChild(sc); host.appendChild(ph);
+  var ctrl=document.createElement("div"); ctrl.className="ph-ctrl";
+  ctrl.innerHTML='<button class="btn" data-a="prev" aria-label="Cuadro anterior">‹</button><button class="btn solid" data-a="play" aria-label="Reproducir">▶</button><button class="btn" data-a="next" aria-label="Cuadro siguiente">›</button><span class="count tnum"></span>';
+  host.appendChild(ctrl);
+  this.sc=sc; this.segEls=sc.querySelectorAll(".segs i"); this.frEls=sc.querySelectorAll(".frame");
+  this.playBtn=ctrl.querySelector('[data-a="play"]'); this.count=ctrl.querySelector(".count");
+  ctrl.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;var a=b.getAttribute("data-a");
+    if(a==="play"){self.playing?self.pause():self.play();}
+    if(a==="prev"){self.go(self.i-1);}
+    if(a==="next"){self.go(self.i+1);}
+  });
+  sc.addEventListener("click",function(){self.playing?self.pause():self.play();});
+  this.setFrame(0); this.ui(); players.push(this);
+  if(opts.autoplay&&!reduce) this.play();
+}
+Phone.prototype.setFrame=function(k){
+  var self=this,n=this.reel.frames.length; this.i=(k+n)%n;
+  this.frEls.forEach(function(el,j){el.classList.toggle("on",j===self.i);});
+  this.segEls.forEach(function(el,j){el.classList.remove("cur");el.classList.toggle("done",j<self.i);});
+  var cur=this.segEls[this.i]; void cur.offsetWidth; cur.classList.add("cur");
+  var f=this.reel.frames[this.i];
+  this.count.textContent=(this.i+1)+"/"+n+" · "+f.a+"–"+f.b+" s";
+  if(this.onchange) this.onchange(this.i);
+};
+Phone.prototype.ui=function(){
+  this.playBtn.textContent=this.playing?"❚❚":"▶";
+  this.playBtn.setAttribute("aria-label",this.playing?"Pausar":"Reproducir");
+  this.sc.classList.toggle("paused",!this.playing);
+};
+Phone.prototype.schedule=function(){
+  var self=this; clearTimeout(this.timer);
+  if(!this.playing) return;
+  this.timer=setTimeout(function(){self.setFrame(self.i+1);self.schedule();},this.reel.frames[this.i].s*1000);
+};
+Phone.prototype.play=function(){var me=this;players.forEach(function(p){if(p!==me&&p.playing)p.pause();});this.playing=true;this.setFrame(this.i);this.ui();this.schedule();};
+Phone.prototype.pause=function(){this.playing=false;clearTimeout(this.timer);this.ui();};
+Phone.prototype.go=function(k){this.playing=false;clearTimeout(this.timer);this.setFrame(k);this.ui();};
+Phone.prototype.destroy=function(){clearTimeout(this.timer);var k=players.indexOf(this);if(k>=0)players.splice(k,1);};
+
+/* hero */
+new Phone(document.getElementById("hero-phone"),REELS[0],{autoplay:true});
+
+/* ───────── visor de reels ───────── */
+var rvPhone=null, current=0, filter="all";
+function showReel(k,focus){
+  current=k; var r=REELS[k];
+  if(rvPhone) rvPhone.destroy();
+  var det=document.getElementById("rv-detail");
+  det.innerHTML=
+    '<div class="rv-head"><span class="chip '+PH[r.fase][0]+'">'+PH[r.fase][1]+'</span><span class="chip ghost">'+esc(r.pilar)+'</span><span class="chip ghost tnum">'+r.dur+' s</span></div>'+
+    '<h3 class="rv-title" tabindex="-1" id="rv-title">'+r.id+' · '+esc(r.t)+'</h3>'+
+    '<div class="rv-meta"><div><span>Publicar</span>'+esc(r.fecha)+' 2027</div><div><span>Llamado a la acción</span>'+esc(r.cta)+'</div><div><span>Audio</span>'+esc(r.audio)+'</div></div>'+
+    '<p><b>Gancho.</b> '+esc(r.hook)+'</p>'+
+    '<div class="sb-wrap"><table class="sb"><thead><tr><th></th><th>Tiempo</th><th>Plano / acción</th><th>Texto en pantalla</th></tr></thead><tbody>'+
+    r.frames.map(function(f,i){return '<tr data-i="'+i+'"'+(i===0?' class="on"':'')+'><td><div class="thumb bg-'+f.bg+'">'+svg(f.art)+'</div></td><td class="tc">'+f.a+'–'+f.b+' s</td><td>'+esc(f.shot)+'</td><td class="ost">'+(f.txt||f.sub?esc((f.txt||"").replace(/\n/g," "))+(f.sub?' <span class="muted">· '+esc(f.sub)+'</span>':''):'<span class="muted">sin texto</span>')+'</td></tr>';}).join("")+
+    '</tbody></table></div>'+
+    '<div class="capbox"><div class="eyebrow" style="margin-bottom:8px">Copy para el posteo</div><pre id="cap-'+r.id+'">'+esc(r.caption)+'</pre><div class="row"><button class="btn" data-copy="cap-'+r.id+'">Copiar copy</button><span class="muted" style="font-size:.85rem" aria-live="polite" id="msg-cap-'+r.id+'"></span></div></div>'+
+    '<div class="note"><b>Producción.</b> '+esc(r.notas)+'</div>';
+  var rows=det.querySelectorAll(".sb tr[data-i]");
+  rvPhone=new Phone(document.getElementById("rv-phone"),r,{onchange:function(i){rows.forEach(function(tr){tr.classList.toggle("on",+tr.getAttribute("data-i")===i);});}});
+  rows.forEach(function(tr){tr.addEventListener("click",function(){rvPhone.go(+tr.getAttribute("data-i"));});});
+  document.querySelectorAll(".rcard").forEach(function(c){c.setAttribute("aria-current",+c.getAttribute("data-k")===k?"true":"false");});
+  if(focus){var t=document.getElementById("rv-title");var top=document.getElementById("reels").getBoundingClientRect().top+window.scrollY;window.scrollTo({top:top,behavior:reduce?"auto":"smooth"});t.focus({preventScroll:true});}
+}
+function renderGrid(){
+  var g=document.getElementById("reel-grid");
+  g.innerHTML=REELS.map(function(r,k){if(filter!=="all"&&r.fase!==filter)return "";var f=r.frames[0];
+    return '<button class="rcard" data-k="'+k+'" aria-current="'+(k===current)+'"><div class="thumb bg-'+f.bg+'">'+svg(f.art)+'</div><div style="min-width:0"><div class="id">'+r.id+' · <span class="chip '+PH[r.fase][0]+'" style="padding:0 6px">'+PH[r.fase][1]+'</span></div><div class="tt">'+esc(r.t)+'</div><div class="when">'+esc(r.fecha)+' · '+r.dur+' s · '+esc(r.pilar)+'</div></div></button>';}).join("");
+}
+document.getElementById("reel-grid").addEventListener("click",function(e){var b=e.target.closest(".rcard");if(b)showReel(+b.getAttribute("data-k"),true);});
+document.querySelector(".filters").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;filter=b.getAttribute("data-f");document.querySelectorAll(".filters .btn").forEach(function(x){x.setAttribute("aria-pressed",x===b?"true":"false");});renderGrid();});
+renderGrid(); showReel(0,false);
+
+/* mezcla de contenido */
+var MIX=[["Transformación",35,"--b1"],["Educación",20,"--b2"],["Detrás de escena y persona",20,"--b3"],["Prueba social",15,"--b4"],["Oferta directa",10,"--b5"]];
+document.getElementById("mix").innerHTML=MIX.map(function(m){return '<span style="width:'+m[1]+'%;background:var('+m[2]+')" title="'+m[0]+' · '+m[1]+'%"></span>';}).join("");
+document.getElementById("mix-legend").innerHTML=MIX.map(function(m){return '<span><i style="background:var('+m[2]+')"></i>'+m[0]+' · '+m[1]+'%</span>';}).join("");
+
+/* ───────── gantt ───────── */
+(function(){
+  var G0=new Date(2026,9,1).getTime(),G1=new Date(2027,6,1).getTime();
+  function pct(d){var p=d.split("-");return ((new Date(+p[0],+p[1]-1,+p[2]).getTime()-G0)/(G1-G0)*100);}
+  var months=["Oct","Nov","Dic","Ene","Feb","Mar","Abr","May","Jun"],h="";
+  var mh='<div class="g-row"><div class="lab"></div><div class="g-months">';
+  months.forEach(function(m,i){var y=i<3?2026:2027,mo=(9+i)%12;var p=(new Date(y,mo,1).getTime()-G0)/(G1-G0)*100;mh+='<span style="left:'+f1(p)+'%">'+m+(i===0||i===3?" "+String(y).slice(2):"")+'</span>';});
+  mh+='</div></div>';
+  function bar(a,b,cls,label){var l=pct(a),w=pct(b)-l+0.3;return '<div class="g-bar '+cls+'" style="left:'+f1(l)+'%;width:'+f1(w)+'%" title="'+esc(label)+'">'+esc(label)+'</div>';}
+  var rows=[
+    {grp:"Fases"},
+    {l:"Preparación",bars:[["2026-10-19","2026-12-31","ph-prep","Preparación"]]},
+    {l:"Expectativa",bars:[["2027-01-01","2027-02-28","ph-exp","Expectativa"]]},
+    {l:"Soft opening",bars:[["2027-02-15","2027-02-27","ph-exp",""]]},
+    {l:"Lanzamiento",bars:[["2027-03-01","2027-03-31","ph-lan","Marzo"]]},
+    {l:"Sostén",bars:[["2027-04-01","2027-06-30","ph-sos","Sostén y fidelización"]]},
+    {grp:"Frentes de trabajo"},
+    {l:"Fotos y grabación",bars:[["2026-12-01","2027-02-27","t-sto","Sesión pro + banco de contenido"]]},
+    {l:"Contenido orgánico",bars:[["2027-01-15","2027-02-28","ph-exp","2 por semana"],["2027-03-01","2027-03-31","ph-lan","5 por semana"],["2027-04-01","2027-06-30","ph-sos","3 por semana"]]},
+    {l:"Lista VIP",bars:[["2027-01-15","2027-03-15","t-car","Lista VIP"]]},
+    {l:"Meta Ads",bars:[["2027-02-15","2027-03-21","t-evt","Tanda 1"],["2027-04-12","2027-04-30","t-evt","Tanda 2"]]},
+    {l:"Volantes y alianzas",bars:[["2027-01-10","2027-03-15","t-sto","Imprenta, vidriera, aliados"]]}
+  ];
+  rows.forEach(function(r){
+    if(r.grp){h+='<div class="g-row grp"><div class="lab">'+r.grp+'</div><div></div></div>';return;}
+    h+='<div class="g-row"><div class="lab">'+r.l+'</div><div class="g-track">'+r.bars.map(function(b){return bar(b[0],b[1],b[2],b[3]);}).join("")+'</div></div>';
+  });
+  var MS=[["2026-11-15","Google Business creado y en verificación"],["2026-12-15","Sesión de fotos profesional"],["2027-01-15","Teaser R01 y apertura de la lista VIP"],["2027-01-29","Convocatoria de modelos (R02)"],["2027-02-15","Soft opening con modelos + Meta Ads"],["2027-02-26","Countdown (R03)"],["2027-03-01","Apertura"],["2027-03-06","Open Studio (sábado)"],["2027-03-08","8M · semana DUO"],["2027-04-12","Referidos AMIGA15"],["2027-06-01","Temporada «piel de invierno»"]];
+  h+='<div class="g-row grp"><div class="lab">Hitos</div><div></div></div><div class="g-row"><div class="lab"></div><div class="g-track ms">'+MS.map(function(m,i){return '<span class="g-ms'+(i%2?" l2":"")+'" style="left:'+f1(pct(m[0]))+'%" title="'+esc(m[1])+'">'+(i+1)+'</span>';}).join("")+'</div></div>';
+  var g=document.getElementById("gantt");
+  g.innerHTML=mh+h;
+  // líneas de mes y hoy
+  var trackLeft=150+16; // ancho etiqueta + padding
+  var overlay=document.createElement("div");overlay.style.cssText="position:absolute;top:14px;bottom:18px;left:"+trackLeft+"px;right:16px;pointer-events:none";
+  for(var i=0;i<9;i++){var y=i<3?2026:2027,mo=(9+i)%12;var p=(new Date(y,mo,1).getTime()-G0)/(G1-G0)*100;overlay.innerHTML+='<div class="g-grid" style="left:'+f1(p)+'%"></div>';}
+  var now=new Date(),tp=(now.getTime()-G0)/(G1-G0)*100;
+  if(tp>=0&&tp<=100){overlay.innerHTML+='<div class="g-today" style="left:'+f1(tp)+'%"><b>Hoy</b></div>';}
+  g.appendChild(overlay);
+  var MN=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+  document.getElementById("ms-list").innerHTML=MS.map(function(m,i){var p=m[0].split("-");return '<li><span class="n">'+(i+1)+'</span><span class="d tnum">'+(+p[2])+' '+MN[+p[1]-1]+' '+p[0].slice(2)+'</span><span>'+esc(m[1])+'</span></li>';}).join("");
+})();
+
+/* ───────── antes / después ───────── */
+(function(){
+  var BA=[["cejas","Laminado de cejas","brow0","brow1","skin","Mismo encuadre, ceja peinada hacia arriba y con más cuerpo."],
+          ["pestanas","Lifting de pestañas","lash0","lash1","skin","Ángulo de frente, con la mirada hacia arriba en ambas fotos."],
+          ["piel","Limpieza profunda + LED","skin0","skin1","sand","Misma luz y distancia. Mostrar textura, no prometer «sin manchas»."]];
+  document.getElementById("ba-grid").innerHTML=BA.map(function(b){return '<div><div class="ba" id="ba-'+b[0]+'"><div class="lay bg-'+b[4]+'">'+svg(b[2])+'</div><div class="lay after bg-'+b[4]+'">'+svg(b[3])+'</div><div class="line"></div><span class="tag l">Antes</span><span class="tag r">Después</span><input type="range" min="0" max="100" value="50" id="rng-'+b[0]+'" aria-label="Comparar antes y después: '+esc(b[1])+'"></div><div class="ba-cap"><b>'+esc(b[1])+'</b><span class="muted">'+esc(b[5])+'</span></div></div>';}).join("");
+  document.querySelectorAll(".ba input").forEach(function(inp){inp.addEventListener("input",function(){inp.parentNode.style.setProperty("--pos",inp.value+"%");});});
+  var FM=[
+    {t:"Deslizador en carrusel",d:"Foto 1 antes, foto 2 después, mismo encuadre. La clienta desliza y compara.",v:function(){return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px"><div class="bg-skin cell">'+svg("brow0")+'</div><div class="bg-skin cell">'+svg("brow1")+'</div></div>';}},
+    {t:"Pantalla dividida",d:"Una sola imagen con la línea al medio. Ideal para portada y para Facebook.",v:function(){return '<div class="bg-skin">'+svg("split")+'</div>';}},
+    {t:"Reel de transición",d:"El antes, un corte con la mano o un chasquido, y el después. Formato del R04.",v:function(){return '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px"><div class="bg-skin cell">'+svg("brow0")+'</div><div class="bg-olive cell">'+svg("swipe")+'</div><div class="bg-skin cell">'+svg("brow1")+'</div></div>';}},
+    {t:"Progresión por sesiones",d:"Sesión 1, 2, 3 y 4 de un pack. Para radiofrecuencia y limpiezas: muestra constancia.",v:function(){return '<div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:3px"><div class="bg-sand cell">'+svg("skin0")+'</div><div class="bg-sand cell">'+svg("skin0")+'</div><div class="bg-sand cell">'+svg("skin1")+'</div><div class="bg-sand cell">'+svg("skin1")+'</div></div>';}}
+  ];
+  document.getElementById("formats").innerHTML=FM.map(function(f){return '<div><div class="fmt-vis">'+f.v()+'</div><h4>'+esc(f.t)+'</h4><p class="muted" style="font-size:.9rem">'+esc(f.d)+'</p></div>';}).join("");
+})();
+
+/* ───────── feed y stories ───────── */
+(function(){
+  var ICON={reel:'<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6.5 5.5v5l4-2.5z" fill="currentColor"/></svg>',car:'<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="1.5" width="10.5" height="10.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 4.5v8a2 2 0 0 0 2 2h8" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>',foto:""};
+  var FEED=[
+    {o:1,ty:"reel",art:"door",bg:"sand",tx:"La llave",d:"15 ene",l:"R01 · La llave (teaser)"},
+    {o:2,ty:"car",art:"person",bg:"olive",tx:"Soy Guada.",d:"22 ene",l:"Carrusel · Soy Guada: quién es y por qué abre el estudio"},
+    {o:3,ty:"reel",art:"services",bg:"bone",tx:"Busco\n10 caras",d:"29 ene",l:"R02 · Convocatoria de modelos"},
+    {o:4,ty:"foto",art:"space",bg:"bone",tx:"",d:"5 feb",l:"Foto · El estudio en obra"},
+    {o:5,ty:"car",art:"text",bg:"cream",tx:"Lo que vas\na encontrar",d:"12 feb",l:"Carrusel · Carta de servicios (sin precios hasta marzo)"},
+    {o:6,ty:"reel",art:"split",bg:"skin",tx:"",d:"19 feb",l:"Reel · Primeros antes y después del soft opening"},
+    {o:7,ty:"reel",art:"calendar",bg:"sand",tx:"Faltan\n3 días",d:"26 feb",l:"R03 · Faltan 3 días"},
+    {o:8,ty:"foto",art:"logo",bg:"olive",tx:"Hoy abrimos.",d:"1 mar",l:"Foto · Hoy abrimos (Guada en la puerta)"},
+    {o:9,ty:"reel",art:"brow1",bg:"skin",tx:"45 minutos",d:"3 mar",l:"R04 · 45 minutos (laminado)"},
+    {o:10,ty:"reel",art:"group",bg:"olive",tx:"Semana\ndel 8M",d:"5 mar",l:"R05 · Semana del 8M (código DUO)"},
+    {o:11,ty:"car",art:"text",bg:"cream",tx:"8M",d:"8 mar",l:"Carrusel · 8M reflexivo, sin venta"},
+    {o:12,ty:"reel",art:"skin0",bg:"sand",tx:"Lo que el\nverano le hizo\na tu piel",d:"9 mar",l:"R06 · Lo que el verano le hizo a tu piel"}
+  ];
+  var grid=FEED.slice().reverse();
+  document.getElementById("feed-grid").innerHTML=grid.map(function(p){return '<div class="tile bg-'+p.bg+'">'+svg(p.art)+(p.tx?'<div class="tx"><span class="t">'+esc(p.tx)+'</span></div>':'')+(ICON[p.ty]?'<span class="ty" style="color:'+(p.bg==="olive"?"var(--art-cream)":"var(--art-ink)")+'">'+ICON[p.ty]+'</span>':'')+'<span class="ord">#'+p.o+'</span></div>';}).join("");
+  var TL={reel:["t-reel","Reel"],car:["t-car","Carrusel"],foto:["t-car","Foto"]};
+  document.getElementById("feed-list").innerHTML=FEED.map(function(p){return '<li><span class="o">'+p.o+'</span><span class="d tnum">'+p.d+'</span><span>'+esc(p.l)+'</span><span class="chip '+TL[p.ty][0]+'">'+TL[p.ty][1]+'</span></li>';}).join("");
+  document.getElementById("highlights").innerHTML=[["S","Servicios"],["A/D","Antes y después"],["★","Reseñas"],["P","Packs"],["↗","Cómo llegar"],["G","Guada"]].map(function(h){return '<div><i>'+h[0]+'</i>'+h[1]+'</div>';}).join("");
+  var ST=[
+    {bg:"olive",l:"Countdown",c:"Del 22/2 al 28/2, todos los días.",h:'<div class="s-h">Faltan<br><em>pocos días.</em></div><div class="stk cd" style="margin-top:auto"><small>APERTURA GF STUDIO</small><b>03 : 14 : 22</b><small>días · horas · min</small></div>'},
+    {bg:"sand",l:"Encuesta",c:"Para saber qué servicio empujar primero.",h:'<div class="s-h">¿Qué te harías <em>primero?</em></div><div class="stk poll" style="margin-top:auto"><span>Cejas o pestañas</span><span>Un facial</span></div>'},
+    {bg:"cream",l:"Preguntas",c:"Serie semanal. Las respuestas son guiones de reels.",h:'<div class="s-h" style="color:var(--art-olive)">Preguntale <em>a Guada.</em></div><div class="stk" style="margin-top:auto;text-align:left"><small style="opacity:.6;font-size:5.5cqw">Hacé una pregunta</small><br>¿Cada cuánto se hace el laminado?</div>'},
+    {bg:"olive",l:"Turnos libres",c:"Lunes y jueves. Llena huecos de la agenda.",h:'<div class="s-h">Turnos libres <em>esta semana</em></div><div class="slots"><span>Mié 10:00 <b>Cejas</b></span><span>Jue 15:30 <b>Facial</b></span><span>Sáb 9:00 <b>Lifting</b></span></div><div class="stk link" style="margin-top:auto">↗ Reservá online</div>'},
+    {bg:"skin",l:"Antes y después",c:"Con sticker de deslizar hacia el carrusel.",h:'<div class="s-h">Deslizá <em>→</em></div><div class="bg-skin s-ba">'+svg("split")+'</div>'},
+    {bg:"bone",l:"Reseña",c:"Captura de Google o mensaje (con permiso).",h:'<div style="font-size:9cqw;color:var(--art-olive);letter-spacing:.1em">★★★★★</div><div class="s-h" style="font-size:9cqw;font-style:italic">«Me cambió la cara. Ya reservé el próximo.»</div><div style="font-size:6cqw;opacity:.7">— Clienta, marzo 2027</div><div class="stk link" style="margin-top:auto">↗ Dejá tu reseña</div>'}
+  ];
+  document.getElementById("stories").innerHTML=ST.map(function(s){return '<div><div class="story bg-'+s.bg+'">'+s.h+'<div class="s-lbl">'+esc(s.l)+'</div></div><div class="story-cap">'+esc(s.c)+'</div></div>';}).join("");
+})();
+
+/* ───────── calendario marzo 2027 ───────── */
+(function(){
+  var C={
+    1:{k:1,tag:"Apertura",e:[["evt","<b>Apertura</b> 9 a 18 hs"],["car","Foto «Hoy abrimos»"],["sto","Stories en vivo todo el día"]]},
+    2:{e:[["car","Carrusel: carta de servicios y precios"],["sto","Turnos libres"]]},
+    3:{e:[["reel","<b>R04</b> 45 minutos"]]},
+    4:{e:[["car","Carrusel: cómo reservar en 3 pasos"],["sto","Encuesta + invitación Open Studio"]]},
+    5:{e:[["reel","<b>R05</b> Semana del 8M"],["sto","Recordatorio Open Studio"]]},
+    6:{k:1,tag:"Open Studio",e:[["evt","<b>Open Studio</b> 10 a 13 hs · código ABRIMOS"],["sto","Stories en vivo"]]},
+    7:{e:[["sto","Resumen del Open Studio"]]},
+    8:{k:1,tag:"8M",e:[["car","Carrusel 8M reflexivo, sin venta"],["evt","Semana DUO 8 → 13"]]},
+    9:{e:[["reel","<b>R06</b> Lo que el verano…"]]},
+    10:{e:[["car","Carrusel: primeras reseñas"],["sto","Turnos libres"]]},
+    11:{e:[["reel","<b>R07</b> Elegí tu ceja"]]},
+    12:{e:[["car","Carrusel: laminado o perfilado, ¿cuál es para vos?"]]},
+    13:{e:[["sto","Último día DUO"]]},
+    14:{e:[]},
+    15:{e:[["reel","<b>R08</b> POV primera vez"],["evt","Fin de VIP27"]]},
+    16:{e:[["car","Carrusel: pack «Volvé a vos»"],["sto","Turnos libres"]]},
+    17:{e:[["reel","Formato R04 con lifting"]]},
+    18:{e:[["sto","Preguntale a Guada"]]},
+    19:{e:[["reel","<b>R09</b> Un día en GF"]]},
+    20:{e:[["sto","Detrás de escena"]]},
+    21:{e:[]},
+    22:{e:[["car","Carrusel: reseñas + pedido de reseña"],["sto","Turnos libres"]]},
+    23:{e:[["reel","Formato R04 con piel (limpieza + LED)"]]},
+    24:{hol:"Día de la Memoria",e:[["hol","Feriado · sin publicidad"]]},
+    25:{hol:"Jueves Santo",e:[["sto","Horarios de Semana Santa"]]},
+    26:{hol:"Viernes Santo",e:[["hol","Feriado · sin publicidad"]]},
+    27:{e:[["sto","Turnos libres de la semana próxima"]]},
+    28:{hol:"Pascua",e:[["car","Saludo de Pascua (sin venta)"]]},
+    29:{e:[["reel","<b>R10</b> Ese momento"]]},
+    30:{e:[["car","Carrusel: gracias por el primer mes"],["sto","Anuncio de referidos de abril"]]},
+    31:{e:[["sto","Adelanto de abril: AMIGA15"]]}
+  };
+  var DW=["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"],h="";
+  // 1/3/2027 es lunes: sin celdas vacías al inicio
+  for(var d=1;d<=31;d++){
+    var c=C[d]||{e:[]},dw=DW[(d-1)%7];
+    h+='<div class="day'+(c.k?" key":"")+'"><div class="dn"><b class="tnum">'+d+'</b><span class="dw">'+dw+'</span>'+(c.tag||c.hol?'<span>'+esc(c.tag||c.hol)+'</span>':'')+'</div>'+
+      (c.e.length?c.e.map(function(x){return '<div class="ent t-'+x[0]+'">'+x[1]+'</div>';}).join(""):'<div class="ent muted" style="padding-left:0">Descanso</div>')+'</div>';
+  }
+  for(var p=0;p<4;p++) h+='<div class="day pad" aria-hidden="true"></div>';
+  document.getElementById("cal").innerHTML=h;
+})();
+
+/* ───────── ofertas ───────── */
+(function(){
+  var OF=[
+    {code:"VIP27",t:"Lista VIP",ph:"lan",when:"1 al 15 de marzo",d:"15% en el primer turno para quien se sumó a la lista antes de abrir. Premia a las primeras y llena la primera quincena.",cfg:[["Tipo","Porcentaje · 15"],["Vigencia","01/03/2027 → 15/03/2027"],["Aplica a","Todos los servicios"],["Solo primera visita","Sí"],["Usos por clienta","1"],["Usos totales","150"]]},
+    {code:"",t:"Convocatoria de modelos",ph:"exp",when:"15 al 27 de febrero",d:"10 cupos a precio de costo a cambio de fotos y video con autorización firmada. De acá sale el banco de antes y después.",cfg:[["Cómo se carga","Turno normal desde el admin"],["Precio","Editar el cobrado en Resultados"],["Requisito","Autorización de imagen en la ficha"]]},
+    {code:"ABRIMOS",t:"Open Studio",ph:"lan",when:"Sábado 6 de marzo, 10 a 13 hs",d:"Puertas abiertas: conocer el espacio, consulta de piel de 5 minutos y 20% en packs comprados ese día.",cfg:[["Tipo","Porcentaje · 20"],["Vigencia","06/03/2027 → 06/03/2027"],["Aplica a","Packs"],["Usos por clienta","1"]]},
+    {code:"DUO",t:"Semana del 8M",ph:"lan",when:"8 al 13 de marzo",d:"Si venís con tu mamá, hermana o amiga, cada una tiene 15% off. Para compartir, no para vender más fuerte.",cfg:[["Tipo","Porcentaje · 15"],["Vigencia","08/03/2027 → 13/03/2027"],["Aplica a","Todos los servicios"],["Usos por clienta","1"],["Control","Manual: que vengan las dos"]]},
+    {code:"",t:"Pack «Volvé a vos»",ph:"lan",when:"Todo marzo y abril",d:"Limpieza profunda + fototerapia LED con precio cerrado. Es el pack que nombra la campaña y responde al «después del verano».",cfg:[["Dónde","Admin → Packs"],["Visible en la landing","Sí"],["Validez","60 días"],["Precio","A definir con la lista 2027"]]},
+    {code:"AMIGA15",t:"Referidos",ph:"sos",when:"Desde el 12 de abril",d:"La que recomienda y la que llega tienen 15% en su próximo turno. El cupón ya existe en la base: solo hay que actualizar fechas y activarlo.",cfg:[["Tipo","Porcentaje · 15"],["Vigencia","12/04/2027 → 30/06/2027"],["Aplica a","Todos los servicios"],["Usos por clienta","1"],["Estado actual","Cargado e inactivo"]]},
+    {code:"",t:"Gift card «Regalá un rato»",ph:"lan",when:"8M y Día de la Madre (17/10/2027)",d:"Tarjeta digital con monto o servicio, diseñada en Canva y enviada por WhatsApp. Le habla a quien regala.",cfg:[["Cómo se carga","Manual: código único + nota en la ficha"],["Más adelante","Módulo de gift cards en la web"]]},
+    {code:"PRIMERA10",t:"Primer turno",ph:"sos",when:"Siempre, desde el 16 de marzo",d:"10% en el primer turno para quien no estuvo en la lista VIP. Ya está cargado y activo.",cfg:[["Tipo","Porcentaje · 10"],["Solo primera visita","Sí"],["Estado actual","Activo"]]}
+  ];
+  document.getElementById("offers").innerHTML=OF.map(function(o){return '<article class="card offer"><div class="top"><div style="min-width:0"><h3 style="margin-bottom:2px">'+esc(o.t)+'</h3><div class="when">'+esc(o.when)+'</div></div>'+(o.code?'<span class="code">'+o.code+'</span>':'<span class="code none">Sin cupón</span>')+'</div><p style="margin:0;color:var(--ink-2)">'+esc(o.d)+'</p><dl class="cfg">'+o.cfg.map(function(c){return '<dt>'+esc(c[0])+'</dt><dd>'+esc(c[1])+'</dd>';}).join("")+'</dl><div><span class="chip '+PH[o.ph][0]+'">'+PH[o.ph][1]+'</span></div></article>';}).join("");
+})();
+
+/* ───────── presupuesto ───────── */
+(function(){
+  var CAT=[["Kit de grabación","--b1"],["Fotos profesionales","--b2"],["Meta Ads","--b3"],["Volantes y vidriera","--b4"],["Open Studio","--b5"],["Radio local","--b7"],["Sorteo con aliados","--b6"]];
+  var SC=[
+    {n:"Base",d:"Solo orgánico",v:[70,0,0,40,40,0,0]},
+    {n:"Recomendado",d:"Orgánico + pauta",v:[70,120,150,40,70,0,0]},
+    {n:"Intensivo",d:"Todo el pueblo se entera",v:[70,120,300,60,100,100,50]}
+  ];
+  var max=Math.max.apply(null,SC.map(function(s){return s.v.reduce(function(a,b){return a+b;},0);}));
+  document.getElementById("budget").innerHTML=SC.map(function(s){var tot=s.v.reduce(function(a,b){return a+b;},0);
+    return '<div class="bud-row"><div class="nm"><b>'+s.n+'</b><span>'+s.d+'</span></div><div class="bud-bar" style="width:'+f1(tot/max*100)+'%" role="img" aria-label="'+s.n+': '+s.v.map(function(v,i){return v?CAT[i][0]+' USD '+v:'';}).filter(Boolean).join(", ")+'">'+s.v.map(function(v,i){return v?'<span style="width:'+f1(v/tot*100)+'%;background:var('+CAT[i][1]+')" title="'+CAT[i][0]+': USD '+v+'"></span>':'';}).join("")+'</div><div class="tot">USD '+tot+'</div></div>';}).join("");
+  document.getElementById("budget-legend").innerHTML=CAT.map(function(c){return '<span><i style="background:var('+c[1]+')"></i>'+c[0]+'</span>';}).join("");
+})();
+
+/* ───────── ideas ───────── */
+(function(){
+  var Q=[
+    {k:"hot",t:"Hacer ya",ax:"Impacto alto · esfuerzo bajo",items:[
+      ["Mañanas para vos","Turnos de 9 a 12 con beneficio para mamás, mientras los chicos están en el cole."],
+      ["«¿Cómo nos conociste?» en la ficha","Una pregunta más en las fichas del admin. Mide canales sin cupón."],
+      ["Recordatorio de retoque por WhatsApp","El CRM ya marca «para retoque»; falta el mensaje con un toque."],
+      ["Pedido de reseña post-turno","Mensaje al día siguiente con el link directo a Google."],
+      ["Vidriera con QR","Cartel fijo: «Reservá en 1 minuto». Trabaja las 24 horas."],
+      ["Serie «Preguntale a Guada»","Stories semanales; las respuestas son guiones de reels."]]},
+    {k:"",t:"Planificar",ax:"Impacto alto · esfuerzo alto",items:[
+      ["Club GF","Membresía mensual: un mantenimiento incluido y descuento en el resto. Ingreso fijo."],
+      ["«Llegá lista»: 15, egresos y novias","Plan de 2 o 3 meses antes del evento, en alianza con fotógrafas."],
+      ["Taller de skincare o automaquillaje","Grupal, 6 personas, un sábado al mes. También es contenido."],
+      ["Programa de fidelidad","Cada 5 turnos, uno bonificado, generado como cupón automático."]]},
+    {k:"",t:"Si sobra tiempo",ax:"Impacto bajo · esfuerzo bajo",items:[
+      ["Martes de cejas express","Perfilado rápido en franjas cortas de la agenda."],
+      ["Sorteo con un comercio local","Local de ropa o café: suma seguidores de los dos lados."],
+      ["Repost de clientas","Las que etiquetan su resultado aparecen en stories."],
+      ["Playlist del estudio","La música que suena en GF, compartida en Spotify."]]},
+    {k:"",t:"Después",ax:"Impacto bajo · esfuerzo alto",items:[
+      ["TikTok propio","Reutilizar los reels cuando Instagram esté andando solo."],
+      ["Gift cards en la web","Módulo de compra online; hoy alcanza con hacerlas a mano."],
+      ["Lista de espera online","Aviso automático si se libera un turno (está en el backlog)."],
+      ["Venta de productos","Línea de cuidado en casa con margen propio."]]}
+  ];
+  var h='<div class="ax-y"><span>Impacto bajo</span><span>Impacto alto</span></div>';
+  // fila superior: impacto alto (hacer ya | planificar); inferior: impacto bajo (si sobra | después)
+  [Q[0],Q[1],Q[2],Q[3]].forEach(function(q){h+='<div class="q'+(q.k?" hot":"")+'" data-ax="'+esc(q.ax)+'"><h4>'+q.t+'<small>'+(q.k?"Quick wins":"")+'</small></h4><ul class="clean">'+q.items.map(function(i){return '<li><b>'+esc(i[0])+'</b><span>'+esc(i[1])+'</span></li>';}).join("")+'</ul></div>';});
+  h+='<div class="ax-x"><span>Esfuerzo bajo</span><span>Esfuerzo alto</span></div>';
+  document.getElementById("quad").innerHTML=h;
+})();
+
+/* ───────── checklist ───────── */
+(function(){
+  var M=[
+    {m:"Noviembre",y:"2026",t:["Elegir concepto y fecha exacta de apertura","Crear Google Business (la verificación puede tardar semanas)","Optimizar Instagram: bio, foto y link de reserva","Dominio propio y Resend verificado para emails reales","Comprar el kit de grabación"]},
+    {m:"Diciembre",y:"2026",t:["Sesión de fotos profesional del espacio y de Guada","Reemplazar las ilustraciones de la landing por fotos reales","Empezar el timelapse del armado (material del R01)","Plantillas en Canva: posts, stories y portadas","Precios 2027: cargar servicios y packs en el admin"]},
+    {m:"Enero",y:"2027",t:["15/1 · Publicar R01 y abrir la lista VIP","29/1 · Convocatoria de modelos (R02)","Imprimir volantes y cartel de vidriera con QR","Cerrar 3 o 4 alianzas locales","Grabar el banco de 10 reels base"]},
+    {m:"Febrero",y:"2027",t:["15–27/2 · Soft opening: probar la reserva online de punta a punta","Cargar VIP27, ABRIMOS y DUO en el admin","Landing: «Reservando turnos para marzo», sticker y «Desde 2027»","Política de cancelación visible en la reserva","15/2 · Arrancar Meta Ads · 26/2 · Countdown"]},
+    {m:"Marzo",y:"2027",t:["1/3 · Apertura · 6/3 · Open Studio","8 al 13/3 · Semana DUO","Pedir la reseña de Google a cada clienta","Viernes: revisión de métricas (15 min)","31/3 · Balance del mes y ajuste de abril"]}
+  ];
+  var KEY="gf-campana-2027-checks",saved={};
+  try{saved=JSON.parse(store(KEY)||"{}")||{};}catch(e){saved={};}
+  var h="",total=0;
+  M.forEach(function(mo,mi){
+    h+='<div class="month"><h4>'+mo.m+'<small>'+mo.y+'</small></h4>'+mo.t.map(function(t,ti){total++;var id="ck-"+mi+"-"+ti;return '<label class="task" for="'+id+'"><input type="checkbox" id="'+id+'"'+(saved[id]?" checked":"")+'><span>'+esc(t)+'</span></label>';}).join("")+'</div>';
+  });
+  var box=document.getElementById("months"); box.innerHTML=h;
+  function upd(){var n=box.querySelectorAll("input:checked").length;document.getElementById("prog-bar").style.width=(n/total*100)+"%";document.getElementById("prog-txt").textContent=n+" de "+total+" tareas hechas";}
+  box.addEventListener("change",function(e){if(e.target.type!=="checkbox")return;saved[e.target.id]=e.target.checked;store(KEY,JSON.stringify(saved));upd();});
+  upd();
+})();
+
+/* ───────── copiar ───────── */
+document.addEventListener("click",function(e){
+  var b=e.target.closest("[data-copy]"); if(!b) return;
+  var id=b.getAttribute("data-copy"), el=document.getElementById(id), msg=document.getElementById(id==="consent-text"?"consent-msg":"msg-"+id);
+  var text=el.innerText;
+  function sel(){var r=document.createRange();r.selectNodeContents(el);var s=window.getSelection();s.removeAllRanges();s.addRange(r);if(msg)msg.textContent="Texto seleccionado: copialo con Ctrl+C o mantené presionado.";}
+  try{navigator.clipboard.writeText(text).then(function(){if(msg)msg.textContent="Copiado.";},sel);}catch(err){sel();}
+});
+
+/* ───────── cuenta regresiva y nav activa ───────── */
+(function(){
+  var open=new Date(2027,2,1),now=new Date(),d=Math.ceil((open-new Date(now.getFullYear(),now.getMonth(),now.getDate()))/86400000);
+  var el=document.getElementById("countdown");
+  if(d>1) el.textContent=d+" días"; else if(d===1) el.textContent="1 día"; else if(d===0) el.textContent="¡Hoy!"; else {el.textContent="Abierto"; el.nextElementSibling.textContent="Desde el 1/3/2027";}
+  var links=[].slice.call(document.querySelectorAll(".navlinks a"));
+  if(!("IntersectionObserver" in window)) return;
+  var io=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){links.forEach(function(a){var on=a.getAttribute("href")==="#"+en.target.id;a.classList.toggle("on",on);if(on&&a.scrollIntoView){var nl=document.getElementById("navlinks");nl.scrollTo({left:a.offsetLeft-nl.offsetLeft-16,behavior:reduce?"auto":"smooth"});}});}});},{rootMargin:"-45% 0px -50% 0px"});
+  document.querySelectorAll("main .sec").forEach(function(s){io.observe(s);});
+})();
+
+})();
+</script>
+</body>
+</html>

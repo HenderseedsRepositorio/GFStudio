@@ -107,6 +107,7 @@ index.html         → landing pública (servicios, booking, contacto)
 admin.html         → panel privado (turnos, servicios CRUD, bloqueos, resultados)
 og-image.png       → 1200×630 para previews de WhatsApp/redes
 assets/logo/       → SVG (negro/blanco/color) + export-png.html
+campana-2027/      → estrategia de la campaña de lanzamiento (GitHub Pages vía .github/workflows/pages.yml; no va a Vercel)
 supabase/
   functions/bump-coupon-usage/   → Edge Function que bumpeo uses_count con service_role
   functions/create-mp-preference/→ MercadoPago preference (seña, gated por MP_ACCESS_TOKEN)
