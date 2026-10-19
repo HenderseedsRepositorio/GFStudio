@@ -2,7 +2,8 @@ name: Campaña (GitHub Pages)
 
 # Publica solo la carpeta campana-2027/ en GitHub Pages.
 # El sitio de turnos sigue en Vercel: build.mjs no copia esta carpeta a dist/.
-# Requisito (una vez): Settings → Pages → Source: "GitHub Actions".
+# Requisito (una vez, a mano): Settings → Pages → Source: "GitHub Actions".
+# Mientras Pages esté apagado, el deploy se saltea (no falla) y deja un aviso.
 
 on:
   push:
@@ -22,8 +23,28 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  check:
+    name: ¿Pages activado?
+    runs-on: ubuntu-latest
+    outputs:
+      enabled: ${{ steps.pages.outputs.enabled }}
+    steps:
+      - id: pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh api "repos/${{ github.repository }}/pages" --jq .build_type > /tmp/build_type 2>/dev/null; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+            echo "Pages activado (build_type: $(cat /tmp/build_type))."
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::GitHub Pages no está activado. Settings → Pages → Source: GitHub Actions, y después Actions → este workflow → Run workflow."
+          fi
+
   deploy:
     name: Deploy campaña
+    needs: check
+    if: needs.check.outputs.enabled == 'true'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
