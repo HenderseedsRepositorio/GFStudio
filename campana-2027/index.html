@@ -113,7 +113,7 @@ ul.clean{list-style:none;margin:0;padding:0}
 .hero h1{font-family:var(--display);font-weight:400;font-size:var(--step-4);line-height:.95;letter-spacing:-.03em;margin:16px 0 22px;text-wrap:balance}
 .hero h1 em{font-style:italic;color:var(--accent-2)}
 .lede{font-size:var(--step-1);color:var(--ink-2);max-width:56ch;margin:0}
-.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:36px;border-top:1px solid var(--line-strong)}
+.facts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));margin-top:36px;border-top:1px solid var(--line-strong)}
 .fact{padding:14px 14px 0 0;min-width:0}
 .fact b{display:block;font-family:var(--display);font-size:var(--step-2);font-weight:500;line-height:1.1;letter-spacing:-.01em}
 .fact span{font-size:var(--step--1);color:var(--muted)}
@@ -328,6 +328,147 @@ ul.clean{list-style:none;margin:0;padding:0}
 .plain li{padding:9px 0;border-top:1px solid var(--line);font-size:.95rem}
 .consent{font-family:var(--display);font-size:1.05rem;line-height:1.45;color:var(--ink);background:var(--surface);border:1px dashed var(--line-strong);border-radius:12px;padding:18px}
 
+/* ── antes / después ── */
+.ai-note{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;background:var(--c-evt-bg);color:var(--c-evt-fg);border-radius:10px;padding:12px 16px;font-size:.9rem;margin-bottom:28px}
+.ai-note b{font-weight:700}
+.case-tabs{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:thin}
+.ctab{font:inherit;flex:0 0 auto;display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:5px 14px 5px 5px;cursor:pointer;text-align:left}
+.ctab img{width:38px;height:38px;border-radius:50%;object-fit:cover;display:block}
+.ctab b{display:block;font-size:.88rem;line-height:1.2}
+.ctab span{display:block;font-size:.72rem;color:var(--muted);line-height:1.2;white-space:nowrap}
+.ctab[aria-selected="true"]{border-color:var(--accent-2);box-shadow:0 0 0 1px var(--accent-2);background:var(--sunk)}
+.case{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:40px;margin-top:18px;align-items:start}
+@media (max-width:900px){.case{grid-template-columns:minmax(0,1fr)}}
+.case .ba{max-width:420px}
+.ba img.lay{width:100%;height:100%;object-fit:cover;display:block}
+.ba-ctrl{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;align-items:center}
+.ba-ctrl .lbl{font-size:var(--step--1);color:var(--muted);margin-left:auto}
+.ficha h3{font-size:var(--step-3);font-weight:400;letter-spacing:-.02em;margin-bottom:4px}
+.ficha .who{font-size:var(--step--1);color:var(--muted);margin-bottom:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ficha blockquote{margin:0 0 20px;font-family:var(--display);font-style:italic;font-size:1.35rem;line-height:1.25;color:var(--ink)}
+.ficha blockquote small{display:block;font-family:var(--body);font-style:normal;font-size:.72rem;color:var(--muted);margin-top:6px;letter-spacing:.04em}
+.ficha dl{display:grid;grid-template-columns:130px minmax(0,1fr);gap:0;margin:0;border-top:1px solid var(--line-strong)}
+.ficha dt,.ficha dd{padding:10px 0;border-bottom:1px solid var(--line);margin:0}
+.ficha dt{font-size:var(--step--2);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;padding-top:12px}
+.ficha dd{font-size:.95rem;color:var(--ink-2)}
+.ficha ol{margin:0;padding-left:18px}
+.ficha ol li{padding:1px 0}
+@media (max-width:520px){.ficha dl{grid-template-columns:minmax(0,1fr)}.ficha dt{border-bottom:0;padding-bottom:0}}
+.kpis3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0 0 18px}
+.kpis3 div{border-top:2px solid var(--accent-2);padding-top:8px}
+.kpis3 b{display:block;font-family:var(--display);font-size:1.4rem;font-weight:500;line-height:1.1}
+.kpis3 span{font-size:var(--step--2);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+.pack-head{margin-top:52px;display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap}
+.pack-head p{margin:0;font-size:.93rem}
+.pack{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.75fr) minmax(0,1.1fr);gap:24px;margin-top:18px;align-items:start}
+@media (max-width:980px){.pack{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.pack > :last-child{grid-column:1/-1}}
+@media (max-width:620px){.pack{grid-template-columns:minmax(0,1fr)}}
+.pk-lbl{font-size:var(--step--2);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;gap:8px}
+.car{position:relative;aspect-ratio:4/5;max-width:100%;border-radius:10px;overflow:hidden;box-shadow:var(--shadow);background:var(--art-sand)}
+.car-track{display:flex;height:100%;transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.slide{flex:0 0 100%;height:100%;position:relative;overflow:hidden;container-type:inline-size}
+.slide img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.slide .band{position:absolute;left:0;right:0;bottom:0;padding:7cqw 7cqw 6cqw;background:linear-gradient(transparent,rgba(26,24,16,.72));color:var(--art-cream)}
+.slide .band b{display:block;font-family:var(--display);font-weight:500;font-size:9cqw;line-height:1.02;letter-spacing:-.02em}
+.slide .band span{display:block;font-size:4.2cqw;margin-top:2cqw;opacity:.9}
+.slide .stag{position:absolute;top:5cqw;left:5cqw;font-size:3.6cqw;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:var(--art-ink);color:var(--art-cream);padding:1.2cqw 2.6cqw;border-radius:99px}
+.slide.txt{padding:9cqw 8cqw;display:flex;flex-direction:column;gap:3cqw}
+.slide.txt h5{margin:0;font-family:var(--display);font-weight:500;font-size:8.5cqw;line-height:1.05;letter-spacing:-.02em}
+.slide.txt ul{list-style:none;margin:auto 0 0;padding:0;display:grid;gap:2.4cqw}
+.slide.txt li{display:flex;justify-content:space-between;gap:3cqw;border-top:1px solid currentColor;padding-top:2.4cqw;font-size:4.4cqw}
+.slide.txt li b{font-weight:600}
+.slide .gf{position:absolute;right:5cqw;bottom:5cqw;font-family:var(--display);font-weight:700;font-size:6cqw}
+.car-btn{position:absolute;top:50%;margin-top:-17px;width:34px;height:34px;border-radius:50%;border:0;background:rgba(250,247,239,.92);color:var(--art-ink);font-size:1.1rem;cursor:pointer;display:grid;place-items:center;box-shadow:0 2px 8px rgba(26,24,16,.25);z-index:2}
+.car-btn.p{left:8px}.car-btn.n{right:8px}
+.car-btn:disabled{opacity:.35;cursor:default}
+.dots{position:absolute;left:0;right:0;bottom:-22px;display:flex;justify-content:center;gap:5px}
+.dots i{width:6px;height:6px;border-radius:50%;background:var(--line-strong)}
+.dots i.on{background:var(--accent-2)}
+.car-wrap{padding-bottom:26px}
+.story-ba{aspect-ratio:9/16;max-width:100%;border-radius:14px;overflow:hidden;position:relative;box-shadow:var(--shadow);display:grid;grid-template-rows:1fr 1fr;gap:2px;background:var(--art-ink);container-type:inline-size}
+.story-ba > div{position:relative;overflow:hidden}
+.story-ba img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.story-ba .stag{position:absolute;left:5cqw;top:5cqw;font-size:4.4cqw;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:var(--art-ink);color:var(--art-cream);padding:1.4cqw 3cqw;border-radius:99px}
+.story-ba > div:nth-child(2) .stag{top:auto;bottom:5cqw}
+.story-ba .poll{position:absolute;left:12%;right:12%;top:50%;transform:translateY(-50%);background:var(--art-cream);color:var(--art-ink);border-radius:12px;padding:5cqw;text-align:center;box-shadow:0 6px 18px rgba(26,24,16,.3);z-index:2}
+.story-ba .poll b{display:block;font-size:6.4cqw;margin-bottom:3cqw}
+.story-ba .poll span{display:block;border:1px solid rgba(26,24,16,.2);border-radius:99px;padding:2.4cqw 0;font-size:5cqw;font-weight:600;margin-top:2cqw}
+.reel-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.rs{min-width:0}
+.rs .rf{aspect-ratio:9/16;border-radius:8px;overflow:hidden;position:relative;container-type:inline-size;background:var(--art-sand)}
+.rs .rf img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.rs .rf .sp{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--art-cream)}
+.rs .rf .sp img{position:static;width:100%;height:100%}
+.rs .rf .ov{position:absolute;left:8%;right:8%;top:10%;text-align:center;font-family:var(--display);font-weight:500;font-size:12cqw;line-height:1.1;color:var(--art-ink)}
+.rs .rf .ov span{background:var(--art-cream);padding:0 .2em;-webkit-box-decoration-break:clone;box-decoration-break:clone;border-radius:.12em}
+.rs .tc{font-size:.72rem;color:var(--muted);margin-top:5px;font-variant-numeric:tabular-nums}
+.rs .tc b{display:block;color:var(--ink-2);font-weight:600}
+.pk-copy{margin-top:14px}
+.sheet{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px}
+@media (max-width:820px){.sheet{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.sh{font:inherit;color:var(--ink);text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px;cursor:pointer;min-width:0}
+.sh:hover{border-color:var(--line-strong)}
+.sh[aria-current="true"]{border-color:var(--accent-2);box-shadow:0 0 0 1px var(--accent-2)}
+.sh .pair{display:grid;grid-template-columns:1fr 1fr;gap:3px;border-radius:7px;overflow:hidden}
+.sh .pair img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block}
+.sh .cap{display:flex;justify-content:space-between;gap:8px;padding:8px 4px 2px;font-size:.84rem;align-items:baseline}
+.sh .cap b{font-family:var(--display);font-weight:500;font-size:1rem}
+.sh .cap span{color:var(--muted);font-size:.74rem;text-align:right}
+.setup{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px;overflow-x:auto}
+.setup svg{width:100%;min-width:460px;height:auto;display:block}
+.st-wall{fill:var(--sunk);stroke:var(--line-strong)}
+.st-win{fill:var(--c-car-bg);stroke:var(--accent-2)}
+.st-ray{stroke:var(--accent-2);stroke-width:1.2;stroke-dasharray:3 4;fill:none;opacity:.7}
+.st-chair{fill:var(--sunk);stroke:var(--line-strong)}
+.st-head{fill:var(--c-evt-bg);stroke:var(--ink-2);stroke-width:1.2}
+.st-nose{fill:none;stroke:var(--ink-2);stroke-width:1.2}
+.st-tape{stroke:var(--hol, #A33B2A);stroke-width:2;fill:none}
+.st-led{fill:var(--accent);stroke:none}
+.st-card{fill:var(--surface);stroke:var(--ink-2);stroke-width:1}
+.st-cam{fill:var(--ink);stroke:none}
+.st-lens{fill:var(--bg)}
+.st-tripod{stroke:var(--ink-2);stroke-width:1.6;fill:none}
+.st-dim{stroke:var(--muted);stroke-width:1;fill:none}
+.st-lbl{fill:var(--ink-2);font:500 12px var(--body)}
+.st-lbl-in{fill:var(--muted);font:600 11px var(--body);letter-spacing:.06em}
+.st-tape-lbl{fill:var(--c-hol-fg)}
+.frames-guide{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.fg{min-width:0}
+.fg .ph{position:relative;aspect-ratio:4/5;border-radius:8px;overflow:hidden}
+.fg .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.fg .gl{position:absolute;border:0 dashed rgba(250,247,239,.95);pointer-events:none}
+.fg .gl.h{left:0;right:0;height:0;border-top-width:1.5px}
+.fg .gl.v{top:0;bottom:0;width:0;border-left-width:1.5px}
+.fg .gl.third{border-color:rgba(250,247,239,.45)}
+.fg .gl i{position:absolute;font-style:normal;font-size:.62rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:rgba(26,24,16,.7);color:var(--art-cream);padding:1px 6px;border-radius:99px;white-space:nowrap}
+.fg .gl.h i{left:6px;top:-9px}
+.fg .gl.v i{top:6px;left:-1px;transform:translateX(-50%)}
+.fg b{display:block;font-size:.9rem;margin-top:8px}
+.fg span{font-size:.82rem;color:var(--muted)}
+.tpl-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:620px){.tpl-wrap{grid-template-columns:minmax(0,1fr)}}
+.tpl{aspect-ratio:4/5;max-width:100%;border-radius:8px;overflow:hidden;background:var(--art-bone);box-shadow:var(--shadow);display:grid;grid-template-rows:auto 1fr auto;container-type:inline-size}
+.tpl .hd{display:grid;grid-template-columns:1fr 1fr;background:var(--art-ink);color:var(--art-cream);font-size:4.2cqw;font-weight:700;letter-spacing:.16em;text-transform:uppercase;text-align:center}
+.tpl .hd span{padding:2.4cqw 0}
+.tpl .ph2{display:grid;grid-template-columns:1fr 1fr;gap:1.2cqw;background:var(--art-bone);padding:0;min-height:0}
+.tpl .ph2 div{position:relative;overflow:hidden}
+.tpl .ph2 img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.tpl .ft{display:flex;justify-content:space-between;align-items:center;gap:3cqw;padding:3.4cqw 4cqw;color:var(--art-ink);font-size:3.8cqw;font-weight:500}
+.tpl .ft b{font-family:var(--display);font-weight:700;font-size:6cqw;color:var(--art-olive)}
+.tpl-notes li{padding:8px 0;border-top:1px solid var(--line);font-size:.9rem;color:var(--ink-2)}
+.checks li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;padding:8px 0;border-top:1px solid var(--line);font-size:.93rem}
+.checks li::before{content:"✓";color:var(--accent-2);font-weight:700}
+.frame > img,.frame .split{position:absolute;inset:0;width:100%;height:100%}
+.frame > img{object-fit:cover}
+.frame .split{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--art-cream)}
+.frame .split img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb > img,.tile > img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.thumb .split,.tile .split{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;gap:1px}
+.thumb .split img,.tile .split img{width:100%;height:100%;object-fit:cover;display:block}
+.s-ba img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.s-ba .split{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.s-ba .split img{position:static}
+
 /* ── feed & stories ── */
 .ig-profile{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;max-width:440px}
 .igp-top{display:flex;gap:16px;align-items:center}
@@ -534,6 +675,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
         <div class="fact"><b class="tnum">1 · 3 · 27</b><span>Apertura propuesta (lunes)</span></div>
         <div class="fact"><b class="tnum" id="countdown">133 días</b><span>Faltan para abrir</span></div>
         <div class="fact"><b>12 reels</b><span>Con guion y storyboard</span></div>
+        <div class="fact"><b>6 casos</b><span>Antes y después con ficha</span></div>
         <div class="fact"><b>4 fases</b><span>Nov 2026 → jun 2027</span></div>
       </div>
     </div>
@@ -608,7 +750,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
         <div class="poster art-olive">
           <div class="p-top">Henderson · Marzo 2027</div>
           <div class="p-head">Volvé<br><em>a vos.</em></div>
-          <div class="p-foot"><span>Cejas · pestañas · faciales<br>Hipólito Yrigoyen 229</span><span class="p-logo">GF</span></div>
+          <div class="p-foot"><span>Cejas · pestañas · faciales<br>Henderson, Buenos Aires</span><span class="p-logo">GF</span></div>
         </div>
         <span class="chip ph-lan rec">Recomendada</span>
         <h3>A · Volvé a vos</h3>
@@ -768,35 +910,145 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
     <div class="sec-head">
       <div class="eyebrow">Antes y después</div>
       <div>
-        <h2>La prueba que vende. <em>Con reglas.</em></h2>
-        <p>Deslizá cada imagen para comparar. Son ilustraciones para mostrar el formato: las reales salen de la convocatoria de modelos de febrero y se suben a la galería de la web desde el admin.</p>
+        <h2>Seis modelos, seis casos <em>listos para publicar.</em></h2>
+        <p>Cada caso tiene una clienta tipo, su ficha, el protocolo del turno, la foto comparada y el contenido que sale de ese turno: carrusel, story y reel. Es el molde para la convocatoria de modelos de febrero: se repite tal cual con las clientas reales.</p>
       </div>
     </div>
-    <div class="g3" id="ba-grid"></div>
 
-    <h3 style="margin-top:48px">Cuatro formatos para publicarlo</h3>
-    <div class="formats" id="formats"></div>
+    <div class="ai-note" role="note">
+      <b>Fotos de referencia hechas con IA y modelos inventadas.</b>
+      <span>Sirven para planificar luz, encuadre y formato. Las publicaciones se hacen con fotos reales de la convocatoria. Publicar estas imágenes como resultados sería publicidad engañosa.</span>
+    </div>
 
-    <div class="g2" style="margin-top:48px">
+    <div class="case-tabs" role="tablist" aria-label="Elegir caso" id="case-tabs"></div>
+    <div class="case" id="case-view"></div>
+
+    <div class="pack-head">
+      <h3>El caso convertido en contenido</h3>
+      <p class="muted">Un turno bien fotografiado alcanza para tres piezas. Tocá las flechas del carrusel para recorrerlo.</p>
+    </div>
+    <div class="pack" id="case-pack"></div>
+
+    <h3 style="margin-top:56px">Hoja de contactos</h3>
+    <p class="muted" style="font-size:.93rem;max-width:64ch">Los seis casos juntos, como se ven en la carpeta de fotos del estudio. Tocá uno para abrirlo arriba.</p>
+    <div class="sheet" id="contact-sheet"></div>
+
+    <h3 style="margin-top:56px">Serie «Modelos GF»: cuándo sale cada caso</h3>
+    <div class="tbl-wrap">
+      <table class="cad-table" id="series-table">
+        <thead><tr><th>Fecha</th><th>Caso</th><th>Pieza principal</th><th>Para qué</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="g2" style="margin-top:56px;align-items:start">
+      <div>
+        <h3>El set de fotos</h3>
+        <p class="muted" style="font-size:.93rem">Siempre en el mismo rincón del estudio, con las mismas marcas en el piso. Así el antes y el después coinciden aunque pasen semanas entre una foto y otra.</p>
+        <div class="setup">
+          <svg viewBox="0 0 520 400" role="img" aria-labelledby="setup-t">
+            <title id="setup-t">Vista desde arriba del set de fotos: pared lisa al fondo, ventana a la izquierda, clienta sentada al centro, panel LED a 45 grados a la derecha, cartón blanco de rebote a la izquierda y celular en trípode al frente, a 60 u 80 centímetros.</title>
+            <rect x="40" y="22" width="440" height="20" rx="3" class="st-wall"/>
+            <text x="260" y="36" text-anchor="middle" class="st-lbl-in">Pared lisa · hueso u oliva</text>
+            <rect x="14" y="80" width="12" height="140" rx="2" class="st-win"/>
+            <text x="34" y="74" class="st-lbl">Ventana: luz lateral suave</text>
+            <path d="M28 110 L120 140 M28 150 L120 160 M28 190 L120 180" class="st-ray"/>
+            <ellipse cx="260" cy="150" rx="46" ry="30" class="st-chair"/>
+            <circle cx="260" cy="140" r="17" class="st-head"/>
+            <path d="M252 157 L260 166 L268 157" class="st-nose"/>
+            <text x="320" y="118" class="st-lbl">Clienta: mentón paralelo al piso</text>
+            <path d="M233 186 l-8 8 m0 -8 l8 8 M287 186 l-8 8 m0 -8 l8 8" class="st-tape"/>
+            <rect x="372" y="200" width="70" height="14" rx="3" transform="rotate(-45 407 207)" class="st-led"/>
+            <path d="M392 196 L300 160" class="st-ray"/>
+            <text x="350" y="248" class="st-lbl">Panel LED 4500–5000 K</text>
+            <text x="350" y="264" class="st-lbl">a 45°, a la altura de los ojos</text>
+            <rect x="72" y="214" width="52" height="10" rx="2" transform="rotate(35 98 219)" class="st-card"/>
+            <text x="34" y="262" class="st-lbl">Cartón blanco de rebote</text>
+            <rect x="244" y="318" width="32" height="20" rx="4" class="st-cam"/>
+            <circle cx="260" cy="328" r="5" class="st-lens"/>
+            <path d="M244 352 L230 374 M276 352 L290 374 M260 352 L260 378" class="st-tripod"/>
+            <path d="M222 370 l-8 8 m0 -8 l8 8 M298 370 l-8 8 m0 -8 l8 8" class="st-tape"/>
+            <text x="300" y="326" class="st-lbl">Celular en trípode,</text>
+            <text x="300" y="342" class="st-lbl">lente a la altura de la zona</text>
+            <path d="M206 186 V318" class="st-dim"/>
+            <path d="M200 192 L206 186 L212 192 M200 312 L206 318 L212 312" class="st-dim"/>
+            <text x="198" y="258" text-anchor="end" class="st-lbl">60–80 cm</text>
+            <text x="300" y="392" class="st-lbl st-tape-lbl">✕ cinta en el piso: siempre el mismo lugar</text>
+          </svg>
+        </div>
+      </div>
+      <div>
+        <h3>Encuadres</h3>
+        <p class="muted" style="font-size:.93rem">Las guías se pueden copiar como grilla en la cámara del celular. Lo importante es repetir el mismo encuadre en la foto del después.</p>
+        <div class="frames-guide" id="frames-guide"></div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:56px">Tomas por servicio</h3>
+    <div class="tbl-wrap">
+      <table class="cad-table">
+        <thead><tr><th>Servicio</th><th>Tomas obligatorias</th><th>Distancia</th><th>Cuándo</th></tr></thead>
+        <tbody>
+          <tr><td><b>Cejas</b><br><span class="muted">perfilado, laminado</span></td><td>Frente con los dos ojos · cada ceja de cerca · tres cuartos</td><td class="tnum">30–40 cm de cerca, 60 cm de frente</td><td>Antes · al terminar · a los 7 días (laminado)</td></tr>
+          <tr><td><b>Pestañas</b><br><span class="muted">lifting y tinte</span></td><td>Ojo de frente mirando hacia arriba · perfil del ojo · ojos cerrados</td><td class="tnum">20–30 cm</td><td>Antes · al terminar · a los 7 días</td></tr>
+          <tr><td><b>Piel</b><br><span class="muted">limpieza, LED</span></td><td>Frente · tres cuartos de los dos lados · detalle de la zona T</td><td class="tnum">50–60 cm</td><td>Antes · al terminar · antes de la sesión siguiente</td></tr>
+          <tr><td><b>Radiofrecuencia</b></td><td>Perfil a 90° de los dos lados · frente · tres cuartos</td><td class="tnum">60–80 cm</td><td>Antes de cada sesión (S1 a S4) y 30 días después de la última</td></tr>
+          <tr><td><b>Maquillaje</b></td><td>Frente · tres cuartos · cuerpo entero con la ropa del evento</td><td class="tnum">60 cm y 1,5 m</td><td>Antes · terminado · una con flash</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="g2" style="margin-top:56px;align-items:start">
+      <div>
+        <h3>Plantilla de edición</h3>
+        <p class="muted" style="font-size:.93rem">Una sola plantilla en Canva para todos los casos. Cambian las fotos y la línea de datos, nada más.</p>
+        <div class="tpl-wrap">
+          <div class="tpl" id="tpl"></div>
+          <ul class="clean tpl-notes">
+            <li><b>Rótulos</b> «Antes» y «Después» arriba, en Inter Tight mayúscula sobre una franja de tinta.</li>
+            <li><b>Línea de datos</b> abajo: servicio · sesiones · minutos · «sin filtros».</li>
+            <li><b>Marca GF</b> chica en la esquina, nunca encima de la zona tratada.</li>
+            <li><b>Mismo recorte</b> en las dos fotos: si una se corre, se recortan las dos igual.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <h3>Antes de publicar</h3>
+        <ul class="clean checks">
+          <li>Autorización firmada, con la opción de cara elegida por la clienta.</li>
+          <li>Misma luz, mismo encuadre y misma distancia en las dos fotos.</li>
+          <li>Sin filtros, sin retoque, sin «suavizado» del celular.</li>
+          <li>Cantidad de sesiones y tiempo del turno a la vista.</li>
+          <li>Texto sin promesas: «mejora el aspecto», nunca «elimina».</li>
+          <li>Foto cargada también en la galería de la web desde el admin.</li>
+        </ul>
+        <h3 style="margin-top:28px">Cómo se mide</h3>
+        <ul class="clean plain">
+          <li><b>Guardados y compartidos</b> del posteo: el antes y después que funciona se guarda.</li>
+          <li><b>Mensajes con «precio» o «turno»</b> en las 48 h siguientes.</li>
+          <li><b>Reservas de ese servicio</b> en los 7 días siguientes (admin → Turnos).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="g2" style="margin-top:56px">
       <div>
         <h3>Protocolo de foto</h3>
-        <p class="muted" style="font-size:.93rem">En este orden, en cada sesión. Sin esto el antes y después no se puede comparar y pierde credibilidad.</p>
         <ul class="clean steps">
           <li><span><b>Autorización firmada antes de empezar.</b> Nunca después.</span></li>
           <li><span><b>Misma luz.</b> Panel fijo o ventana, sin flash y sin luz del techo.</span></li>
-          <li><span><b>Mismo encuadre.</b> Trípode en una marca fija del piso o de la camilla.</span></li>
+          <li><span><b>Mismo encuadre.</b> Trípode en la marca del piso.</span></li>
           <li><span><b>Cara relajada</b> y sin maquillaje en la zona a tratar.</span></li>
-          <li><span><b>Sin filtros ni retoque.</b> Ni siquiera el «suavizado» del celular.</span></li>
-          <li><span><b>Foto al terminar</b> y, si se puede, a la semana (laminado y lifting asientan).</span></li>
-          <li><span><b>Nombrar el archivo</b> como fecha_servicio_iniciales. Ej.: 2027-03-03_laminado_LP.</span></li>
+          <li><span><b>Sin filtros ni retoque.</b> Ni siquiera el modo belleza del celular.</span></li>
+          <li><span><b>Foto al terminar</b> y, si se puede, a la semana.</span></li>
+          <li><span><b>Nombrar el archivo</b> fecha_servicio_iniciales. Ej.: 2027-03-03_laminado_SM.</span></li>
         </ul>
       </div>
       <div>
-        <h3>Texto de autorización</h3>
-        <p class="muted" style="font-size:.93rem">Para sumar a la ficha de la clienta (el admin ya tiene fichas con preguntas). Revisarlo con alguien de confianza antes de usarlo.</p>
-        <div class="consent" id="consent-text">Autorizo a GF Studio a sacar fotos y videos de mi tratamiento y a publicarlos en sus redes y en su web. Puedo elegir que no se vea mi cara y puedo pedir que se borren cuando quiera, escribiendo por WhatsApp.<br><br>☐ Sí, con mi cara &nbsp; ☐ Sí, sin mi cara &nbsp; ☐ No</div>
+        <h3>Autorización de imagen</h3>
+        <p class="muted" style="font-size:.93rem">En Argentina hace falta el consentimiento de la persona para captar o publicar su imagen (art. 53 del Código Civil y Comercial). Sumarla a la ficha del admin y revisarla con alguien de confianza.</p>
+        <div class="consent" id="consent-text">Yo, ____________________, DNI ________, autorizo a GF Studio a sacar fotos y videos de mi tratamiento del día ___/___/___ y a publicarlos en sus redes, en su web y en publicidad del estudio. No recibo pago por esto. Puedo pedir que se dejen de usar cuando quiera, escribiendo por WhatsApp.<br><br>☐ Con mi cara &nbsp; ☐ Sin mi cara (solo la zona tratada) &nbsp; ☐ No autorizo<br>☐ También en publicidad paga (Instagram, Facebook)<br><br>Firma: ____________________</div>
         <div style="margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn" data-copy="consent-text">Copiar texto</button><span class="muted" style="font-size:.85rem" aria-live="polite" id="consent-msg"></span></div>
-        <div class="note">No prometer resultados médicos. Evitar «elimina manchas», «borra arrugas» o «milagro». Hablar de mejorar el aspecto y de constancia.</div>
       </div>
     </div>
   </div>
@@ -823,7 +1075,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
             </div>
           </div>
           <div class="igp-bio"><b>GF Studio · Guada</b>Cejas · pestañas · faciales
-Hipólito Yrigoyen 229 · Henderson
+Henderson, Buenos Aires
 Lun a sáb 9 a 18 · Atención 1:1
 Reservá online ↓
 <a href="https://gf-studio.vercel.app" target="_blank" rel="noopener">gf-studio.vercel.app</a></div>
@@ -1013,7 +1265,7 @@ Reservá online ↓
       <div class="rule-top">
         <h3>Copy</h3>
         <p style="font-size:.95rem;color:var(--ink-2)">Gancho en una línea, dos o tres líneas de valor, un llamado concreto y de 3 a 5 hashtags.</p>
-        <p style="font-size:.95rem;color:var(--ink-2)">Hashtags locales siempre: <b>#Henderson #HipólitoYrigoyen #GFStudio</b>. Más uno o dos del servicio: #laminadodecejas, #skincare, #limpiezafacial.</p>
+        <p style="font-size:.95rem;color:var(--ink-2)">Hashtags locales siempre: <b>#Henderson #HendersonBsAs #GFStudio</b>. Más uno o dos del servicio: #laminadodecejas, #skincare, #limpiezafacial.</p>
         <p style="font-size:.95rem;color:var(--ink-2)">Voseo, primera persona de Guada, frases cortas.</p>
       </div>
       <div class="rule-top">
@@ -1097,7 +1349,7 @@ Reservá online ↓
 <footer>
   <div class="wrap">
     <span>GF Studio · Campaña de lanzamiento 2027 · Borrador v1 del 19/10/2026</span>
-    <span>Fuentes: servicios, packs, cupones, paleta y funciones del repo GFStudio. Lo marcado como <span class="sup">supuesto</span> hay que validarlo.</span>
+    <span>Fuentes: servicios, packs, cupones, paleta y funciones del repo GFStudio. Lo marcado como <span class="sup">supuesto</span> hay que validarlo. Fotos de referencia generadas con IA para el boceto.</span>
   </div>
 </footer>
 
@@ -1182,7 +1434,7 @@ function face(kind,seed,extra){
   return s;
 }
 var ART={
-  door:function(){return '<g transform="translate(0 8)"><rect x="20" y="36" width="50" height="104" rx="2" class="f-o2"/><rect x="25" y="41" width="40" height="99" class="f-o"/><rect x="33" y="50" width="24" height="9" rx="1.5" class="f-cr"/><text x="45" y="57" text-anchor="middle" font-size="6" font-weight="700" class="f-o" style="font-family:var(--body)">229</text><circle cx="58" cy="94" r="2.6" class="f-sd"/><g transform="rotate(-24 60 96)"><circle cx="64" cy="96" r="4.2" class="n s-sd" stroke-width="1.8"/><rect x="68" y="95" width="11" height="2.2" class="f-sd"/><rect x="75" y="97" width="1.6" height="3" class="f-sd"/></g></g><rect x="0" y="148" width="90" height="12" class="f-sd" opacity=".6"/>';},
+  door:function(){return '<g transform="translate(0 8)"><rect x="20" y="36" width="50" height="104" rx="2" class="f-o2"/><rect x="25" y="41" width="40" height="99" class="f-o"/><rect x="33" y="50" width="24" height="9" rx="1.5" class="f-cr"/><text x="45" y="57" text-anchor="middle" font-size="6" font-weight="700" class="f-o" style="font-family:var(--display)">GF</text><circle cx="58" cy="94" r="2.6" class="f-sd"/><g transform="rotate(-24 60 96)"><circle cx="64" cy="96" r="4.2" class="n s-sd" stroke-width="1.8"/><rect x="68" y="95" width="11" height="2.2" class="f-sd"/><rect x="75" y="97" width="1.6" height="3" class="f-sd"/></g></g><rect x="0" y="148" width="90" height="12" class="f-sd" opacity=".6"/>';},
   space:function(){return '<rect x="0" y="128" width="90" height="32" class="f-sd"/><circle cx="45" cy="56" r="20" class="f-cr" opacity=".55"/><path d="M45 30 V44" class="n s-ink" stroke-width=".8"/><path d="M36 52 Q45 40 54 52Z" class="f-o2"/><ellipse cx="22" cy="80" rx="7" ry="10" class="n s-o2" stroke-width="1.6"/><rect x="14" y="102" width="56" height="8" rx="3.5" class="f-o2"/><rect x="16" y="99" width="16" height="5" rx="2.5" class="f-cr"/><path d="M20 110 V128 M64 110 V128" class="n s-ink" stroke-width="1.6"/><rect x="70" y="112" width="9" height="16" rx="1.5" class="f-cr"/><ellipse cx="72" cy="104" rx="3" ry="8" class="f-sg" transform="rotate(-20 72 104)"/><ellipse cx="78" cy="102" rx="3" ry="9" class="f-o2" transform="rotate(18 78 102)"/><ellipse cx="75" cy="99" rx="2.6" ry="9" class="f-sg"/>';},
   detail:function(){return '<rect x="16" y="112" width="40" height="11" rx="4" class="f-sd"/><rect x="18" y="101" width="36" height="11" rx="4" class="f-cr"/><rect x="20" y="90" width="32" height="11" rx="4" class="f-sg"/><rect x="61" y="86" width="13" height="37" rx="3.5" class="f-o"/><rect x="64" y="79" width="7" height="8" rx="1" class="f-ink"/><rect x="63" y="98" width="9" height="11" rx="1" class="f-cr"/><path d="M8 123 H82" class="n s-ink" stroke-width=".6" opacity=".4"/>';},
   person:function(){return '<path d="M12 160 Q45 108 78 160Z" class="f-o2"/><rect x="39" y="104" width="12" height="14" class="f-sk2"/><ellipse cx="45" cy="88" rx="17" ry="19" class="f-br"/><ellipse cx="45" cy="92" rx="13.5" ry="16" class="f-sk"/><circle cx="45" cy="70" r="7" class="f-br"/><path d="M40 90 Q42 92 44 90 M46 90 Q48 92 50 90" class="n s-br" stroke-width=".9" stroke-linecap="round"/><path d="M41.5 99 Q45 101.5 48.5 99" class="n s-sk2" stroke-width="1.2" stroke-linecap="round"/>';},
@@ -1210,21 +1462,22 @@ var ART={
   services:function(){return '<circle cx="45" cy="64" r="13" class="f-sk"/><g transform="translate(29.4 41.9) scale(.34)">'+brow("brow1",9)+'</g><circle cx="45" cy="94" r="13" class="f-sk"/><g transform="translate(27 58) scale(.4)">'+eye(45,96,58)+lashes("lash1",3)+'</g><circle cx="45" cy="124" r="13" class="f-sg"/><ellipse cx="45" cy="122" rx="7.5" ry="8.5" class="f-br"/><ellipse cx="45" cy="125" rx="6" ry="7" class="f-sk"/><path d="M42.5 130 Q45 131.5 47.5 130" class="n s-sk2" stroke-width=".8"/>';},
   text:function(){return "";}
 };
+function media(f){if(f.imgs)return '<div class="split"><img src="fotos/'+f.imgs[0]+'.jpg" alt="" loading="lazy"><img src="fotos/'+f.imgs[1]+'.jpg" alt="" loading="lazy"></div>';if(f.img)return '<img src="fotos/'+f.img+'.jpg" alt="" loading="lazy">';return svg(f.art);}
 function svg(art,cls){var f=ART[art]||ART.text;return '<svg viewBox="0 0 90 160" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"'+(cls?' class="'+cls+'"':'')+'>'+f()+'</svg>';}
 
 /* ───────── datos: reels ───────── */
 var PH={exp:["ph-exp","Expectativa"],lan:["ph-lan","Lanzamiento"],sos:["ph-sos","Sostén"]};
 var REELS=[
 {id:"R01",t:"La llave",fase:"exp",pilar:"Detrás de escena",fecha:"Vie 15 ene",
- hook:"Una mano gira la llave en la puerta de Yrigoyen 229. Intriga desde el primer segundo.",
+ hook:"Una mano gira la llave en la puerta del estudio. Intriga desde el primer segundo.",
  audio:"Piano o lo-fi suave, de la biblioteca de audios de Instagram.",cta:"Escribí VIP por WhatsApp",
  frames:[
-  {s:2,art:"door",bg:"sand",txt:"Henderson.\nYrigoyen 229.",shot:"Primer plano: la mano con la llave en la cerradura del estudio."},
-  {s:4,art:"space",bg:"bone",txt:"Algo se está armando…",shot:"Timelapse del armado: pintura, camilla, luces. Celular fijo en trípode, una toma por día durante dos semanas."},
-  {s:3,art:"detail",bg:"cream",txt:"Pensado desde el detalle.",shot:"Cortes de medio segundo: toallas dobladas, frascos, la camilla con la manta, la planta."},
+  {s:2,art:"door",img:"llave",bg:"cream",txt:"Henderson.\nMarzo 2027.",shot:"Primer plano: la mano con la llave en la cerradura del estudio."},
+  {s:4,art:"space",img:"estudio",bg:"cream",txt:"Algo se está armando…",shot:"Timelapse del armado: pintura, camilla, luces. Celular fijo en trípode, una toma por día durante dos semanas."},
+  {s:3,art:"detail",img:"productos",bg:"cream",txt:"Pensado desde el detalle.",shot:"Cortes de medio segundo: toallas dobladas, frascos, la camilla con la manta, la planta."},
   {s:3,art:"person",bg:"sand",txt:"Soy Guada.",shot:"Guada de espaldas acomoda algo, se da vuelta y mira a cámara."},
   {s:2,art:"logo",bg:"olive",txt:"Abrimos en marzo.",sub:"Lista VIP · link en la bio",shot:"Placa final con el logo y el llamado a la lista VIP."}],
- caption:"Hace meses que vengo armando este lugar, detalle por detalle. En marzo abre GF Studio en Hipólito Yrigoyen 229, Henderson.\n\n¿Querés enterarte primero y tener un beneficio de apertura? Escribime VIP por WhatsApp.\n\n#Henderson #GFStudio #cejas #skincare",
+ caption:"Hace meses que vengo armando este lugar, detalle por detalle. En marzo abre GF Studio en Henderson.\n\n¿Querés enterarte primero y tener un beneficio de apertura? Escribime VIP por WhatsApp.\n\n#Henderson #GFStudio #cejas #skincare",
  notas:"Empezar el timelapse en diciembre. No mostrar la cara completa hasta el cuadro 4: sostiene la intriga."},
 {id:"R02",t:"Busco 10 caras",fase:"exp",pilar:"Comunidad",fecha:"Vie 29 ene",
  hook:"Guada a cámara, sin saludo: «Busco 10 caras para estrenar el estudio».",
@@ -1243,7 +1496,7 @@ var REELS=[
  frames:[
   {s:2,art:"calendar",bg:"sand",txt:"Faltan 3 días.",shot:"Calendario de papel: la mano tacha el día."},
   {s:3,art:"detail",bg:"cream",txt:"Últimos detalles.",shot:"Colgando el cartel, flores en la entrada, la manta sobre la camilla."},
-  {s:2,art:"space",bg:"bone",txt:"",shot:"Paneo lento del espacio terminado."},
+  {s:2,art:"space",img:"estudio",bg:"bone",txt:"",shot:"Paneo lento del espacio terminado."},
   {s:3,art:"phone",bg:"olive",txt:"La agenda ya está abierta.",shot:"Grabación de pantalla reservando un turno en gf-studio.vercel.app."},
   {s:2,art:"logo",bg:"olive",txt:"Lunes 1/3.\nAbrimos.",shot:"Placa final con el logo."}],
  caption:"Faltan 3 días. Estoy colgando los últimos cuadros y ya hay turnos tomados para la primera semana.\n\nLa agenda online está abierta: link en la bio. Si sos de la lista VIP, usá tu código VIP27.\n\n#Henderson #GFStudio",
@@ -1252,11 +1505,11 @@ var REELS=[
  hook:"Primer plano de la ceja antes, con el texto «45 minutos».",
  audio:"Audio en tendencia con un golpe marcado para el corte al después.",cta:"Reservá online (link en la bio)",
  frames:[
-  {s:1,art:"brow0",bg:"skin",txt:"45 minutos.",shot:"Primer plano de la ceja ANTES. Luz de ventana o panel fijo, sin filtro."},
-  {s:3,art:"bottles",bg:"bone",txt:"",shot:"Tres cortes de medio segundo: cepillado, film, tinte."},
+  {s:1,art:"brow0",img:"c1-antes",bg:"cream",txt:"45 minutos.",shot:"Primer plano de la ceja ANTES. Luz de ventana o panel fijo, sin filtro."},
+  {s:3,art:"bottles",img:"proceso",bg:"bone",txt:"",shot:"Tres cortes de medio segundo: cepillado, film, tinte."},
   {s:1,art:"swipe",bg:"olive",txt:"",shot:"Transición: la mano tapa la cámara y se corre."},
-  {s:4,art:"brow1",bg:"skin",txt:"Laminado de cejas.",shot:"Mismo encuadre: la ceja DESPUÉS."},
-  {s:3,art:"split",bg:"skin",txt:"Antes · Después",sub:"Reservá online · link en la bio",shot:"Pantalla dividida y placa con el link."}],
+  {s:4,art:"brow1",img:"c1-despues",bg:"cream",txt:"Laminado de cejas.",shot:"Mismo encuadre: la ceja DESPUÉS."},
+  {s:3,art:"split",imgs:["c1-antes","c1-despues"],bg:"cream",txt:"Antes · Después",sub:"Reservá online · link en la bio",shot:"Pantalla dividida y placa con el link."}],
  caption:"Antes y después de un laminado de cejas. Unos 45 minutos y la ceja queda peinada y prolija por varias semanas.\n\n¿Querés probar? Reservá online desde el link de la bio.\n\n#laminadodecejas #antesydespues #Henderson",
  notas:"Mismo encuadre antes y después: trípode fijo en la marca. Ajustar los minutos a la duración real cargada en el admin. El formato se repite con lifting (17/3) y con piel (23/3)."},
 {id:"R05",t:"Semana del 8M",fase:"lan",pilar:"Oferta",fecha:"Vie 5 mar",
@@ -1275,9 +1528,9 @@ var REELS=[
  audio:"Voz de Guada; música suave de fondo.",cta:"Pack Volvé a vos",
  frames:[
   {s:2,art:"person",bg:"olive",txt:"Marzo.\nTu piel te está\npidiendo esto.",shot:"Guada a cámara con el estudio de fondo. El gancho entra en el primer segundo."},
-  {s:3,art:"skin0",bg:"sand",txt:"1 · Deshidratación",shot:"Detalle de piel tirante (modelo)."},
-  {s:3,art:"skin0",bg:"sand",txt:"2 · Manchitas de sol",shot:"Detalle de mejilla. Nunca mostrar caras sin autorización."},
-  {s:3,art:"skin0",bg:"sand",txt:"3 · Poros marcados",shot:"Detalle de nariz y mejilla."},
+  {s:3,art:"skin0",img:"c3-antes",bg:"cream",txt:"1 · Deshidratación",shot:"Detalle de piel tirante (modelo)."},
+  {s:3,art:"skin0",img:"c3-antes",bg:"cream",txt:"2 · Manchitas de sol",shot:"Detalle de mejilla. Nunca mostrar caras sin autorización."},
+  {s:3,art:"skin0",img:"c3-antes",bg:"cream",txt:"3 · Poros marcados",shot:"Detalle de nariz y mejilla."},
   {s:4,art:"led",bg:"olive",txt:"Limpieza profunda + LED",sub:"Pack Volvé a vos",shot:"Toma del protocolo con LED y placa final con el pack."}],
  caption:"Después del verano la piel suele quedar deshidratada, con manchitas y los poros más marcados. Para marzo armé el pack Volvé a vos: limpieza profunda + fototerapia LED.\n\nCada piel es distinta: en la primera sesión hacemos una consulta y vemos qué necesita la tuya.\n\n#skincare #limpiezafacial #Henderson",
  notas:"No prometer resultados médicos ni «eliminar manchas». Hablar de mejorar el aspecto y de constancia."},
@@ -1296,11 +1549,11 @@ var REELS=[
  hook:"Cámara en mano entrando por la puerta: «POV: tu primera vez en GF Studio».",
  audio:"Lo-fi cálido.",cta:"Reservá online (link en la bio)",
  frames:[
-  {s:4,art:"door",bg:"sand",txt:"POV: tu primera vez\nen GF Studio.",shot:"Cámara en mano a la altura del pecho, entrando por la puerta."},
+  {s:4,art:"door",img:"llave",bg:"cream",txt:"POV: tu primera vez\nen GF Studio.",shot:"Cámara en mano a la altura del pecho, entrando por la puerta."},
   {s:4,art:"mate",bg:"cream",txt:"Primero, un mate\no un té.",shot:"Recibimiento; la taza sobre la mesa."},
   {s:4,art:"phone",bg:"bone",txt:"Charlamos 5 minutos:\ntu piel, tu ceja,\nlo que buscás.",shot:"Guada completa la ficha en el celular o la tablet."},
-  {s:4,art:"space",bg:"sand",txt:"Después,\nsolo relajarte.",shot:"Camilla, manta y luz cálida. Toma desde arriba."},
-  {s:4,art:"mirror",bg:"olive",txt:"Y este momento.",shot:"Espejo de mano: la reacción de la clienta (con autorización)."}],
+  {s:4,art:"space",img:"estudio",bg:"cream",txt:"Después,\nsolo relajarte.",shot:"Camilla, manta y luz cálida. Toma desde arriba."},
+  {s:4,art:"mirror",img:"espejo",bg:"olive",txt:"Y este momento.",shot:"Espejo de mano: la reacción de la clienta (con autorización)."}],
  caption:"Así es tu primera vez en GF Studio: llegás, charlamos un rato y recién ahí arrancamos. Sin apuro.\n\nReservá online desde el link de la bio.\n\n#Henderson #GFStudio #skincare",
  notas:"La reacción al espejo solo con autorización firmada. Sirve también como portada de la historia destacada «Servicios»."},
 {id:"R09",t:"Un día en GF",fase:"lan",pilar:"Persona",fecha:"Vie 19 mar",
@@ -1309,8 +1562,8 @@ var REELS=[
  frames:[
   {s:4,art:"clock",bg:"sand",txt:"8:30\nabrir el estudio",shot:"Llegada, se abre la persiana."},
   {s:4,art:"mate",bg:"cream",txt:"8:45\nmate y agenda",shot:"Mate en la mano, la agenda del admin en el celular."},
-  {s:5,art:"space",bg:"bone",txt:"9:00\nprimera clienta",shot:"Preparar la camilla, recibir a la primera clienta."},
-  {s:5,art:"bottles",bg:"cream",txt:"13:00\nordenar y reponer",shot:"Ordenar productos, lavar pinceles."},
+  {s:5,art:"space",img:"estudio",bg:"cream",txt:"9:00\nprimera clienta",shot:"Preparar la camilla, recibir a la primera clienta."},
+  {s:5,art:"bottles",img:"productos",bg:"cream",txt:"13:00\nordenar y reponer",shot:"Ordenar productos, lavar pinceles."},
   {s:4,art:"person",bg:"olive",txt:"18:00\nhasta mañana",shot:"Guada apaga la luz y saluda a cámara."}],
  caption:"Un día en GF Studio, de 8:30 a 18. Gracias a todas las que pasaron en estas primeras semanas.\n\n¿Querés tu turno? Link en la bio.\n\n#Henderson #GFStudio #detrásdeescena",
  notas:"Grabar clips de 2 segundos a lo largo de un día real. Mostrar a la persona detrás del estudio es lo que más confianza genera en un pueblo."},
@@ -1318,9 +1571,9 @@ var REELS=[
  hook:"Primera reacción al espejo, sin texto más que «Ese momento».",
  audio:"Audio emotivo en tendencia.",cta:"Dejá tu reseña en Google",
  frames:[
-  {s:3,art:"mirror",bg:"cream",txt:"Ese momento.",shot:"Compilado de 4 o 5 reacciones al espejo (autorizadas)."},
-  {s:3,art:"mirror",bg:"bone",txt:"",shot:"Segunda reacción."},
-  {s:3,art:"mirror",bg:"sand",txt:"",shot:"Tercera reacción."},
+  {s:3,art:"mirror",img:"espejo",bg:"cream",txt:"Ese momento.",shot:"Compilado de 4 o 5 reacciones al espejo (autorizadas)."},
+  {s:3,art:"mirror",img:"c5-despues",bg:"bone",txt:"",shot:"Segunda reacción."},
+  {s:3,art:"mirror",img:"c3-despues",bg:"sand",txt:"",shot:"Tercera reacción."},
   {s:3,art:"text",bg:"olive",txt:"Gracias por este\nprimer mes.",shot:"Placa.",center:true},
   {s:3,art:"logo",bg:"olive",txt:"Abril ya tiene agenda.",sub:"link en la bio",shot:"Placa final con el logo."}],
  caption:"El momento del espejo. Gracias a cada una por este primer mes.\n\nSi viniste, me ayudás muchísimo dejando una reseña en Google: el link está en las historias destacadas.\n\n#Henderson #GFStudio",
@@ -1331,7 +1584,7 @@ var REELS=[
  frames:[
   {s:3,art:"person",bg:"olive",txt:"3 mitos de la\nradiofrecuencia.",shot:"Guada a cámara con el equipo de radiofrecuencia de fondo."},
   {s:5,art:"text",bg:"cream",txt:"Mito 1: «duele».",sub:"Se siente un calor agradable.",shot:"Corte a la aplicación; la cara relajada de la clienta.",center:true},
-  {s:5,art:"text",bg:"cream",txt:"Mito 2: «con una\nsesión alcanza».",sub:"Es progresivo: se trabaja en sesiones.",shot:"Placa con las 4 sesiones del pack.",center:true},
+  {s:5,art:"text",imgs:["c4-sesion1","c4-sesion4"],bg:"cream",txt:"Mito 2: «con una\nsesión alcanza».",sub:"Es progresivo: se trabaja en sesiones.",shot:"Placa con las 4 sesiones del pack.",center:true},
   {s:5,art:"text",bg:"cream",txt:"Mito 3: «es solo\npara más de 50».",sub:"También se usa como cuidado preventivo.",shot:"Guada a cámara.",center:true},
   {s:4,art:"calendar",bg:"olive",txt:"Pack RF + LED x4",sub:"Reservá la primera sesión",shot:"Placa final con el pack."}],
  caption:"Tres cosas que escucho siempre sobre la radiofrecuencia facial. ¿Tenés otra duda? Dejala en comentarios y la respondo en un próximo video.\n\n#radiofrecuencia #skincare #Henderson",
@@ -1342,8 +1595,8 @@ var REELS=[
  frames:[
   {s:2,art:"text",bg:"olive",txt:"Subí el volumen.",shot:"Placa de entrada.",center:true},
   {s:4,art:"steam",bg:"cream",txt:"",shot:"Vapor en primer plano, toalla tibia."},
-  {s:3,art:"bottles",bg:"bone",txt:"",shot:"Espuma en la mano, pincel aplicando la máscara."},
-  {s:3,art:"skin1",bg:"sand",txt:"",shot:"Piel limpia, luz suave."},
+  {s:3,art:"bottles",img:"productos",bg:"bone",txt:"",shot:"Espuma en la mano, pincel aplicando la máscara."},
+  {s:3,art:"skin1",img:"c3-despues",bg:"sand",txt:"",shot:"Piel limpia, luz suave."},
   {s:3,art:"logo",bg:"olive",txt:"Tu rato.\nSin apuro.",shot:"Placa final con el logo."}],
  caption:"Subí el volumen. Así suena una limpieza profunda en GF Studio.\n\n#asmr #limpiezafacial #Henderson",
  notas:"Sin voz ni música: sonido directo con el micrófono corbatero muy cerca. Es el formato que más se guarda y se comparte."}
@@ -1360,7 +1613,7 @@ function Phone(host,reel,opts){
   var sc=document.createElement("div"); sc.className="screen paused";
   var segs='<div class="segs">'+reel.frames.map(function(f){return '<i style="--d:'+f.s+'s"></i>';}).join("")+'</div>';
   var frames=reel.frames.map(function(f,k){
-    return '<div class="frame bg-'+f.bg+(f.center?" center":"")+(k===0?" on":"")+'">'+svg(f.art)+(f.txt||f.sub?'<div class="ov">'+(f.txt?'<span class="t">'+esc(f.txt)+'</span>':'')+(f.sub?'<small>'+esc(f.sub)+'</small>':'')+'</div>':'')+'</div>';
+    return '<div class="frame bg-'+f.bg+(f.center?" center":"")+(k===0?" on":"")+'">'+media(f)+(f.txt||f.sub?'<div class="ov">'+(f.txt?'<span class="t">'+esc(f.txt)+'</span>':'')+(f.sub?'<small>'+esc(f.sub)+'</small>':'')+'</div>':'')+'</div>';
   }).join("");
   sc.innerHTML=segs+frames+'<div class="ig-fade"></div><div class="ig"><div class="who"><b>gfstudio.ok</b><span>♪ '+esc(reel.audio)+'</span></div><div class="acts"><i></i><i></i><i></i></div></div>';
   sc.setAttribute("role","img"); sc.setAttribute("aria-label","Boceto del reel "+reel.id+": "+reel.t);
@@ -1418,7 +1671,7 @@ function showReel(k,focus){
     '<div class="rv-meta"><div><span>Publicar</span>'+esc(r.fecha)+' 2027</div><div><span>Llamado a la acción</span>'+esc(r.cta)+'</div><div><span>Audio</span>'+esc(r.audio)+'</div></div>'+
     '<p><b>Gancho.</b> '+esc(r.hook)+'</p>'+
     '<div class="sb-wrap"><table class="sb"><thead><tr><th></th><th>Tiempo</th><th>Plano / acción</th><th>Texto en pantalla</th></tr></thead><tbody>'+
-    r.frames.map(function(f,i){return '<tr data-i="'+i+'"'+(i===0?' class="on"':'')+'><td><div class="thumb bg-'+f.bg+'">'+svg(f.art)+'</div></td><td class="tc">'+f.a+'–'+f.b+' s</td><td>'+esc(f.shot)+'</td><td class="ost">'+(f.txt||f.sub?esc((f.txt||"").replace(/\n/g," "))+(f.sub?' <span class="muted">· '+esc(f.sub)+'</span>':''):'<span class="muted">sin texto</span>')+'</td></tr>';}).join("")+
+    r.frames.map(function(f,i){return '<tr data-i="'+i+'"'+(i===0?' class="on"':'')+'><td><div class="thumb bg-'+f.bg+'">'+media(f)+'</div></td><td class="tc">'+f.a+'–'+f.b+' s</td><td>'+esc(f.shot)+'</td><td class="ost">'+(f.txt||f.sub?esc((f.txt||"").replace(/\n/g," "))+(f.sub?' <span class="muted">· '+esc(f.sub)+'</span>':''):'<span class="muted">sin texto</span>')+'</td></tr>';}).join("")+
     '</tbody></table></div>'+
     '<div class="capbox"><div class="eyebrow" style="margin-bottom:8px">Copy para el posteo</div><pre id="cap-'+r.id+'">'+esc(r.caption)+'</pre><div class="row"><button class="btn" data-copy="cap-'+r.id+'">Copiar copy</button><span class="muted" style="font-size:.85rem" aria-live="polite" id="msg-cap-'+r.id+'"></span></div></div>'+
     '<div class="note"><b>Producción.</b> '+esc(r.notas)+'</div>';
@@ -1431,7 +1684,7 @@ function showReel(k,focus){
 function renderGrid(){
   var g=document.getElementById("reel-grid");
   g.innerHTML=REELS.map(function(r,k){if(filter!=="all"&&r.fase!==filter)return "";var f=r.frames[0];
-    return '<button class="rcard" data-k="'+k+'" aria-current="'+(k===current)+'"><div class="thumb bg-'+f.bg+'">'+svg(f.art)+'</div><div style="min-width:0"><div class="id">'+r.id+' · <span class="chip '+PH[r.fase][0]+'" style="padding:0 6px">'+PH[r.fase][1]+'</span></div><div class="tt">'+esc(r.t)+'</div><div class="when">'+esc(r.fecha)+' · '+r.dur+' s · '+esc(r.pilar)+'</div></div></button>';}).join("");
+    return '<button class="rcard" data-k="'+k+'" aria-current="'+(k===current)+'"><div class="thumb bg-'+f.bg+'">'+media(f)+'</div><div style="min-width:0"><div class="id">'+r.id+' · <span class="chip '+PH[r.fase][0]+'" style="padding:0 6px">'+PH[r.fase][1]+'</span></div><div class="tt">'+esc(r.t)+'</div><div class="when">'+esc(r.fecha)+' · '+r.dur+' s · '+esc(r.pilar)+'</div></div></button>';}).join("");
 }
 document.getElementById("reel-grid").addEventListener("click",function(e){var b=e.target.closest(".rcard");if(b)showReel(+b.getAttribute("data-k"),true);});
 document.querySelector(".filters").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;filter=b.getAttribute("data-f");document.querySelectorAll(".filters .btn").forEach(function(x){x.setAttribute("aria-pressed",x===b?"true":"false");});renderGrid();});
@@ -1484,41 +1737,174 @@ document.getElementById("mix-legend").innerHTML=MIX.map(function(m){return '<spa
   document.getElementById("ms-list").innerHTML=MS.map(function(m,i){var p=m[0].split("-");return '<li><span class="n">'+(i+1)+'</span><span class="d tnum">'+(+p[2])+' '+MN[+p[1]-1]+' '+p[0].slice(2)+'</span><span>'+esc(m[1])+'</span></li>';}).join("");
 })();
 
-/* ───────── antes / después ───────── */
+/* ───────── antes / después: casos ───────── */
 (function(){
-  var BA=[["cejas","Laminado de cejas","brow0","brow1","skin","Mismo encuadre, ceja peinada hacia arriba y con más cuerpo."],
-          ["pestanas","Lifting de pestañas","lash0","lash1","skin","Ángulo de frente, con la mirada hacia arriba en ambas fotos."],
-          ["piel","Limpieza profunda + LED","skin0","skin1","sand","Misma luz y distancia. Mostrar textura, no prometer «sin manchas»."]];
-  document.getElementById("ba-grid").innerHTML=BA.map(function(b){return '<div><div class="ba" id="ba-'+b[0]+'"><div class="lay bg-'+b[4]+'">'+svg(b[2])+'</div><div class="lay after bg-'+b[4]+'">'+svg(b[3])+'</div><div class="line"></div><span class="tag l">Antes</span><span class="tag r">Después</span><input type="range" min="0" max="100" value="50" id="rng-'+b[0]+'" aria-label="Comparar antes y después: '+esc(b[1])+'"></div><div class="ba-cap"><b>'+esc(b[1])+'</b><span class="muted">'+esc(b[5])+'</span></div></div>';}).join("");
-  document.querySelectorAll(".ba input").forEach(function(inp){inp.addEventListener("input",function(){inp.parentNode.style.setProperty("--pos",inp.value+"%");});});
-  var FM=[
-    {t:"Deslizador en carrusel",d:"Foto 1 antes, foto 2 después, mismo encuadre. La clienta desliza y compara.",v:function(){return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px"><div class="bg-skin cell">'+svg("brow0")+'</div><div class="bg-skin cell">'+svg("brow1")+'</div></div>';}},
-    {t:"Pantalla dividida",d:"Una sola imagen con la línea al medio. Ideal para portada y para Facebook.",v:function(){return '<div class="bg-skin">'+svg("split")+'</div>';}},
-    {t:"Reel de transición",d:"El antes, un corte con la mano o un chasquido, y el después. Formato del R04.",v:function(){return '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px"><div class="bg-skin cell">'+svg("brow0")+'</div><div class="bg-olive cell">'+svg("swipe")+'</div><div class="bg-skin cell">'+svg("brow1")+'</div></div>';}},
-    {t:"Progresión por sesiones",d:"Sesión 1, 2, 3 y 4 de un pack. Para radiofrecuencia y limpiezas: muestra constancia.",v:function(){return '<div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:3px"><div class="bg-sand cell">'+svg("skin0")+'</div><div class="bg-sand cell">'+svg("skin0")+'</div><div class="bg-sand cell">'+svg("skin1")+'</div><div class="bg-sand cell">'+svg("skin1")+'</div></div>';}}
+  var F="fotos/";
+  var CASES=[
+    {f:"c1",n:"Sofía",age:27,occ:"administrativa",svc:"Laminado de cejas",persona:"La práctica",la:"Antes",lb:"Después · al terminar",
+     busca:"Tiene las cejas rebeldes: las peina con gel a la mañana y a la tarde ya se le desarmaron.",
+     diag:"Vello fino y largo que crece en distintas direcciones, cola despoblada. Piel mixta, sin sensibilidad.",
+     proto:["Limpieza y desengrasado de la zona","Loción 1 de alisado (8 a 10 min)","Loción 2 de fijación","Tinte suave para dar cuerpo","Nutrición con aceite y perfilado de vellos sueltos"],
+     tiempo:"45 min",sesiones:"1",retoque:"4 a 6 semanas",
+     cuidados:"24 h sin mojar ni maquillar la zona, sin vapor ni pileta. Peinar cada mañana con cepillito y aceite nutritivo a la noche.",
+     quote:"Me levanto y ya están peinadas.",
+     pub:{fecha:"Mié 3 mar",pieza:"Reel R04 + carrusel",obj:"Llenar la primera semana con el servicio de entrada más pedido."},
+     caption:"Sofía tenía las cejas rebeldes: gel a la mañana y a la tarde ya estaban desarmadas. Le hicimos laminado: 45 minutos, sin agujas, y la ceja queda peinada por varias semanas.\n\nMisma luz, mismo encuadre y sin filtros.\nReservá online desde el link de la bio.\n\n#laminadodecejas #antesydespues #Henderson",
+     reel:[["antes","45 minutos."],["proceso",""],["despues","Laminado de cejas."],["split","Antes · Después"]]},
+    {f:"c6",n:"Ana",age:38,occ:"mamá de dos",svc:"Perfilado + tinte de cejas",persona:"La que vuelve a ella",la:"Antes",lb:"Después · al terminar",
+     busca:"Nunca se hizo las cejas. No sabe qué forma le queda y le da miedo que queden finitas.",
+     diag:"Ceja tupida y sin forma, vellos en el entrecejo y debajo del arco. Rostro ovalado.",
+     proto:["Visagismo: medir inicio, arco y cola","Diseño con lápiz y aprobación de la clienta","Depilación con cera y pinza","Tinte suave","Mapa de la forma para los retoques"],
+     tiempo:"45 min",sesiones:"1",retoque:"4 semanas",
+     cuidados:"24 h sin cremas ni maquillaje en la zona. No depilar en casa entre retoques: se pierde el diseño.",
+     quote:"Me cambió la mirada sin que parezca que me hice algo.",
+     pub:{fecha:"Mié 10 mar",pieza:"Carrusel de 5 fotos",obj:"Captar a quien nunca se hizo nada y teme «quedar finita»."},
+     caption:"Ana nunca se había hecho las cejas y tenía miedo de que quedaran finitas. Primero medimos y dibujamos la forma; recién cuando le gustó, empezamos.\n\n45 minutos. Misma luz y sin filtros.\nReservá online desde el link de la bio.\n\n#perfiladodecejas #cejas #Henderson",
+     reel:[["antes","¿Nunca te hiciste las cejas?"],["proceso",""],["despues","Perfilado + tinte."],["split","45 minutos"]]},
+    {f:"c2",n:"Martina",age:34,occ:"docente",svc:"Lifting + tinte de pestañas",persona:"La práctica",la:"Antes",lb:"Después · al terminar",
+     busca:"Pestañas rectas que con el rizador no le duran ni media mañana. Quiere verse descansada para dar clases sin maquillarse.",
+     diag:"Pestaña recta de largo medio, puntas claras. Ojo almendrado. Prueba de parche 48 h antes, sin reacción.",
+     proto:["Prueba de parche 48 h antes","Limpieza y molde de silicona según el largo","Loción 1 de elevación","Loción 2 de fijación","Tinte y nutrición con queratina"],
+     tiempo:"60 min",sesiones:"1",retoque:"6 a 8 semanas",
+     cuidados:"24 h sin mojar ni usar rímel. La primera noche no dormir boca abajo. Una semana sin desmaquillantes oleosos.",
+     quote:"Dejé el rizador en el cajón.",
+     pub:{fecha:"Mié 17 mar",pieza:"Reel formato R04 + story con encuesta",obj:"Segundo servicio de entrada; combina con el laminado (pack Mirada completa)."},
+     caption:"Martina daba clases con las pestañas rectas y el rizador no le duraba nada. Lifting + tinte: 60 minutos y se levanta con la mirada abierta.\n\nMisma luz y sin filtros. Sin extensiones ni rímel.\nReservá online desde el link de la bio.\n\n#liftingdepestañas #pestañas #Henderson",
+     reel:[["antes","Sin rímel."],["proceso",""],["despues","Tampoco."],["split","Lifting + tinte"]]},
+    {f:"c3",n:"Carla",age:45,occ:"comerciante",svc:"Limpieza profunda + LED",persona:"La que vuelve a ella",la:"Antes",lb:"Después · al terminar",
+     busca:"Después del verano siente la piel opaca, con los poros de la nariz tapados y algo de rojez.",
+     diag:"Piel mixta deshidratada. Comedones abiertos en zona T, poros dilatados, rojez leve en mejillas.",
+     proto:["Doble limpieza y exfoliación enzimática","Vapor de ozono y extracción manual","Alta frecuencia en zona T","Máscara calmante","Fototerapia LED 15 min y protector solar"],
+     tiempo:"75 min",sesiones:"3, una por mes (pack Limpieza x3)",retoque:"4 semanas",
+     cuidados:"48 h sin maquillaje pesado ni exfoliantes. Protector solar todos los días, aunque esté nublado.",
+     quote:"Me la veo más limpia y descansada, y eso que no me maquillé.",
+     pub:{fecha:"Mar 23 mar",pieza:"Carrusel + reel corto",obj:"Vender el pack «Volvé a vos» y el pack Limpieza x3."},
+     caption:"Carla llegó después del verano con la piel opaca y los poros de la nariz tapados. Limpieza profunda + LED, 75 minutos. Es la primera de tres sesiones.\n\nMisma luz y sin filtros. El cambio de la piel se trabaja con constancia.\nReservá online desde el link de la bio.\n\n#limpiezafacial #skincare #Henderson",
+     reel:[["antes","Después del verano."],["proceso",""],["despues","75 minutos después."],["split","Sesión 1 de 3"]]},
+    {f:"c4",a:"c4-sesion1",b:"c4-sesion4",n:"Lucía",age:52,occ:"enfermera",svc:"Radiofrecuencia + LED x4",persona:"La que vuelve a ella",la:"Sesión 1",lb:"Sesión 4 · día 45",
+     busca:"Nota el contorno de la mandíbula menos marcado y quiere algo sin agujas.",
+     diag:"Piel madura, flacidez leve en el tercio inferior y el cuello. Sin marcapasos ni implantes metálicos en la zona (contraindicaciones chequeadas en la ficha).",
+     proto:["Limpieza y gel conductor","Radiofrecuencia por zonas, 20 a 25 min","Fototerapia LED","Hidratación y protector solar","Repetir cada 15 días hasta completar 4 sesiones"],
+     tiempo:"60 min por sesión",sesiones:"4 en 45 días (pack RF + LED x4)",retoque:"Mantenimiento mensual",
+     cuidados:"Mucha hidratación y protector solar. Puede volver a su rutina en el momento.",
+     quote:"No es magia, pero me lo notaron en el trabajo.",
+     pub:{fecha:"Jue 8 abr",pieza:"Carrusel de progresión S1 → S4",obj:"Mostrar constancia: el pack se vende por proceso, no por milagro."},
+     caption:"Lucía hizo el pack de radiofrecuencia + LED: 4 sesiones en 45 días. Acá la sesión 1 y la sesión 4, con la misma luz y sin filtros.\n\nLos resultados son progresivos y cambian de piel a piel. En la primera consulta vemos si es para vos.\n\n#radiofrecuencia #skincare #Henderson",
+     reel:[["antes","Sesión 1."],["proceso",""],["despues","Sesión 4."],["split","45 días"]]},
+    {f:"c5",n:"Valentina",age:18,occ:"estudiante",svc:"Perfilado + maquillaje social",persona:"La del evento",la:"Antes",lb:"Después · lista para la fiesta",
+     busca:"Es la fiesta de 15 de su hermana. Quiere un maquillaje que aguante toda la noche y salga bien en las fotos con flash.",
+     diag:"Piel joven mixta, cejas sin diseño previo. Prefiere tonos cálidos, nada muy cargado.",
+     proto:["Perfilado de cejas una semana antes","Prueba de maquillaje (opcional, 30 min)","El día: preparación e hidratación de la piel","Base de larga duración, ojos ahumados cálidos y pestañas","Sellado y kit de retoque para la noche"],
+     tiempo:"90 min",sesiones:"1 + prueba",retoque:"No aplica",
+     cuidados:"Llevar labial y papel matificante. Desmaquillar con bifásico al volver.",
+     quote:"Me duró hasta el final de la fiesta.",
+     pub:{fecha:"Vie 16 abr",pieza:"Reel de transformación + story",obj:"Abrir el público de eventos: 15, casamientos y egresos."},
+     caption:"Valentina se preparó para la fiesta de 15 de su hermana: perfilado una semana antes y maquillaje de larga duración el mismo día. 90 minutos.\n\nPlan «Llegá lista» para 15, casamientos y egresos.\nConsultá fechas por WhatsApp.\n\n#maquillajesocial #fiestade15 #Henderson",
+     reel:[["antes","La fiesta es hoy."],["proceso",""],["despues","Lista."],["split","90 minutos"]]}
   ];
-  document.getElementById("formats").innerHTML=FM.map(function(f){return '<div><div class="fmt-vis">'+f.v()+'</div><h4>'+esc(f.t)+'</h4><p class="muted" style="font-size:.9rem">'+esc(f.d)+'</p></div>';}).join("");
-})();
+  CASES.forEach(function(c,i){c.num=("0"+(i+1)).slice(-2);c.A=F+(c.a||c.f+"-antes")+".jpg";c.B=F+(c.b||c.f+"-despues")+".jpg";});
+  var cur=0, carI=0;
 
+  function slider(c,id){
+    return '<div class="ba" id="'+id+'" style="--pos:50%"><img class="lay" src="'+c.A+'" alt="'+esc(c.la)+': '+esc(c.svc)+', caso '+esc(c.n)+'"><img class="lay after" src="'+c.B+'" alt="'+esc(c.lb)+': '+esc(c.svc)+', caso '+esc(c.n)+'"><div class="line"></div><span class="tag l">'+esc(c.la)+'</span><span class="tag r">'+esc(c.lb)+'</span><input type="range" min="0" max="100" value="50" id="rng-'+id+'" aria-label="Comparar '+esc(c.la)+' y '+esc(c.lb)+'"></div>';
+  }
+  function setPos(box,v){box.style.setProperty("--pos",v+"%");var r=box.querySelector("input");if(r)r.value=v;}
+
+  function renderTabs(){
+    document.getElementById("case-tabs").innerHTML=CASES.map(function(c,i){return '<button class="ctab" role="tab" aria-selected="'+(i===cur)+'" data-k="'+i+'"><img src="'+c.B+'" alt="" loading="lazy"><span style="display:block"><b>'+c.num+' · '+esc(c.n)+', '+c.age+'</b><span>'+esc(c.svc)+'</span></span></button>';}).join("");
+  }
+  function renderCase(){
+    var c=CASES[cur];
+    document.getElementById("case-view").innerHTML=
+      '<div>'+slider(c,"ba-case")+
+        '<div class="ba-ctrl"><button class="btn" data-pos="100">'+esc(c.la)+'</button><button class="btn" data-pos="50">Comparar</button><button class="btn" data-pos="0">'+esc(c.lb.split(" · ")[0])+'</button><span class="lbl">Deslizá sobre la foto</span></div></div>'+
+      '<div class="ficha">'+
+        '<div class="eyebrow">Caso '+c.num+' · modelo ficticia</div>'+
+        '<h3>'+esc(c.n)+', '+c.age+'</h3>'+
+        '<div class="who"><span>'+esc(c.occ)+' · Henderson</span><span class="chip ghost">'+esc(c.svc)+'</span><span class="chip ph-exp">'+esc(c.persona)+'</span></div>'+
+        '<blockquote>«'+esc(c.quote)+'»<small>Frase de ejemplo para el formato. En la real va la cita textual de la clienta, con su permiso.</small></blockquote>'+
+        '<div class="kpis3"><div><b>'+esc(c.tiempo)+'</b><span>Duración</span></div><div><b>'+esc(c.sesiones.split(" (")[0])+'</b><span>Sesiones</span></div><div><b>'+esc(c.retoque)+'</b><span>Retoque</span></div></div>'+
+        '<dl><dt>Lo que buscaba</dt><dd>'+esc(c.busca)+'</dd>'+
+        '<dt>Ficha</dt><dd>'+esc(c.diag)+'</dd>'+
+        '<dt>Protocolo</dt><dd><ol>'+c.proto.map(function(p){return '<li>'+esc(p)+'</li>';}).join("")+'</ol></dd>'+
+        '<dt>Cuidados</dt><dd>'+esc(c.cuidados)+'</dd>'+
+        '<dt>Se publica</dt><dd><b>'+esc(c.pub.fecha)+'</b> · '+esc(c.pub.pieza)+'. '+esc(c.pub.obj)+'</dd></dl>'+
+      '</div>';
+    var box=document.getElementById("ba-case");
+    box.querySelector("input").addEventListener("input",function(e){setPos(box,e.target.value);});
+    document.querySelectorAll("#case-view [data-pos]").forEach(function(b){b.addEventListener("click",function(){setPos(box,b.getAttribute("data-pos"));});});
+    renderPack();
+    document.querySelectorAll(".ctab").forEach(function(t){t.setAttribute("aria-selected",+t.getAttribute("data-k")===cur?"true":"false");});
+    document.querySelectorAll(".sh").forEach(function(t){t.setAttribute("aria-current",+t.getAttribute("data-k")===cur?"true":"false");});
+  }
+  function renderPack(){
+    var c=CASES[cur]; carI=0;
+    var slides=[
+      '<div class="slide"><img src="'+c.B+'" alt=""><div class="band"><b>'+esc(c.svc)+'</b><span>Caso '+esc(c.n)+' · '+esc(c.tiempo)+' · deslizá →</span></div></div>',
+      '<div class="slide"><img src="'+c.A+'" alt=""><span class="stag">'+esc(c.la)+'</span></div>',
+      '<div class="slide"><img src="'+c.B+'" alt=""><span class="stag">'+esc(c.lb.split(" · ")[0])+'</span></div>',
+      '<div class="slide txt bg-cream"><div class="eyebrow" style="color:inherit;opacity:.7">Cómo fue el turno</div><h5>«'+esc(c.quote)+'»</h5><ul><li><span>Duración</span><b>'+esc(c.tiempo)+'</b></li><li><span>Sesiones</span><b>'+esc(c.sesiones.split(" (")[0])+'</b></li><li><span>Retoque</span><b>'+esc(c.retoque)+'</b></li></ul></div>',
+      '<div class="slide txt bg-olive"><h5 style="margin-top:auto">Reservá online.</h5><div style="font-size:4.6cqw;opacity:.85">Link en la bio · GF Studio, Henderson</div><span class="gf">GF</span></div>'
+    ];
+    var proc={antes:c.A,despues:c.B,proceso:F+"proceso.jpg"};
+    var times=["0–1 s","1–4 s","4–8 s","8–12 s"];
+    document.getElementById("case-pack").innerHTML=
+      '<div><div class="pk-lbl"><span>Carrusel · 5 fotos</span><span class="tnum" id="car-n">1/5</span></div><div class="car-wrap"><div class="car" id="car"><div class="car-track" id="car-track">'+slides.join("")+'</div><button class="car-btn p" id="car-p" aria-label="Foto anterior">‹</button><button class="car-btn n" id="car-nx" aria-label="Foto siguiente">›</button><div class="dots">'+slides.map(function(_,i){return '<i class="'+(i?"":"on")+'"></i>';}).join("")+'</div></div></div>'+
+        '<div class="capbox pk-copy"><div class="eyebrow" style="margin-bottom:8px">Copy</div><pre id="cap-case">'+esc(c.caption)+'</pre><div class="row"><button class="btn" data-copy="cap-case">Copiar copy</button><span class="muted" style="font-size:.85rem" aria-live="polite" id="msg-cap-case"></span></div></div></div>'+
+      '<div><div class="pk-lbl"><span>Story · encuesta</span></div><div class="story-ba"><div><img src="'+c.A+'" alt=""><span class="stag">'+esc(c.la)+'</span></div><div><img src="'+c.B+'" alt=""><span class="stag">'+esc(c.lb.split(" · ")[0])+'</span></div><div class="poll"><b>¿Te lo harías?</b><span>Sí, ya</span><span>Quiero saber más</span></div></div></div>'+
+      '<div><div class="pk-lbl"><span>Reel · 12 s</span><span>formato R04</span></div><div class="reel-strip">'+c.reel.map(function(r,i){
+          var m=r[0]==="split"?'<div class="sp"><img src="'+c.A+'" alt=""><img src="'+c.B+'" alt=""></div>':'<img src="'+proc[r[0]]+'" alt="">';
+          return '<div class="rs"><div class="rf">'+m+(r[1]?'<div class="ov"><span>'+esc(r[1])+'</span></div>':'')+'</div><div class="tc"><b>'+["Antes","Proceso","Después","Cierre"][i]+'</b>'+times[i]+'</div></div>';}).join("")+'</div>'+
+        '<p class="muted" style="font-size:.85rem;margin-top:12px">Primer cuadro con la foto del antes y texto grande; corte al proceso en tres tomas de medio segundo; el después en el mismo encuadre; cierre con pantalla dividida y el link.</p></div>';
+    var track=document.getElementById("car-track"),dots=[].slice.call(document.querySelectorAll("#car .dots i")),p=document.getElementById("car-p"),nx=document.getElementById("car-nx"),cnt=document.getElementById("car-n");
+    function go(i){carI=Math.max(0,Math.min(slides.length-1,i));track.style.transform="translateX("+(-carI*100)+"%)";dots.forEach(function(d,k){d.classList.toggle("on",k===carI);});p.disabled=carI===0;nx.disabled=carI===slides.length-1;cnt.textContent=(carI+1)+"/"+slides.length;}
+    p.addEventListener("click",function(){go(carI-1);});nx.addEventListener("click",function(){go(carI+1);});
+    var sx=null;track.addEventListener("touchstart",function(e){sx=e.touches[0].clientX;},{passive:true});
+    track.addEventListener("touchend",function(e){if(sx===null)return;var dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>40)go(carI+(dx<0?1:-1));sx=null;});
+    go(0);
+  }
+  function pick(k,scroll){cur=k;renderCase();if(scroll){var top=document.getElementById("case-tabs").getBoundingClientRect().top+window.scrollY-80;window.scrollTo({top:top,behavior:reduce?"auto":"smooth"});}}
+
+  renderTabs();
+  document.getElementById("contact-sheet").innerHTML=CASES.map(function(c,i){return '<button class="sh" data-k="'+i+'" aria-current="'+(i===cur)+'"><div class="pair"><img src="'+c.A+'" alt="'+esc(c.la)+', caso '+esc(c.n)+'" loading="lazy"><img src="'+c.B+'" alt="'+esc(c.lb)+', caso '+esc(c.n)+'" loading="lazy"></div><div class="cap"><b>'+c.num+' · '+esc(c.n)+'</b><span>'+esc(c.svc)+'</span></div></button>';}).join("");
+  document.querySelector("#series-table tbody").innerHTML=CASES.map(function(c){return '<tr><td class="tnum"><b>'+esc(c.pub.fecha)+'</b></td><td>'+c.num+' · '+esc(c.n)+', '+c.age+'<br><span class="muted">'+esc(c.svc)+'</span></td><td>'+esc(c.pub.pieza)+'</td><td>'+esc(c.pub.obj)+'</td></tr>';}).join("");
+  document.getElementById("case-tabs").addEventListener("click",function(e){var b=e.target.closest(".ctab");if(b)pick(+b.getAttribute("data-k"),false);});
+  document.getElementById("contact-sheet").addEventListener("click",function(e){var b=e.target.closest(".sh");if(b)pick(+b.getAttribute("data-k"),true);});
+  renderCase();
+
+  /* guías de encuadre */
+  var G=[
+    {img:"c1-antes",t:"Cejas de cerca",d:"Ceja entera dentro del cuadro; el ojo en la línea de abajo.",l:[["h",36,"ceja"],["h",64,"ojo"],["v",50,""]]},
+    {img:"c2-antes",t:"Pestañas",d:"Cámara a la altura del ojo; la clienta mira apenas hacia arriba.",l:[["h",50,"línea de pestañas"],["v",52,""]]},
+    {img:"c3-antes",t:"Piel en tres cuartos",d:"La punta de la nariz no pasa la línea de la mejilla.",l:[["h",33,"ojos"],["v",72,"nariz"],["h",66,""]]},
+    {img:"c4-sesion1",t:"Perfil a 90°",d:"Mentón paralelo al piso y la oreja visible en todas las sesiones.",l:[["h",58,"mandíbula"],["v",42,"oreja"]]}
+  ];
+  document.getElementById("frames-guide").innerHTML=G.map(function(g){return '<div class="fg"><div class="ph"><img src="'+F+g.img+'.jpg" alt="" loading="lazy">'+
+    '<span class="gl h third" style="top:33.3%"></span><span class="gl h third" style="top:66.6%"></span><span class="gl v third" style="left:33.3%"></span><span class="gl v third" style="left:66.6%"></span>'+
+    g.l.map(function(x){return '<span class="gl '+x[0]+'" style="'+(x[0]==="h"?"top":"left")+':'+x[1]+'%">'+(x[2]?'<i>'+esc(x[2])+'</i>':'')+'</span>';}).join("")+'</div><b>'+esc(g.t)+'</b><span>'+esc(g.d)+'</span></div>';}).join("");
+
+  /* plantilla de edición */
+  document.getElementById("tpl").innerHTML='<div class="hd"><span>Antes</span><span>Después</span></div><div class="ph2"><div><img src="'+F+'c6-antes.jpg" alt="" loading="lazy"></div><div><img src="'+F+'c6-despues.jpg" alt="" loading="lazy"></div></div><div class="ft"><span>Perfilado + tinte · 1 sesión · 45 min · sin filtros</span><b>GF</b></div>';
+})();
 /* ───────── feed y stories ───────── */
 (function(){
   var ICON={reel:'<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6.5 5.5v5l4-2.5z" fill="currentColor"/></svg>',car:'<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="1.5" width="10.5" height="10.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 4.5v8a2 2 0 0 0 2 2h8" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>',foto:""};
   var FEED=[
-    {o:1,ty:"reel",art:"door",bg:"sand",tx:"La llave",d:"15 ene",l:"R01 · La llave (teaser)"},
+    {o:1,ty:"reel",art:"door",img:"llave",bg:"cream",tx:"La llave",d:"15 ene",l:"R01 · La llave (teaser)"},
     {o:2,ty:"car",art:"person",bg:"olive",tx:"Soy Guada.",d:"22 ene",l:"Carrusel · Soy Guada: quién es y por qué abre el estudio"},
     {o:3,ty:"reel",art:"services",bg:"bone",tx:"Busco\n10 caras",d:"29 ene",l:"R02 · Convocatoria de modelos"},
-    {o:4,ty:"foto",art:"space",bg:"bone",tx:"",d:"5 feb",l:"Foto · El estudio en obra"},
-    {o:5,ty:"car",art:"text",bg:"cream",tx:"Lo que vas\na encontrar",d:"12 feb",l:"Carrusel · Carta de servicios (sin precios hasta marzo)"},
-    {o:6,ty:"reel",art:"split",bg:"skin",tx:"",d:"19 feb",l:"Reel · Primeros antes y después del soft opening"},
+    {o:4,ty:"foto",art:"space",img:"estudio",bg:"bone",tx:"",d:"5 feb",l:"Foto · El estudio en obra"},
+    {o:5,ty:"car",art:"text",img:"productos",bg:"cream",tx:"Lo que vas\na encontrar",d:"12 feb",l:"Carrusel · Carta de servicios (sin precios hasta marzo)"},
+    {o:6,ty:"reel",art:"split",imgs:["c6-antes","c6-despues"],bg:"skin",tx:"",d:"19 feb",l:"Reel · Primeros antes y después del soft opening"},
     {o:7,ty:"reel",art:"calendar",bg:"sand",tx:"Faltan\n3 días",d:"26 feb",l:"R03 · Faltan 3 días"},
     {o:8,ty:"foto",art:"logo",bg:"olive",tx:"Hoy abrimos.",d:"1 mar",l:"Foto · Hoy abrimos (Guada en la puerta)"},
-    {o:9,ty:"reel",art:"brow1",bg:"skin",tx:"45 minutos",d:"3 mar",l:"R04 · 45 minutos (laminado)"},
+    {o:9,ty:"reel",art:"brow1",img:"c1-despues",bg:"cream",tx:"45 minutos",d:"3 mar",l:"R04 · 45 minutos (laminado)"},
     {o:10,ty:"reel",art:"group",bg:"olive",tx:"Semana\ndel 8M",d:"5 mar",l:"R05 · Semana del 8M (código DUO)"},
     {o:11,ty:"car",art:"text",bg:"cream",tx:"8M",d:"8 mar",l:"Carrusel · 8M reflexivo, sin venta"},
-    {o:12,ty:"reel",art:"skin0",bg:"sand",tx:"Lo que el\nverano le hizo\na tu piel",d:"9 mar",l:"R06 · Lo que el verano le hizo a tu piel"}
+    {o:12,ty:"reel",art:"skin0",img:"c3-antes",bg:"cream",tx:"Lo que el\nverano le hizo\na tu piel",d:"9 mar",l:"R06 · Lo que el verano le hizo a tu piel"}
   ];
   var grid=FEED.slice().reverse();
-  document.getElementById("feed-grid").innerHTML=grid.map(function(p){return '<div class="tile bg-'+p.bg+'">'+svg(p.art)+(p.tx?'<div class="tx"><span class="t">'+esc(p.tx)+'</span></div>':'')+(ICON[p.ty]?'<span class="ty" style="color:'+(p.bg==="olive"?"var(--art-cream)":"var(--art-ink)")+'">'+ICON[p.ty]+'</span>':'')+'<span class="ord">#'+p.o+'</span></div>';}).join("");
+  document.getElementById("feed-grid").innerHTML=grid.map(function(p){return '<div class="tile bg-'+p.bg+'">'+media(p)+(p.tx?'<div class="tx"><span class="t">'+esc(p.tx)+'</span></div>':'')+(ICON[p.ty]?'<span class="ty" style="color:'+(p.bg==="olive"||p.img||p.imgs?"var(--art-cream)":"var(--art-ink)")+'">'+ICON[p.ty]+'</span>':'')+'<span class="ord">#'+p.o+'</span></div>';}).join("");
   var TL={reel:["t-reel","Reel"],car:["t-car","Carrusel"],foto:["t-car","Foto"]};
   document.getElementById("feed-list").innerHTML=FEED.map(function(p){return '<li><span class="o">'+p.o+'</span><span class="d tnum">'+p.d+'</span><span>'+esc(p.l)+'</span><span class="chip '+TL[p.ty][0]+'">'+TL[p.ty][1]+'</span></li>';}).join("");
   document.getElementById("highlights").innerHTML=[["S","Servicios"],["A/D","Antes y después"],["★","Reseñas"],["P","Packs"],["↗","Cómo llegar"],["G","Guada"]].map(function(h){return '<div><i>'+h[0]+'</i>'+h[1]+'</div>';}).join("");
@@ -1527,7 +1913,7 @@ document.getElementById("mix-legend").innerHTML=MIX.map(function(m){return '<spa
     {bg:"sand",l:"Encuesta",c:"Para saber qué servicio empujar primero.",h:'<div class="s-h">¿Qué te harías <em>primero?</em></div><div class="stk poll" style="margin-top:auto"><span>Cejas o pestañas</span><span>Un facial</span></div>'},
     {bg:"cream",l:"Preguntas",c:"Serie semanal. Las respuestas son guiones de reels.",h:'<div class="s-h" style="color:var(--art-olive)">Preguntale <em>a Guada.</em></div><div class="stk" style="margin-top:auto;text-align:left"><small style="opacity:.6;font-size:5.5cqw">Hacé una pregunta</small><br>¿Cada cuánto se hace el laminado?</div>'},
     {bg:"olive",l:"Turnos libres",c:"Lunes y jueves. Llena huecos de la agenda.",h:'<div class="s-h">Turnos libres <em>esta semana</em></div><div class="slots"><span>Mié 10:00 <b>Cejas</b></span><span>Jue 15:30 <b>Facial</b></span><span>Sáb 9:00 <b>Lifting</b></span></div><div class="stk link" style="margin-top:auto">↗ Reservá online</div>'},
-    {bg:"skin",l:"Antes y después",c:"Con sticker de deslizar hacia el carrusel.",h:'<div class="s-h">Deslizá <em>→</em></div><div class="bg-skin s-ba">'+svg("split")+'</div>'},
+    {bg:"skin",l:"Antes y después",c:"Con sticker de deslizar hacia el carrusel.",h:'<div class="s-h">Deslizá <em>→</em></div><div class="bg-skin s-ba"><div class="split"><img src="fotos/c1-antes.jpg" alt="" loading="lazy"><img src="fotos/c1-despues.jpg" alt="" loading="lazy"></div></div>'},
     {bg:"bone",l:"Reseña",c:"Captura de Google o mensaje (con permiso).",h:'<div style="font-size:9cqw;color:var(--art-olive);letter-spacing:.1em">★★★★★</div><div class="s-h" style="font-size:9cqw;font-style:italic">«Me cambió la cara. Ya reservé el próximo.»</div><div style="font-size:6cqw;opacity:.7">— Clienta, marzo 2027</div><div class="stk link" style="margin-top:auto">↗ Dejá tu reseña</div>'}
   ];
   document.getElementById("stories").innerHTML=ST.map(function(s){return '<div><div class="story bg-'+s.bg+'">'+s.h+'<div class="s-lbl">'+esc(s.l)+'</div></div><div class="story-cap">'+esc(s.c)+'</div></div>';}).join("");
@@ -1545,20 +1931,20 @@ document.getElementById("mix-legend").innerHTML=MIX.map(function(m){return '<spa
     7:{e:[["sto","Resumen del Open Studio"]]},
     8:{k:1,tag:"8M",e:[["car","Carrusel 8M reflexivo, sin venta"],["evt","Semana DUO 8 → 13"]]},
     9:{e:[["reel","<b>R06</b> Lo que el verano…"]]},
-    10:{e:[["car","Carrusel: primeras reseñas"],["sto","Turnos libres"]]},
+    10:{e:[["car","Antes/después: caso Ana (perfilado)"],["sto","Turnos libres"]]},
     11:{e:[["reel","<b>R07</b> Elegí tu ceja"]]},
     12:{e:[["car","Carrusel: laminado o perfilado, ¿cuál es para vos?"]]},
     13:{e:[["sto","Último día DUO"]]},
     14:{e:[]},
     15:{e:[["reel","<b>R08</b> POV primera vez"],["evt","Fin de VIP27"]]},
     16:{e:[["car","Carrusel: pack «Volvé a vos»"],["sto","Turnos libres"]]},
-    17:{e:[["reel","Formato R04 con lifting"]]},
+    17:{e:[["reel","Formato R04: caso Martina (lifting)"]]},
     18:{e:[["sto","Preguntale a Guada"]]},
     19:{e:[["reel","<b>R09</b> Un día en GF"]]},
     20:{e:[["sto","Detrás de escena"]]},
     21:{e:[]},
     22:{e:[["car","Carrusel: reseñas + pedido de reseña"],["sto","Turnos libres"]]},
-    23:{e:[["reel","Formato R04 con piel (limpieza + LED)"]]},
+    23:{e:[["reel","Antes/después: caso Carla (limpieza + LED)"]]},
     24:{hol:"Día de la Memoria",e:[["hol","Feriado · sin publicidad"]]},
     25:{hol:"Jueves Santo",e:[["sto","Horarios de Semana Santa"]]},
     26:{hol:"Viernes Santo",e:[["hol","Feriado · sin publicidad"]]},
